@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Pemakaian Part Genset — TEMI PB Field</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
+<style>
+/* ============ DESIGN TOKENS ============ */
+:root[data-theme="dark"]{
+  --bg-void:#0a0d0e; --bg-panel:#14181a; --bg-panel-2:#171c1e; --bg-raised:#1c2224;
+  --border:#262d30; --border-soft:#1d2325;
+  --text-primary:#eef2f0; --text-secondary:#9aa5a3; --text-muted:#6f7a78;
+  --accent-lime:#c8f751; --accent-lime-deep:#9fcf2e; --accent-cyan:#52d4e0;
+  --accent-amber:#ffb648; --accent-red:#ff5c5c;
+  --accent-violet:#b98ce8; --accent-coral:#ff8b6b; --accent-gold:#f5c84c; --accent-slateblue:#7fa6e0;
+  --shadow-panel: 0 1px 0 rgba(255,255,255,0.02) inset, 0 12px 30px -18px rgba(0,0,0,0.6);
+  --scrollbar: #333c3f;
+}
+:root[data-theme="light"]{
+  --bg-void:#eef1ec; --bg-panel:#ffffff; --bg-panel-2:#f7f8f5; --bg-raised:#f1f3ef;
+  --border:#dde1d9; --border-soft:#e8ebe3;
+  --text-primary:#161a17; --text-secondary:#4d5652; --text-muted:#838d87;
+  --accent-lime:#6f9a1c; --accent-lime-deep:#547313; --accent-cyan:#0f8b93;
+  --accent-amber:#b56a06; --accent-red:#c9403f;
+  --accent-violet:#8b5fc4; --accent-coral:#d1613f; --accent-gold:#a9821f; --accent-slateblue:#4d72b0;
+  --shadow-panel: 0 1px 0 rgba(255,255,255,0.6) inset, 0 12px 30px -20px rgba(0,0,0,0.18);
+  --scrollbar: #c9cec5;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg-void); color:var(--text-primary);
+  font-family:'Inter',sans-serif; font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  background-image:
+    linear-gradient(var(--border-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+  background-size: 42px 42px;
+  background-attachment:fixed;
+  position:relative;
+}
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background: radial-gradient(700px 480px at 88% -8%, rgba(200,247,81,0.07), transparent 60%);
+}
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:var(--scrollbar); border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+a{color:inherit}
+button{font-family:inherit}
+.mono{font-family:'JetBrains Mono',monospace}
+.muted{color:var(--text-muted)}
+.hidden{display:none !important}
+
+/* ============ APP SHELL ============ */
+.app-shell{position:relative; z-index:1; display:flex; min-height:100vh}
+.sidebar{
+  width:252px; flex-shrink:0; background:var(--bg-panel); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; position:sticky; top:0; height:100vh; z-index:40;
+  transition:transform .25s ease;
+}
+.brand{padding:22px 20px 18px; border-bottom:1px solid var(--border-soft)}
+.brand-mark{display:flex; align-items:center; gap:10px}
+.brand-badge{
+  width:36px; height:36px; border-radius:10px; flex-shrink:0;
+  background:linear-gradient(145deg, var(--accent-lime), var(--accent-lime-deep));
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:#0a0d0e;
+}
+.brand-text{display:flex; flex-direction:column; line-height:1.25}
+.brand-title{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14.5px; letter-spacing:.01em}
+.brand-sub{font-size:11px; color:var(--text-muted)}
+
+.nav-scroll{flex:1; overflow-y:auto; padding:14px 12px}
+.nav-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.09em; color:var(--text-muted); padding:14px 10px 8px}
+.nav-item{
+  display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:9px;
+  color:var(--text-secondary); font-size:13.3px; font-weight:500; cursor:pointer;
+  margin-bottom:2px; position:relative; user-select:none;
+}
+.nav-item svg{width:17px;height:17px; flex-shrink:0; opacity:.85}
+.nav-item:hover{background:var(--bg-raised); color:var(--text-primary)}
+.nav-item.active{background:var(--bg-raised); color:var(--accent-lime)}
+.nav-item.active svg{opacity:1}
+.nav-item.active::before{
+  content:''; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
+  width:3px; height:16px; border-radius:3px; background:var(--accent-lime);
+}
+.nav-soon{margin-left:auto; font-size:9px; letter-spacing:.04em; color:var(--text-muted);
+  border:1px solid var(--border); padding:2px 6px; border-radius:999px; text-transform:uppercase}
+.nav-item.nav-group-toggle{text-transform:uppercase; letter-spacing:.02em; font-size:12.3px}
+.nav-count{margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); flex-shrink:0}
+.nav-item.active .nav-count{color:var(--accent-lime)}
+.nav-chevron{font-size:9px; width:10px; flex-shrink:0; color:var(--text-muted); transition:transform .15s ease; display:inline-block}
+.nav-item.expanded .nav-chevron{transform:rotate(90deg); color:var(--accent-lime)}
+.nav-unit{
+  display:flex; flex-direction:column; gap:1px; padding:7px 10px 7px 32px; border-radius:8px;
+  color:var(--text-secondary); cursor:pointer; margin-bottom:1px; font-size:12.2px;
+}
+.nav-unit:hover{background:var(--bg-raised); color:var(--text-primary)}
+.nav-unit.active{background:var(--bg-raised); color:var(--accent-lime)}
+.nav-unit-tag{font-weight:600; font-size:12.6px}
+.nav-unit-model{font-size:10.4px; color:var(--text-muted)}
+.nav-unit.active .nav-unit-model{color:inherit; opacity:.75}
+
+.sidebar-foot{padding:14px 20px 18px; border-top:1px solid var(--border-soft)}
+.plant-tag{display:flex; flex-direction:column; gap:2px}
+.plant-tag .p1{font-size:12px; font-weight:600; color:var(--text-primary)}
+.plant-tag .p2{font-size:11px; color:var(--text-muted)}
+
+.sidebar-close{display:none}
+
+/* ============ MAIN COLUMN ============ */
+.main-col{flex:1; min-width:0; display:flex; flex-direction:column}
+.navbar{
+  position:sticky; top:0; z-index:30; height:66px; flex-shrink:0;
+  background:color-mix(in srgb, var(--bg-panel) 88%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 22px; gap:16px;
+}
+.nav-left{display:flex; align-items:center; gap:14px; min-width:0}
+.menu-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; width:34px;height:34px; align-items:center; justify-content:center; color:var(--text-secondary); cursor:pointer}
+.page-heading{min-width:0}
+.page-heading h1{font-family:'Space Grotesk',sans-serif; font-size:16.5px; font-weight:600; margin:0; letter-spacing:.01em}
+.page-heading .sub{font-size:11.5px; color:var(--text-muted); margin-top:1px}
+.nav-right{display:flex; align-items:center; gap:10px; flex-shrink:0}
+.search-box{
+  display:flex; align-items:center; gap:8px; background:var(--bg-raised); border:1px solid var(--border);
+  border-radius:9px; padding:7px 11px; width:220px;
+}
+.search-box svg{width:15px;height:15px; color:var(--text-muted); flex-shrink:0}
+.search-box input{
+  border:none; outline:none; background:transparent; color:var(--text-primary); font-size:12.8px; width:100%;
+}
+.search-box input::placeholder{color:var(--text-muted)}
+.icon-btn{
+  width:36px;height:36px; border-radius:9px; border:1px solid var(--border); background:var(--bg-raised);
+  display:flex; align-items:center; justify-content:center; color:var(--text-secondary); cursor:pointer; position:relative;
+}
+.icon-btn svg{width:16px;height:16px}
+.icon-btn:hover{color:var(--text-primary); border-color:var(--accent-lime)}
+.bell-badge{
+  position:absolute; top:-4px; right:-4px; background:var(--accent-red); color:#fff; font-size:9.5px; font-weight:700;
+  min-width:15px; height:15px; border-radius:999px; display:flex; align-items:center; justify-content:center; padding:0 3px;
+}
+.user-avatar{width:36px;height:36px; border-radius:999px; background:linear-gradient(145deg,var(--accent-lime),var(--accent-lime-deep)); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#0a0d0e; font-family:'Space Grotesk',sans-serif; cursor:default; flex-shrink:0}
+
+.content{flex:1; padding:22px 26px 60px; display:flex; flex-direction:column; gap:20px; max-width:1520px; width:100%; margin:0 auto}
+
+/* ============ PANEL / SECTION SHELL ============ */
+.panel{
+  background:var(--bg-panel); border:1px solid var(--border); border-radius:16px; padding:20px 22px;
+  box-shadow:var(--shadow-panel);
+}
+.panel-header{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:16px; flex-wrap:wrap}
+.panel-title{font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:600; margin:0; display:flex; align-items:center; gap:8px}
+.panel-sub{font-size:11.5px; color:var(--text-muted); margin-top:3px}
+
+.tab-group{display:flex; background:var(--bg-raised); border:1px solid var(--border); border-radius:999px; padding:3px; gap:2px}
+.tab-btn{padding:6px 13px; border-radius:999px; font-size:11.8px; font-weight:600; color:var(--text-muted); background:none; border:none; cursor:pointer; white-space:nowrap}
+.tab-btn.active{background:var(--accent-lime); color:#0a0d0e}
+
+.row-2{display:grid; grid-template-columns:1.55fr 1fr; gap:20px}
+.row-2b{display:grid; grid-template-columns:1.1fr 1fr; gap:20px}
+
+/* ============ KPI CARDS ============ */
+.kpi-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px}
+.kpi-card{
+  background:var(--bg-panel); border:1px solid var(--border); border-radius:14px; padding:16px 18px;
+  box-shadow:var(--shadow-panel); display:flex; flex-direction:column; gap:8px; min-width:0;
+}
+.kpi-eyebrow{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:var(--text-muted)}
+.kpi-value{font-family:'JetBrains Mono',monospace; font-size:1.85rem; font-weight:700; line-height:1; display:flex; align-items:baseline; gap:5px}
+.kpi-value .unit{font-size:.68rem; color:var(--text-muted); font-weight:500}
+.kpi-delta{font-size:11.3px; color:var(--text-secondary); display:flex; align-items:center; gap:5px; min-height:15px}
+.kpi-delta .arrow-up{color:var(--accent-lime)}
+.kpi-delta .arrow-down{color:var(--accent-cyan)}
+
+/* ============ TREND / CATEGORY PANELS ============ */
+.chart-box{height:270px; position:relative}
+.legend-list{display:flex; flex-direction:column; gap:10px; margin-top:6px}
+.legend-row{display:flex; align-items:center; gap:10px; font-size:12.5px}
+.legend-dot{width:9px;height:9px;border-radius:3px; flex-shrink:0}
+.legend-name{flex:1; color:var(--text-secondary)}
+.legend-val{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-primary)}
+.legend-count{font-size:10.5px; color:var(--text-muted)}
+.category-flex{display:flex; gap:22px; align-items:center; flex-wrap:wrap}
+.category-flex .chart-box{width:170px; height:170px; flex-shrink:0}
+.category-flex .legend-list{flex:1; min-width:180px}
+
+/* ============ RANKING ============ */
+.rank-row{display:flex; align-items:center; gap:12px; padding:8px 0}
+.rank-row + .rank-row{border-top:1px solid var(--border-soft)}
+.rank-num{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); width:16px; text-align:center; flex-shrink:0}
+.rank-info{flex:1; min-width:0}
+.rank-name{font-size:12.6px; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:5px}
+.rank-bar-track{height:6px; border-radius:4px; background:var(--border-soft); overflow:hidden}
+.rank-bar-fill{height:100%; border-radius:4px}
+.rank-value{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-secondary); white-space:nowrap; flex-shrink:0; text-align:right}
+.rank-value .rank-subvalue{display:block; font-size:10px; color:var(--text-muted); margin-top:3px}
+
+.btn-mini{
+  font-size:11px; font-weight:600; padding:6px 11px; border-radius:7px; border:1px solid var(--border);
+  background:var(--bg-panel); color:var(--text-secondary); cursor:pointer; white-space:nowrap; flex-shrink:0;
+}
+.btn-mini:hover{border-color:var(--accent-lime); color:var(--accent-lime)}
+.empty-state{font-size:12.5px; color:var(--text-muted); padding:18px 4px; text-align:center}
+
+/* ============ ACTIVITY FEED ============ */
+.activity-item{display:flex; align-items:flex-start; gap:12px; padding:11px 0; border-bottom:1px solid var(--border-soft)}
+.activity-item:last-child{border-bottom:none}
+.activity-icon{
+  width:30px;height:30px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px;
+}
+.activity-icon.masuk{background:color-mix(in srgb, var(--accent-lime) 16%, transparent); color:var(--accent-lime)}
+.activity-icon.keluar{background:color-mix(in srgb, var(--accent-cyan) 16%, transparent); color:var(--accent-cyan)}
+.activity-body{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
+.activity-title{font-size:12.8px; color:var(--text-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.activity-title .qty.masuk{color:var(--accent-lime)}
+.activity-title .qty.keluar{color:var(--accent-cyan)}
+.activity-meta{font-size:11.3px; color:var(--text-muted)}
+.activity-time{font-size:11px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; padding-top:2px}
+
+/* ============ TABLE / TOOLBAR ============ */
+.table-toolbar{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:16px}
+.toolbar-left{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.toolbar-search{
+  display:flex; align-items:center; gap:8px; background:var(--bg-raised); border:1px solid var(--border);
+  border-radius:9px; padding:8px 12px; width:230px;
+}
+.toolbar-search svg{width:14px;height:14px; color:var(--text-muted); flex-shrink:0}
+.toolbar-search input{border:none; outline:none; background:transparent; color:var(--text-primary); font-size:12.6px; width:100%}
+.toolbar-search input::placeholder{color:var(--text-muted)}
+.select-field{
+  background:var(--bg-raised); border:1px solid var(--border); border-radius:9px; padding:8px 30px 8px 12px;
+  color:var(--text-secondary); font-size:12.4px; cursor:pointer; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa5a3' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 9px center; background-size:13px;
+}
+.export-group{display:flex; gap:8px}
+.btn-export{
+  display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:8px 13px; border-radius:9px;
+  border:1px solid var(--border); background:var(--bg-raised); color:var(--text-secondary); cursor:pointer;
+}
+.btn-export svg{width:13px;height:13px}
+.btn-export:hover{border-color:var(--accent-lime); color:var(--accent-lime)}
+
+.table-scroll{overflow-x:auto}
+table.inv-table{width:100%; border-collapse:collapse; font-size:12.7px; min-width:920px}
+.inv-table thead th{
+  text-align:left; padding:9px 12px; color:var(--text-muted); font-size:10.6px; text-transform:uppercase;
+  letter-spacing:.045em; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none;
+}
+.inv-table thead th.sortable{cursor:pointer}
+.inv-table thead th.sortable:hover{color:var(--text-primary)}
+.sort-icon{opacity:.35; margin-left:3px; font-size:9px}
+.sort-icon.active{opacity:1; color:var(--accent-lime)}
+.inv-table tbody td{padding:10px 12px; border-bottom:1px solid var(--border-soft); color:var(--text-secondary); vertical-align:middle}
+.inv-table tbody tr.inv-row:hover{background:var(--bg-raised)}
+.inv-table td.num{text-align:right; font-family:'JetBrains Mono',monospace}
+.inv-table td.num.in{color:var(--accent-lime)}
+.inv-table td.num.out{color:var(--accent-cyan)}
+.unit-tag{font-size:10px; color:var(--text-muted); font-family:'Inter',sans-serif}
+.cat-chip{
+  display:inline-flex; align-items:center; gap:6px; font-size:11px; padding:3px 9px; border-radius:999px;
+  background:var(--bg-raised); border:1px solid var(--border); color:var(--text-secondary); white-space:nowrap;
+}
+.cat-chip::before{content:''; width:7px;height:7px; border-radius:999px; background:var(--chip-color)}
+.expand-btn{
+  font-size:11px; font-weight:600; color:var(--text-muted); background:none; border:1px solid var(--border);
+  border-radius:7px; padding:5px 10px; cursor:pointer; display:flex; align-items:center; gap:4px;
+}
+.expand-btn:hover{color:var(--text-primary); border-color:var(--text-muted)}
+.expand-btn svg{width:11px;height:11px; transition:transform .15s}
+.expand-btn.open svg{transform:rotate(180deg)}
+tr.detail-row td{background:var(--bg-panel-2); padding:14px 20px; font-size:12px; color:var(--text-muted); line-height:1.8}
+tr.detail-row b{color:var(--text-secondary); font-weight:600}
+
+.table-footer{display:flex; align-items:center; justify-content:space-between; margin-top:16px; flex-wrap:wrap; gap:10px}
+.table-summary{font-size:11.8px; color:var(--text-muted)}
+.pagination{display:flex; align-items:center; gap:5px}
+.page-btn{
+  min-width:30px; height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg-raised);
+  color:var(--text-secondary); font-size:12px; font-family:'JetBrains Mono',monospace; cursor:pointer;
+}
+.page-btn:hover:not(:disabled){border-color:var(--accent-lime); color:var(--accent-lime)}
+.page-btn.active{background:var(--accent-lime); color:#0a0d0e; border-color:var(--accent-lime); font-weight:700}
+.page-btn:disabled{opacity:.35; cursor:not-allowed}
+
+/* ============ CTA BUTTONS ============ */
+.btn-cta{
+  display:flex; align-items:center; gap:7px; height:34px; padding:0 14px; border-radius:9px;
+  border:1px solid var(--border); background:var(--bg-raised); color:var(--text-primary);
+  font-size:12.3px; font-weight:600; cursor:pointer; white-space:nowrap;
+}
+.btn-cta svg{width:14px;height:14px}
+.btn-cta.primary{background:var(--accent-lime); color:#0a0d0e; border-color:var(--accent-lime)}
+.btn-cta.primary:hover{filter:brightness(1.06)}
+.btn-cta:not(.primary):hover{border-color:var(--accent-lime); color:var(--accent-lime)}
+
+/* ============ DOWNLOAD DROPDOWN ============ */
+.dropdown{position:relative}
+.dropdown-menu{
+  position:absolute; top:calc(100% + 6px); right:0; min-width:130px; background:var(--bg-panel);
+  border:1px solid var(--border); border-radius:10px; padding:6px; box-shadow:0 12px 30px -14px rgba(0,0,0,.55);
+  display:none; flex-direction:column; gap:2px; z-index:20;
+}
+.dropdown-menu.open{display:flex}
+.dropdown-item{
+  display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:7px; border:none; background:none;
+  color:var(--text-secondary); font-size:12.4px; font-weight:600; cursor:pointer; text-align:left; width:100%;
+}
+.dropdown-item:hover{background:var(--bg-raised); color:var(--accent-lime)}
+
+/* ============ INPUT DATA MODAL ============ */
+.modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:60; padding:16px}
+.modal-overlay.open{display:flex}
+.modal-box{background:var(--bg-panel); border:1px solid var(--border-strong,var(--border)); border-radius:16px; width:min(420px,94vw); padding:22px; box-shadow:0 16px 40px -12px rgba(0,0,0,.55)}
+.modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px}
+.modal-head h3{font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:600; margin:0}
+.modal-body label{display:block; font-size:11.8px; color:var(--text-secondary); font-weight:600; margin:14px 0 6px}
+.modal-body > label:first-child{margin-top:0}
+.modal-body select, .modal-body input{
+  width:100%; height:38px; border-radius:9px; border:1px solid var(--border); background:var(--bg-raised);
+  color:var(--text-primary); padding:0 12px; font-size:13px; font-family:'Inter',sans-serif;
+}
+.modal-body select:focus, .modal-body input:focus{outline:2px solid var(--accent-lime); outline-offset:1px}
+.modal-hint{font-size:11.3px; min-height:16px; margin:8px 0 0; color:var(--text-muted)}
+.modal-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px}
+.modal-actions .btn-secondary, .modal-actions .btn-primary{
+  height:38px; border-radius:9px; font-size:12.8px; font-weight:600; padding:0 16px; cursor:pointer; border:1px solid var(--border);
+}
+.modal-actions .btn-secondary{background:var(--bg-raised); color:var(--text-primary)}
+.modal-actions .btn-primary{background:var(--accent-lime); color:#0a0d0e; border-color:var(--accent-lime)}
+.modal-actions .btn-primary:hover{filter:brightness(1.06)}
+.modal-close{
+  width:30px;height:30px; border-radius:999px; border:1px solid var(--border); background:none;
+  color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.modal-close:hover{color:var(--text-primary); border-color:var(--accent-lime)}
+
+/* ============ TOAST ============ */
+.toast{
+  background:var(--bg-panel); border:1px solid var(--border); color:var(--text-primary); font-size:12.6px;
+  padding:11px 16px; border-radius:10px; box-shadow:0 10px 30px -12px rgba(0,0,0,.5); display:flex; align-items:center; gap:9px;
+  animation:toast-in .2s ease; max-width:320px;
+}
+.toast .dot{width:8px;height:8px;border-radius:999px; background:var(--accent-lime); flex-shrink:0}
+@keyframes toast-in{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:1180px){
+  .row-2, .row-2b{grid-template-columns:1fr}
+  .sidebar{position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 0 9999px rgba(0,0,0,0)}
+  .app-shell.sidebar-open .sidebar{transform:translateX(0); box-shadow:20px 0 40px rgba(0,0,0,.35)}
+  .menu-toggle{display:flex}
+}
+@media (max-width:720px){
+  .content{padding:16px 14px 50px}
+  .search-box{display:none}
+  .navbar{padding:0 14px}
+  .category-flex{flex-direction:column; align-items:stretch}
+  .category-flex .chart-box{width:100%; margin:0 auto}
+}
+@media (max-width:460px){
+  .kpi-value{font-size:1.5rem}
+}
+</style>
+</head>
+<body>
+<div class="app-shell" id="app-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <div class="brand-badge">
+          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="#0a0d0e" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="11" rx="2"/><path d="M12 6.5v-2M8 20.5v-2.6M16 20.5v-2.6"/><path d="M13 9.5h-2.4l1 2.6H9.4l1.2 3.4"/></svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-title">Genset Inventory System</div>
+        </div>
+      </div>
+    </div>
+    <nav class="nav-scroll">
+      <div class="nav-label">Grup &amp; Unit Genset</div>
+      <div class="nav-item active" id="nav-all-units" data-group="all">
+        <span style="flex:1">Semua unit</span>
+        <span class="nav-count">31</span>
+      </div>
+      <div id="genset-group-nav"></div>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="plant-tag">
+        <span class="p1">PB Field · Riau</span>
+        <span class="p2">TexCal Energy Mahato Inc.</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main-col">
+    <header class="navbar">
+      <div class="nav-left">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Buka menu">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <div class="page-heading">
+          <h1>Genset Parts Inventory Dashboard</h1>
+          <div class="sub"><span id="conn-badge" style="font-weight:600">● Mode demo</span> <span id="data-asof" style="color:var(--text-muted)"></span></div>
+        </div>
+      </div>
+      <div class="nav-right">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+          <input type="text" id="global-search" placeholder="Cari SKU atau nama part…">
+        </div>
+        <div class="user-avatar" title="Riva · Instrumentation & Maintenance">RM</div>
+      </div>
+    </header>
+
+    <main class="content" id="content">
+      <!-- ============ KPI ROW ============ -->
+      <section class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-eyebrow">Total Produk</div>
+          <div class="kpi-value" id="kpi-total-produk">–</div>
+          <div class="kpi-delta muted" id="kpi-total-kategori">–</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-eyebrow">Pemakaian · 30 Hari</div>
+          <div class="kpi-value" id="kpi-keluar">–</div>
+          <div class="kpi-delta" id="kpi-keluar-delta">–</div>
+        </div>
+      </section>
+
+      <!-- ============ TREND + CATEGORY ============ -->
+      <section class="row-2">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Tren Pemakaian Part</h2>
+              <div class="panel-sub">Total qty part yang dipakai per periode</div>
+            </div>
+            <div class="tab-group" id="trend-tabs">
+              <button class="tab-btn active" data-period="daily">Harian</button>
+              <button class="tab-btn" data-period="weekly">Mingguan</button>
+              <button class="tab-btn" data-period="monthly">Bulanan</button>
+              <button class="tab-btn" data-period="yearly">12 Bulan</button>
+            </div>
+          </div>
+          <div class="chart-box"><canvas id="trend-chart"></canvas></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">Distribusi Kategori</h2>
+              <div class="panel-sub">Berdasarkan stok saat ini</div>
+            </div>
+          </div>
+          <div class="category-flex">
+            <div class="chart-box"><canvas id="category-chart"></canvas></div>
+            <div class="legend-list" id="category-legend"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ RANKING PEMAKAIAN ============ -->
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Ranking Pemakaian Produk</h2>
+            <div class="panel-sub" id="ranking-sub">–</div>
+          </div>
+        </div>
+        <div id="ranking-list"></div>
+      </section>
+
+      <!-- ============ RANKING UNIT GENSET ============ -->
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Ranking Konsumsi Part per Unit Genset</h2>
+            <div class="panel-sub" id="genset-ranking-sub">–</div>
+          </div>
+          <div class="dropdown" id="genset-download-dropdown">
+            <button class="icon-btn dropdown-toggle" id="btn-genset-download-toggle" title="Download ranking unit genset" aria-label="Download ranking unit genset" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
+            </button>
+            <div class="dropdown-menu" id="genset-download-menu">
+              <button class="dropdown-item" id="btn-genset-csv">CSV</button>
+              <button class="dropdown-item" id="btn-genset-excel">Excel</button>
+              <button class="dropdown-item" id="btn-genset-pdf">PDF</button>
+            </div>
+          </div>
+        </div>
+        <div id="genset-ranking-list"></div>
+      </section>
+
+      <!-- ============ RECENT ACTIVITY ============ -->
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Riwayat Pemakaian Terbaru</h2>
+            <div class="panel-sub">20 riwayat pemakaian terbaru — export berisi seluruh riwayat</div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap">
+            <button class="btn-cta" id="btn-input-pemakaian">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+              Input Data Pemakaian
+            </button>
+            <div class="dropdown" id="activity-download-dropdown">
+              <button class="icon-btn dropdown-toggle" id="btn-activity-download-toggle" title="Download aktivitas" aria-label="Download aktivitas" aria-haspopup="true" aria-expanded="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
+              </button>
+              <div class="dropdown-menu" id="activity-download-menu">
+                <button class="dropdown-item" id="btn-activity-csv">CSV</button>
+                <button class="dropdown-item" id="btn-activity-excel">Excel</button>
+                <button class="dropdown-item" id="btn-activity-pdf">PDF</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="activity-list"></div>
+      </section>
+
+      <!-- ============ INVENTORY TABLE ============ -->
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">Tabel Inventaris Lengkap</h2>
+            <div class="panel-sub">Klik header kolom untuk mengurutkan · klik "Detail" untuk melihat unit genset</div>
+          </div>
+        </div>
+        <div class="table-toolbar">
+          <div class="toolbar-left">
+            <div class="toolbar-search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+              <input type="text" id="table-search" placeholder="Cari SKU / nama part…">
+            </div>
+            <select class="select-field" id="filter-category">
+              <option value="all">Semua Kategori</option>
+            </select>
+          </div>
+          <div class="dropdown" id="inv-download-dropdown">
+            <button class="icon-btn dropdown-toggle" id="btn-inv-download-toggle" title="Download inventaris" aria-label="Download inventaris" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
+            </button>
+            <div class="dropdown-menu" id="inv-download-menu">
+              <button class="dropdown-item" id="export-csv">CSV</button>
+              <button class="dropdown-item" id="export-excel">Excel</button>
+              <button class="dropdown-item" id="export-pdf">PDF</button>
+            </div>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="inv-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th class="sortable" data-key="sku">SKU <span class="sort-icon">▲▼</span></th>
+                <th class="sortable" data-key="name">Nama Part <span class="sort-icon">▲▼</span></th>
+                <th class="sortable" data-key="category">Kategori <span class="sort-icon">▲▼</span></th>
+                <th class="sortable" data-key="keluar_30d" style="text-align:right">Pemakaian 30h <span class="sort-icon">▲▼</span></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="inv-tbody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="table-summary" id="inv-summary">–</div>
+          <div class="pagination" id="inv-pagination"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div id="sidebar-scrim" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:35"></div>
+<div id="toast-root" style="position:fixed; bottom:22px; right:22px; z-index:100; display:flex; flex-direction:column; gap:8px;"></div>
+
+<div id="modal-overlay" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modal-title">Input Data Pemakaian</h3>
+      <button id="modal-close" class="modal-close" aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:15px;height:15px"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <label for="modal-part-select">Part / SKU</label>
+      <select id="modal-part-select"></select>
+      <div id="modal-genset-group">
+        <label for="modal-genset-select">Unit genset tujuan</label>
+        <select id="modal-genset-select"></select>
+      </div>
+      <label id="modal-qty-label" for="modal-qty-input">Jumlah dipakai</label>
+      <input type="number" id="modal-qty-input" min="1" step="1" placeholder="0">
+      <div id="modal-ref-group">
+        <label for="modal-ref-input">Catatan / referensi (opsional)</label>
+        <input type="text" id="modal-ref-input" placeholder="Contoh: PM Rutin 500 jam">
+      </div>
+      <p id="modal-hint" class="modal-hint"></p>
+    </div>
+    <div class="modal-actions">
+      <button id="modal-cancel" class="btn-secondary">Batal</button>
+      <button id="modal-save" class="btn-primary">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script id="dashboard-data-json" type="application/json">{"meta": {"today": "2026-08-02", "period_start": "2025-08-03", "generated_for": "PB Field - TEMI Genset Filter Inventory", "consumption_window_days": 30}, "kpi": {"total_produk": 23, "total_kategori": 6, "barang_keluar_30d": 88, "barang_keluar_prev30": 79, "barang_keluar_delta_pct": 11}, "parts": [{"id": "P001", "sku": "FS1000", "name": "Fuel Filter FS1000", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 11, "keluar_30d": 3}, {"id": "P002", "sku": "FS1212", "name": "Fuel Filter FS1212", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 14, "unit": "pcs", "current_stock": 10, "keluar_30d": 5}, {"id": "P003", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 9, "unit": "pcs", "current_stock": 1, "keluar_30d": 10}, {"id": "P004", "sku": "FS1280", "name": "Fuel Filter FS1280", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 9, "unit": "pcs", "current_stock": 6, "keluar_30d": 1}, {"id": "P005", "sku": "FS19765", "name": "Fuel pro Fleet guard FS 19765", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)"], "n_units": 2, "unit": "pcs", "current_stock": 3, "keluar_30d": 3}, {"id": "P006", "sku": "GEN-FUE-135", "name": "Fuel Filter (Generic 6BTAA5.9)", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 8, "keluar_30d": 0}, {"id": "P007", "sku": "LF670", "name": "Filter LF670", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 10, "keluar_30d": 7}, {"id": "P008", "sku": "LF777", "name": "Oil Filter LF777", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 10, "keluar_30d": 2}, {"id": "P009", "sku": "LF3000", "name": "Oil Filter LF3000", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 9, "unit": "pcs", "current_stock": 6, "keluar_30d": 9}, {"id": "P010", "sku": "LF9009", "name": "Oil Filter LF9009", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 5, "unit": "pcs", "current_stock": 1, "keluar_30d": 4}, {"id": "P011", "sku": "GEN-OIL-135", "name": "Oil Filter (Generic 6BTAA5.9)", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 4, "keluar_30d": 0}, {"id": "P012", "sku": "WF2076", "name": "Water Filter WF2076", "category": "Water Filter", "category_id": "cat-3", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 5, "keluar_30d": 4}, {"id": "P013", "sku": "WF2075", "name": "Water Filter WF2075", "category": "Water Filter", "category_id": "cat-3", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 5, "unit": "pcs", "current_stock": 0, "keluar_30d": 12}, {"id": "P014", "sku": "GEN-WAT-135", "name": "Water Filter (Generic 6BTAA5.9)", "category": "Water Filter", "category_id": "cat-3", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 4, "keluar_30d": 0}, {"id": "P015", "sku": "500FH", "name": "Racor Filter 500FH", "category": "Racor Filter", "category_id": "cat-4", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 10, "keluar_30d": 3}, {"id": "P016", "sku": "FH900", "name": "Racor Filter FH900", "category": "Racor Filter", "category_id": "cat-4", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 8, "keluar_30d": 2}, {"id": "P017", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 5, "keluar_30d": 9}, {"id": "P018", "sku": "KW2448C2", "name": "Air Filter KW2448C2", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["6LTAA (250 kVA)"], "genset_groups": ["250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 7, "unit": "pcs", "current_stock": 3, "keluar_30d": 4}, {"id": "P019", "sku": "AF928M", "name": "Air Filter AF928M", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 5, "unit": "pcs", "current_stock": 7, "keluar_30d": 2}, {"id": "P020", "sku": "K19950C1", "name": "Air Filter K19950C1", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 0, "keluar_30d": 4}, {"id": "P021", "sku": "K28900", "name": "Air Filter K28900", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["6CTAA (200 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)"], "n_units": 2, "unit": "pcs", "current_stock": 4, "keluar_30d": 2}, {"id": "P022", "sku": "SNS-OILP-01", "name": "Oil Pressure Sensor 0-10 bar", "category": "Sensor", "category_id": "cat-6", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 29, "unit": "unit", "current_stock": 1, "keluar_30d": 2}, {"id": "P023", "sku": "SNS-TEMP-01", "name": "Temperature Sensor", "category": "Sensor", "category_id": "cat-6", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 29, "unit": "unit", "current_stock": 3, "keluar_30d": 0}], "trend": {"daily": [{"date": "2026-07-04", "label": "4 Jul", "keluar": 0}, {"date": "2026-07-05", "label": "5 Jul", "keluar": 1}, {"date": "2026-07-06", "label": "6 Jul", "keluar": 6}, {"date": "2026-07-07", "label": "7 Jul", "keluar": 1}, {"date": "2026-07-08", "label": "8 Jul", "keluar": 0}, {"date": "2026-07-09", "label": "9 Jul", "keluar": 3}, {"date": "2026-07-10", "label": "10 Jul", "keluar": 4}, {"date": "2026-07-11", "label": "11 Jul", "keluar": 2}, {"date": "2026-07-12", "label": "12 Jul", "keluar": 0}, {"date": "2026-07-13", "label": "13 Jul", "keluar": 0}, {"date": "2026-07-14", "label": "14 Jul", "keluar": 5}, {"date": "2026-07-15", "label": "15 Jul", "keluar": 2}, {"date": "2026-07-16", "label": "16 Jul", "keluar": 0}, {"date": "2026-07-17", "label": "17 Jul", "keluar": 0}, {"date": "2026-07-18", "label": "18 Jul", "keluar": 0}, {"date": "2026-07-19", "label": "19 Jul", "keluar": 3}, {"date": "2026-07-20", "label": "20 Jul", "keluar": 0}, {"date": "2026-07-21", "label": "21 Jul", "keluar": 0}, {"date": "2026-07-22", "label": "22 Jul", "keluar": 7}, {"date": "2026-07-23", "label": "23 Jul", "keluar": 0}, {"date": "2026-07-24", "label": "24 Jul", "keluar": 9}, {"date": "2026-07-25", "label": "25 Jul", "keluar": 0}, {"date": "2026-07-26", "label": "26 Jul", "keluar": 2}, {"date": "2026-07-27", "label": "27 Jul", "keluar": 8}, {"date": "2026-07-28", "label": "28 Jul", "keluar": 13}, {"date": "2026-07-29", "label": "29 Jul", "keluar": 5}, {"date": "2026-07-30", "label": "30 Jul", "keluar": 4}, {"date": "2026-07-31", "label": "31 Jul", "keluar": 12}, {"date": "2026-08-01", "label": "1 Agu", "keluar": 1}, {"date": "2026-08-02", "label": "2 Agu", "keluar": 0}], "weekly": [{"week_start": "2026-05-11", "week_end": "2026-05-17", "label": "11 Mei", "keluar": 14}, {"week_start": "2026-05-18", "week_end": "2026-05-24", "label": "18 Mei", "keluar": 18}, {"week_start": "2026-05-25", "week_end": "2026-05-31", "label": "25 Mei", "keluar": 16}, {"week_start": "2026-06-01", "week_end": "2026-06-07", "label": "1 Jun", "keluar": 17}, {"week_start": "2026-06-08", "week_end": "2026-06-14", "label": "8 Jun", "keluar": 17}, {"week_start": "2026-06-15", "week_end": "2026-06-21", "label": "15 Jun", "keluar": 31}, {"week_start": "2026-06-22", "week_end": "2026-06-28", "label": "22 Jun", "keluar": 11}, {"week_start": "2026-06-29", "week_end": "2026-07-05", "label": "29 Jun", "keluar": 15}, {"week_start": "2026-07-06", "week_end": "2026-07-12", "label": "6 Jul", "keluar": 16}, {"week_start": "2026-07-13", "week_end": "2026-07-19", "label": "13 Jul", "keluar": 10}, {"week_start": "2026-07-20", "week_end": "2026-07-26", "label": "20 Jul", "keluar": 18}, {"week_start": "2026-07-27", "week_end": "2026-08-02", "label": "27 Jul", "keluar": 43}], "monthly": [{"label": "Sep 25", "keluar": 91}, {"label": "Okt 25", "keluar": 72}, {"label": "Nov 25", "keluar": 96}, {"label": "Des 25", "keluar": 62}, {"label": "Jan 26", "keluar": 86}, {"label": "Feb 26", "keluar": 87}, {"label": "Mar 26", "keluar": 87}, {"label": "Apr 26", "keluar": 73}, {"label": "Mei 26", "keluar": 86}, {"label": "Jun 26", "keluar": 79}, {"label": "Jul 26", "keluar": 98}, {"label": "Agu 26", "keluar": 1}]}, "category_distribution": [{"category": "Fuel Filter", "produk": 6, "stok": 39}, {"category": "Oil Filter", "produk": 5, "stok": 31}, {"category": "Water Filter", "produk": 3, "stok": 9}, {"category": "Racor Filter", "produk": 2, "stok": 18}, {"category": "Air Filter", "produk": 5, "stok": 19}, {"category": "Sensor", "produk": 2, "stok": 4}], "transactions": [{"id": "TX00679", "date": "2026-08-01", "type": "keluar", "sku": "LF3000", "name": "Oil Filter LF3000", "category": "Oil Filter", "qty": 1, "unit": "pcs", "ref": "PM Rutin (Preventive Maintenance) - 250 KVA (CL2A)", "stock_after": 1, "genset_group": "250 KVA (CL2A)"}, {"id": "TX00676", "date": "2026-07-31", "type": "keluar", "sku": "LF3000", "name": "Oil Filter LF3000", "category": "Oil Filter", "qty": 3, "unit": "pcs", "ref": "PM Rutin (Preventive Maintenance) - 250 KVA (CL2A)", "stock_after": 2, "genset_group": "250 KVA (CL2A)"}, {"id": "TX00677", "date": "2026-07-31", "type": "keluar", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "qty": 2, "unit": "pcs", "ref": "Penggantian Terjadwal - 500 KVA (CL2B)", "stock_after": 5, "genset_group": "500 KVA (CL2B)"}, {"id": "TX00678", "date": "2026-07-31", "type": "keluar", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "qty": 7, "unit": "pcs", "ref": "Overhaul Genset - 250 KVA (CL2A)", "stock_after": 1, "genset_group": "250 KVA (CL2A)"}, {"id": "TX00674", "date": "2026-07-30", "type": "keluar", "sku": "K19950C1", "name": "Air Filter K19950C1", "category": "Air Filter", "qty": 4, "unit": "pcs", "ref": "Overhaul Genset - 135 KVA - Utility (CL3)", "stock_after": 0, "genset_group": "135 KVA - Utility (CL3)"}, {"id": "TX00671", "date": "2026-07-29", "type": "keluar", "sku": "FS19765", "name": "Fuel pro Fleet guard FS 19765", "category": "Fuel Filter", "qty": 2, "unit": "pcs", "ref": "Perbaikan Insidentil - 200 KVA - Utility (CL4)", "stock_after": 3, "genset_group": "200 KVA - Utility (CL4)"}, {"id": "TX00672", "date": "2026-07-29", "type": "keluar", "sku": "WF2076", "name": "Water Filter WF2076", "category": "Water Filter", "qty": 1, "unit": "pcs", "ref": "PM Rutin (Preventive Maintenance) - 500 KVA (Injection-2)", "stock_after": 5, "genset_group": "500 KVA (Injection-2)"}, {"id": "TX00673", "date": "2026-07-29", "type": "keluar", "sku": "LF9009", "name": "Oil Filter LF9009", "category": "Oil Filter", "qty": 2, "unit": "pcs", "ref": "Overhaul Genset - 250 KVA (Anjani)", "stock_after": 1, "genset_group": "250 KVA (Anjani)"}, {"id": "TX00667", "date": "2026-07-28", "type": "keluar", "sku": "LF670", "name": "Filter LF670", "category": "Oil Filter", "qty": 2, "unit": "pcs", "ref": "Perbaikan Insidentil - 500 KVA (CL-4)", "stock_after": 10, "genset_group": "500 KVA (CL-4)"}, {"id": "TX00668", "date": "2026-07-28", "type": "keluar", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "qty": 2, "unit": "pcs", "ref": "Perbaikan Insidentil - 500 KVA (CL-4)", "stock_after": 7, "genset_group": "500 KVA (CL-4)"}, {"id": "TX00670", "date": "2026-07-28", "type": "keluar", "sku": "WF2075", "name": "Water Filter WF2075", "category": "Water Filter", "qty": 9, "unit": "pcs", "ref": "Overhaul Genset - 250 KVA (Anjani)", "stock_after": 0, "genset_group": "250 KVA (Anjani)"}, {"id": "TX00662", "date": "2026-07-27", "type": "keluar", "sku": "FS1212", "name": "Fuel Filter FS1212", "category": "Fuel Filter", "qty": 1, "unit": "pcs", "ref": "Penggantian Terjadwal - 250 KVA (CL2A)", "stock_after": 10, "genset_group": "250 KVA (CL2A)"}, {"id": "TX00663", "date": "2026-07-27", "type": "keluar", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "qty": 1, "unit": "pcs", "ref": "Perbaikan Insidentil - 200 KVA - Utility (CL4)", "stock_after": 0, "genset_group": "200 KVA - Utility (CL4)"}, {"id": "TX00664", "date": "2026-07-27", "type": "keluar", "sku": "WF2076", "name": "Water Filter WF2076", "category": "Water Filter", "qty": 1, "unit": "pcs", "ref": "Perbaikan Insidentil - 500 KVA (Injection-1)", "stock_after": 6, "genset_group": "500 KVA (Injection-1)"}, {"id": "TX00665", "date": "2026-07-27", "type": "keluar", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "qty": 3, "unit": "pcs", "ref": "Penggantian Terjadwal - 500 KVA (CL-4)", "stock_after": 9, "genset_group": "500 KVA (CL-4)"}, {"id": "TX00666", "date": "2026-07-27", "type": "keluar", "sku": "SNS-OILP-01", "name": "Oil Pressure Sensor 0-10 bar", "category": "Sensor", "qty": 2, "unit": "unit", "ref": "Overhaul Genset - 250 KVA (CL3)", "stock_after": 1, "genset_group": "250 KVA (CL3)"}, {"id": "TX00661", "date": "2026-07-26", "type": "keluar", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "qty": 2, "unit": "pcs", "ref": "Penggantian Terjadwal - 250 KVA (CL2A)", "stock_after": 1, "genset_group": "250 KVA (CL2A)"}], "consumption_by_group": {"500 KVA (Agung)": 8, "500 KVA (Injection-1)": 5, "500 KVA (Injection-2)": 4, "250 KVA (Agung)": 6, "250 KVA (Anjani)": 13, "250 KVA (CL2A)": 16, "500 KVA (CL2B)": 7, "250 KVA (CL3)": 7, "500 KVA (CL-4)": 9, "500 KVA - Utility (Agung)": 4, "200 KVA - Utility (CL4)": 4, "135 KVA - Utility (CL3)": 5}}</script>
+<script>
+(function(){
+'use strict';
+
+/* ============ MODUL SUPABASE ============ */
+/* ============================================================
+ *  SUPABASE — koneksi, derive, dan tulis
+ *  Logika derive di-port dari Kode.gs (yang sudah lolos 39 uji).
+ *  Bedanya: di sini derive jalan di browser atas data mentah dari REST API.
+ * ============================================================ */
+
+// ---- KONFIG: URL project + publishable/anon key dari Project Settings > API Keys ----
+const SUPABASE_URL_RAW = 'https://tlajadnwafrykbvqwkqh.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_IVq5fbdJYtg5birTGg40XA_BDTG3XhG';
+
+// Normalisasi: buang trailing slash dan '/rest/v1' bila tak sengaja ikut tercantum,
+// supaya path tidak pernah dobel jadi '/rest/v1//rest/v1/'.
+const SUPABASE_URL = SUPABASE_URL_RAW.replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
+
+const KONSUMSI_WINDOW = 30;   // hari — jendela ranking konsumsi
+const KPI_WINDOW = 30;        // hari
+const GERAKAN_WINDOW = 90;    // hari
+const ID_BULAN_SB = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+
+// Deteksi placeholder dari AWAL string, bukan dari mana pun di dalamnya — supaya key asli
+// yang mengandung '__' di tengah tidak salah dianggap belum diisi.
+const SB_ONLINE = SUPABASE_URL.startsWith('https://') && !SUPABASE_ANON_KEY.startsWith('__');
+
+function sbHeaders() {
+  return { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+           'Content-Type': 'application/json' };
+}
+
+// Ambil seluruh tabel via PostgREST (satu request per tabel).
+async function sbFetch(path) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, { headers: sbHeaders() });
+  if (!res.ok) throw new Error('Gagal membaca data (' + res.status + '). Cek URL/anon key dan koneksi.');
+  return res.json();
+}
+
+// Panggil fungsi database (RPC). Semua validasi ada di server.
+async function sbRpc(fn, args) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, {
+    method: 'POST', headers: sbHeaders(), body: JSON.stringify(args)
+  });
+  const data = await res.json().catch(function () { return null; });
+  if (!res.ok) {
+    // PostgREST membungkus pesan RAISE di field message
+    throw new Error((data && (data.message || data.hint)) || ('Gagal menyimpan (' + res.status + ').'));
+  }
+  return data;
+}
+
+/* ---- Util tanggal (samakan dengan Kode.gs) ---- */
+function sbToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+}
+function p2(n) { return ('0' + n).slice(-2); }
+function shiftISO(iso, hari) {
+  const d = new Date(iso + 'T00:00:00');
+  d.setDate(d.getDate() + hari);
+  return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
+}
+function isoOf(v) {
+  const s = String(v);
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? m[1] + '-' + m[2] + '-' + m[3] : s;
+}
+function labelHari(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return d.getDate() + ' ' + ID_BULAN_SB[d.getMonth()];
+}
+
+/**
+ * Ubah baris mentah part+transaksi menjadi objek DASHBOARD_DATA
+ * dengan bentuk yang sama persis seperti R7, sehingga semua fungsi
+ * render lama tidak perlu diubah.
+ */
+function deriveDashboard(rawParts, rawTx) {
+  const hariIni = sbToday();
+  const bts = function (n) { return shiftISO(hariIni, -n); };
+
+  const partAktif = rawParts.filter(function (p) { return p.aktif !== false; });
+
+  // -- stok berjalan + akumulator per part --
+  const stok = {}, masuk = {}, keluar = {}, gerakan = {}, cutoff = {};
+  partAktif.forEach(function (p) {
+    stok[p.part_id] = Number(p.stok_awal) || 0;
+    masuk[p.part_id] = 0; keluar[p.part_id] = 0; gerakan[p.part_id] = 0;
+    cutoff[p.part_id] = isoOf(p.tanggal_stok_awal);
+  });
+  const partById = {};
+  partAktif.forEach(function (p) { partById[p.part_id] = p; });
+
+  const grupSet = {};
+  partAktif.forEach(function (p) {
+    (p.genset_groups || []).forEach(function (g) { grupSet[g] = true; });
+  });
+  const konsumsi = {};
+  Object.keys(grupSet).forEach(function (g) { konsumsi[g] = 0; });
+
+  // -- olah ledger sekali; abaikan part tak dikenal --
+  const txValid = [];
+  rawTx.forEach(function (t) {
+    const pid = t.part_id;
+    if (!(pid in stok)) return;
+    const tgl = isoOf(t.tanggal);
+    const qty = Number(t.qty) || 0;
+    const tipe = t.tipe;
+    if (qty <= 0 || (tipe !== 'masuk' && tipe !== 'keluar')) return;
+
+    if (tgl > cutoff[pid]) stok[pid] += (tipe === 'masuk' ? qty : -qty);
+    if (tgl >= bts(KPI_WINDOW)) { if (tipe === 'masuk') masuk[pid] += qty; else keluar[pid] += qty; }
+    if (tgl >= bts(GERAKAN_WINDOW)) gerakan[pid] += qty;
+    if (tipe === 'keluar' && tgl >= bts(KONSUMSI_WINDOW)) {
+      const g = t.genset_group;
+      if (g && (g in konsumsi)) konsumsi[g] += qty;
+    }
+    txValid.push({ tgl: tgl, tipe: tipe, pid: pid, qty: qty, row: t });
+  });
+
+  // -- saldo berjalan per transaksi (untuk kolom stock_after di export) --
+  txValid.sort(function (a, b) {
+    return a.tgl === b.tgl ? String(a.row.tx_id).localeCompare(String(b.row.tx_id))
+                           : (a.tgl < b.tgl ? -1 : 1);
+  });
+  const berjalan = {};
+  partAktif.forEach(function (p) { berjalan[p.part_id] = Number(p.stok_awal) || 0; });
+  txValid.forEach(function (t) {
+    if (t.tgl > cutoff[t.pid]) { berjalan[t.pid] += (t.tipe === 'masuk' ? t.qty : -t.qty); t.after = berjalan[t.pid]; }
+    else t.after = null;
+  });
+  // urut terbaru dulu untuk feed
+  txValid.sort(function (a, b) {
+    return a.tgl === b.tgl ? String(b.row.tx_id).localeCompare(String(a.row.tx_id))
+                           : (a.tgl < b.tgl ? 1 : -1);
+  });
+
+  // -- parts --
+  // Catatan: stok fisik (current_stock) tetap dihitung dari SELURUH ledger (termasuk
+  // transaksi 'masuk' historis bila ada), supaya jumlah stok tersedia akurat saat
+  // memvalidasi input pemakaian. Dashboard ini fokus pada monitoring PEMAKAIAN saja —
+  // tidak ada lagi konsep status stok (ok/low/out) atau peringatan stok minimum.
+  const parts = partAktif.map(function (p) {
+    const s = stok[p.part_id];
+    return {
+      id: p.part_id, sku: p.sku, name: p.nama, category: p.kategori, unit: p.satuan,
+      engine_models: p.engine_models || [], genset_groups: p.genset_groups || [],
+      current_stock: s, keluar_30d: keluar[p.part_id]
+    };
+  });
+
+  // -- kategori --
+  const katMap = {};
+  parts.forEach(function (p) {
+    if (!katMap[p.category]) katMap[p.category] = { category: p.category, produk: 0, stok: 0 };
+    katMap[p.category].produk++; katMap[p.category].stok += p.current_stock;
+  });
+  const kategori = Object.keys(katMap).map(function (k) { return katMap[k]; });
+
+  // -- KPI --
+  const prev = periodeSum(txValid, shiftISO(hariIni, -2 * KPI_WINDOW), shiftISO(hariIni, -KPI_WINDOW), false);
+  const kNow = sumObj(keluar);
+  const kpi = {
+    total_produk: parts.length, total_kategori: kategori.length,
+    barang_keluar_30d: kNow,
+    barang_keluar_delta_pct: pctDelta(kNow, prev.keluar)
+  };
+
+  // -- transactions (feed & export) — hanya tampilkan riwayat PEMAKAIAN (keluar);
+  // transaksi 'masuk' historis (bila ada di ledger) tetap ikut menghitung stok fisik
+  // di atas, tapi tidak ditampilkan di riwayat/aktivitas dashboard ini.
+  const transactions = txValid.filter(function (t) { return t.tipe === 'keluar'; }).map(function (t) {
+    const p = partById[t.pid];
+    return { id: t.row.tx_id, date: t.tgl, type: t.tipe, sku: t.row.sku,
+             name: p ? p.nama : t.row.sku, category: p ? p.kategori : '',
+             qty: t.qty, unit: p ? p.satuan : 'pcs',
+             ref: t.row.ref || '', genset_group: t.row.genset_group || null,
+             pic: t.row.pic_email || '', stock_after: t.after,
+             voided: !!t.row.void_of_tx_id };
+  });
+
+  return {
+    meta: { today: hariIni, consumption_window_days: KONSUMSI_WINDOW, server: true },
+    kpi: kpi, parts: parts,
+    category_distribution: kategori, consumption_by_group: konsumsi,
+    trend: buildTrend(txValid, hariIni), transactions: transactions
+  };
+}
+
+// Hanya mengagregasi transaksi 'keluar' (pemakaian); 'masuk' (bila ada di ledger
+// historis) diabaikan di sini karena dashboard ini fokus pada tren pemakaian saja.
+function buildTrend(txValid, hariIni) {
+  const txKeluar = txValid.filter(function (t) { return t.tipe === 'keluar'; });
+  const perHari = {};
+  txKeluar.forEach(function (t) {
+    perHari[t.tgl] = (perHari[t.tgl] || 0) + t.qty;
+  });
+  const daily = [];
+  for (let i = 29; i >= 0; i--) {
+    const tgl = shiftISO(hariIni, -i);
+    daily.push({ date: tgl, label: labelHari(tgl), keluar: perHari[tgl] || 0 });
+  }
+  const weekly = [];
+  for (let i = 11; i >= 0; i--) {
+    const akhir = shiftISO(hariIni, -i * 7), awal = shiftISO(akhir, -6);
+    const s = periodeSum(txKeluar, awal, akhir, true);
+    weekly.push({ week_start: awal, week_end: akhir, label: labelHari(awal), keluar: s });
+  }
+  const bln = {};
+  txKeluar.forEach(function (t) {
+    const k = t.tgl.substring(0, 7);
+    bln[k] = (bln[k] || 0) + t.qty;
+  });
+  const monthly = [];
+  for (let i = 11; i >= 0; i--) {
+    const dt = new Date(hariIni + 'T00:00:00'); dt.setMonth(dt.getMonth() - i);
+    const k = dt.getFullYear() + '-' + p2(dt.getMonth() + 1);
+    monthly.push({ label: ID_BULAN_SB[dt.getMonth()] + ' ' + String(dt.getFullYear()).slice(2),
+                   keluar: bln[k] || 0 });
+  }
+  return { daily: daily, weekly: weekly, monthly: monthly };
+}
+
+function periodeSum(tx, awal, akhir, inklusifAwal) {
+  let k = 0;
+  tx.forEach(function (t) {
+    const okAwal = inklusifAwal ? (t.tgl >= awal) : (t.tgl > awal);
+    if (okAwal && t.tgl <= akhir) k += t.qty;
+  });
+  return k;
+}
+function sumObj(o) { return Object.keys(o).reduce(function (a, k) { return a + o[k]; }, 0); }
+function pctDelta(now, before) { return before ? Math.round(((now - before) / before) * 100) : null; }
+
+// Muat ulang seluruh dashboard dari server.
+async function sbLoadDashboard() {
+  const parts = await sbFetch('part?select=*&order=part_id');
+  const tx = await sbFetch('transaksi?select=*&order=tanggal.asc,tx_id.asc');
+  return deriveDashboard(parts, tx);
+}
+
+// Email PIC: tanpa login per-user (satu anon key), pakai nilai tersimpan opsional.
+function sbPicEmail() {
+  try { return window.__PIC_EMAIL || ''; } catch (e) { return ''; }
+}
+
+// Jalankan promise RPC, tampilkan busy, muat ulang data, tutup modal, toast.
+// Semua penulisan lewat sini agar perilakunya konsisten.
+function sbSave(rpcPromise, successMsg, hintEl) {
+  setModalBusy(true);
+  rpcPromise
+    .then(function () { return sbLoadDashboard(); })
+    .then(function (fresh) {
+      DASHBOARD_DATA = fresh;
+      renderAll();
+      setModalBusy(false);
+      closeInputModal();
+      toast(successMsg);
+    })
+    .catch(function (err) {
+      setModalBusy(false);
+      if (hintEl) { hintEl.style.color = 'var(--accent-red)'; hintEl.textContent = err.message; }
+      else toast('Gagal: ' + err.message);
+    });
+}
+
+function setModalBusy(sibuk) {
+  const btn = document.getElementById('modal-save');
+  if (!btn) return;
+  btn.disabled = sibuk;
+  btn.dataset.label = btn.dataset.label || btn.textContent;
+  btn.textContent = sibuk ? 'Menyimpan…' : btn.dataset.label;
+  btn.style.opacity = sibuk ? '.6' : '';
+}
+
+
+/* ============ DATA ============ */
+// DASHBOARD_DATA sekarang bisa diganti: diisi dari JSON tertanam (fallback/offline)
+// lalu ditimpa data server saat init() bila SB_ONLINE.
+let DASHBOARD_DATA = JSON.parse(document.getElementById('dashboard-data-json').textContent);
+
+const ID_BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const ID_BULAN_FULL = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+const state = {
+  trendPeriod: 'daily',
+  table: { search:'', category:'all', gensetGroup:'all', sortKey:null, sortDir:'asc', page:1, pageSize:10 }
+};
+
+let trendChart = null;
+let categoryChart = null;
+let modalMode = null;
+let expandedGensetGroup = null;
+
+/* ============ GRUP & UNIT GENSET (sidebar) ============ */
+// Nama grup persis sama dengan string genset_groups pada DASHBOARD_DATA.parts, agar filter akurat.
+const GENSET_GROUPS = [
+  {name:'500 KVA (Agung)', count:3},
+  {name:'500 KVA (Injection-1)', count:2},
+  {name:'500 KVA (Injection-2)', count:2},
+  {name:'250 KVA (Agung)', count:3},
+  {name:'250 KVA (Anjani)', count:4},
+  {name:'250 KVA (CL2A)', count:2},
+  {name:'500 KVA (CL2B)', count:3},
+  {name:'250 KVA (CL3)', count:3},
+  {name:'500 KVA (CL-4)', count:3},
+  {name:'500 KVA - Utility (Agung)', count:2},
+  {name:'200 KVA - Utility (CL4)', count:2},
+  {name:'135 KVA - Utility (CL3)', count:2}
+];
+// [tag, grup, model engine] — mengikuti data_dan_model_genset_complete.xlsx
+const GENSET_UNITS = [
+  ['G1','500 KVA (Agung)','KTA 19 G1 (500 kVA)'],
+  ['G2','500 KVA (Agung)','KTA 19 G2 (500 kVA)'],
+  ['G3','500 KVA (Agung)','KTA 19 G3 (500 kVA)'],
+  ['G4','500 KVA (Injection-1)','KTA 19 G4 (500 kVA)'],
+  ['G5','500 KVA (Injection-1)','KTA 19 G5 (500 kVA)'],
+  ['G6','500 KVA (Injection-2)','KTA 19 G4 (500 kVA)'],
+  ['G7','500 KVA (Injection-2)','KTA 19 G4 (500 kVA)'],
+  ['G3','250 KVA (Agung)','NT 855 (250 kVA Kathy)'],
+  ['G4','250 KVA (Agung)','6LTAA (250 kVA)'],
+  ['G5','250 KVA (Agung)','6LTAA (250 kVA)'],
+  ['G1','250 KVA (Anjani)','NT 855 (250 kVA Kathy)'],
+  ['G2','250 KVA (Anjani)','NT 855 (250 kVA Kathy)'],
+  ['G3','250 KVA (Anjani)','6LTAA (250 kVA)'],
+  ['G4','250 KVA (Anjani)','6LTAA (250 kVA)'],
+  ['G2','250 KVA (CL2A)','6LTAA (250 kVA)'],
+  ['G3','250 KVA (CL2A)','6LTAA (250 kVA)'],
+  ['G1','500 KVA (CL2B)','KTA 19 G1 (500 kVA)'],
+  ['G2','500 KVA (CL2B)','KTA 19 G2 (500 kVA)'],
+  ['G3','500 KVA (CL2B)','KTA 19 G2 (500 kVA)'],
+  ['G1','250 KVA (CL3)','6LTAA (250 kVA)'],
+  ['G2','250 KVA (CL3)','NT 855 (250 kVA Kathy)'],
+  ['G3','250 KVA (CL3)','NT 855 (250 kVA Kathy)'],
+  ['G1','500 KVA (CL-4)','KTA 19 G1 (500 kVA)'],
+  ['G2','500 KVA (CL-4)','KTA 19 G2 (500 kVA)'],
+  ['G3','500 KVA (CL-4)','KTA 19 G2 (500 kVA)'],
+  ['G1','500 KVA - Utility (Agung)','KTA 19-G3A (500 kVA)'],
+  ['G2','500 KVA - Utility (Agung)','KTA 19-G3A (500 kVA)'],
+  ['G1','200 KVA - Utility (CL4)','6CTAA (200 kVA)'],
+  ['G2','200 KVA - Utility (CL4)','6CTAA (200 kVA)'],
+  ['G1','135 KVA - Utility (CL3)','6BTAA5.9 (135 kVA)'],
+  ['G2','135 KVA - Utility (CL3)','6BTAA5.9 (135 kVA)']
+];
+/* ============ HELPERS ============ */
+function getCSS(varName){
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+}
+function hexAlpha(hex, alpha){
+  hex = hex.replace('#','');
+  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
+  const r=parseInt(hex.substring(0,2),16), g=parseInt(hex.substring(2,4),16), b=parseInt(hex.substring(4,6),16);
+  return `rgba(${r},${g},${b},${alpha})`;
+}
+function getCategoryColors(){
+  return {
+    'Fuel Filter': getCSS('--accent-lime'),
+    'Oil Filter': getCSS('--accent-cyan'),
+    'Water Filter': getCSS('--accent-slateblue'),
+    'Racor Filter': getCSS('--accent-violet'),
+    'Air Filter': getCSS('--accent-gold'),
+    'Sensor': getCSS('--accent-coral'),
+  };
+}
+function formatDateShort(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  return `${d.getDate()} ${ID_BULAN[d.getMonth()]}`;
+}
+function formatDateLong(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  return `${d.getDate()} ${ID_BULAN_FULL[d.getMonth()]} ${d.getFullYear()}`;
+}
+function todayStr(){
+  return DASHBOARD_DATA.meta.today;
+}
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function toast(message){
+  const root = document.getElementById('toast-root');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `<span class="dot"></span><span>${escapeHtml(message)}</span>`;
+  root.appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .25s'; el.style.opacity='0'; setTimeout(()=>el.remove(),260); }, 2600);
+}
+function handlePlaceholderAction(label){
+  toast(`${label} — modul ini akan tersedia pada tahap pengembangan ERP berikutnya.`);
+}
+window.handlePlaceholderAction = handlePlaceholderAction;
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+}
+
+/* ============ GRUP & UNIT GENSET (sidebar) ============ */
+function renderGensetNav(){
+  let html = '';
+  GENSET_GROUPS.forEach(g => {
+    const isOpen = expandedGensetGroup === g.name;
+    const isActive = state.table.gensetGroup === g.name;
+    html += `<div class="nav-item nav-group-toggle ${isActive?'active':''} ${isOpen?'expanded':''}" data-group="${escapeHtml(g.name)}">
+      <span class="nav-chevron">&#9656;</span>
+      <span style="flex:1">${escapeHtml(g.name)}</span>
+      <span class="nav-count">${g.count}</span>
+    </div>`;
+    if(isOpen){
+      GENSET_UNITS.filter(u => u[1] === g.name).forEach(u => {
+        html += `<div class="nav-unit ${isActive?'active':''}" data-group="${escapeHtml(g.name)}">
+          <span class="nav-unit-tag">${u[0]}</span>
+          <span class="nav-unit-model">${escapeHtml(u[2])}</span>
+        </div>`;
+      });
+    }
+  });
+  document.getElementById('genset-group-nav').innerHTML = html;
+  document.querySelectorAll('#genset-group-nav .nav-group-toggle').forEach(el => {
+    el.addEventListener('click', () => {
+      const g = el.getAttribute('data-group');
+      expandedGensetGroup = (expandedGensetGroup === g) ? null : g;
+      selectGensetGroup(g);
+    });
+  });
+  document.querySelectorAll('#genset-group-nav .nav-unit').forEach(el => {
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      selectGensetGroup(el.getAttribute('data-group'));
+    });
+  });
+}
+function selectGensetGroup(g){
+  state.table.gensetGroup = g;
+  state.table.page = 1;
+  document.getElementById('nav-all-units').classList.toggle('active', g === 'all');
+  renderGensetNav();
+  renderTable();
+  const tableSection = document.querySelector('.inv-table').closest('section');
+  if(tableSection) tableSection.scrollIntoView({behavior:'smooth', block:'start'});
+  document.getElementById('app-shell').classList.remove('sidebar-open');
+  document.getElementById('sidebar-scrim').style.display = 'none';
+}
+
+/* ============ KPI ============ */
+function renderKPIs(){
+  const k = DASHBOARD_DATA.kpi;
+  document.getElementById('kpi-total-produk').textContent = k.total_produk;
+  document.getElementById('kpi-total-kategori').textContent = `${k.total_kategori} kategori part`;
+  document.getElementById('kpi-keluar').textContent = k.barang_keluar_30d;
+  renderDeltaPct('kpi-keluar-delta', k.barang_keluar_delta_pct);
+  document.getElementById('data-asof').textContent = `Data per ${formatDateLong(DASHBOARD_DATA.meta.today)} · PB Field`;
+}
+function renderDeltaAbs(elId, val, unitLabel){
+  const el = document.getElementById(elId);
+  if(val === 0){ el.innerHTML = `<span class="muted">Stabil vs 30 hari lalu</span>`; return; }
+  const up = val > 0;
+  el.innerHTML = `<span class="${up?'arrow-up':'arrow-down'}">${up?'▲':'▼'} ${Math.abs(val)} ${unitLabel}</span><span class="muted">vs 30 hari lalu</span>`;
+}
+function renderDeltaPct(elId, pct){
+  const el = document.getElementById(elId);
+  if(pct === null || pct === undefined){ el.innerHTML = `<span class="muted">Data pembanding belum cukup</span>`; return; }
+  const up = pct > 0;
+  el.innerHTML = `<span class="${up?'arrow-up':'arrow-down'}">${up?'▲':'▼'} ${Math.abs(pct)}%</span><span class="muted">vs 30 hari lalu</span>`;
+}
+
+/* ============ TREND CHART ============ */
+function renderTrendChart(){
+  const periodKey = state.trendPeriod === 'yearly' ? 'monthly' : state.trendPeriod;
+  const data = DASHBOARD_DATA.trend[periodKey];
+  const labels = data.map(d=>d.label);
+  const keluar = data.map(d=>d.keluar);
+  const lime = getCSS('--accent-lime');
+  const muted = getCSS('--text-muted');
+  const gridColor = getCSS('--border-soft');
+  const ctx = document.getElementById('trend-chart').getContext('2d');
+  if(trendChart) trendChart.destroy();
+  trendChart = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'Pemakaian', data:keluar, borderColor:lime, backgroundColor:hexAlpha(lime,0.14), fill:true, tension:0.35, pointRadius:0, pointHoverRadius:4, borderWidth:2.2 }
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      interaction:{ mode:'index', intersect:false },
+      plugins:{
+        legend:{ display:true, position:'top', align:'end', labels:{ color:muted, boxWidth:9, boxHeight:9, usePointStyle:true, pointStyle:'circle', font:{family:'Inter', size:11} } },
+        tooltip:{ backgroundColor:getCSS('--bg-raised'), titleColor:getCSS('--text-primary'), bodyColor:getCSS('--text-secondary'), borderColor:getCSS('--border'), borderWidth:1, padding:10, boxPadding:4 }
+      },
+      scales:{
+        x:{ grid:{color:gridColor, drawTicks:false}, ticks:{color:muted, font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:10}, border:{display:false} },
+        y:{ grid:{color:gridColor, drawTicks:false}, ticks:{color:muted, font:{size:10}, precision:0}, beginAtZero:true, border:{display:false} }
+      }
+    }
+  });
+}
+
+/* ============ CATEGORY CHART ============ */
+function renderCategoryChart(){
+  const data = DASHBOARD_DATA.category_distribution;
+  const colors = getCategoryColors();
+  const ctx = document.getElementById('category-chart').getContext('2d');
+  if(categoryChart) categoryChart.destroy();
+  categoryChart = new Chart(ctx, {
+    type:'doughnut',
+    data:{
+      labels:data.map(d=>d.category),
+      datasets:[{ data:data.map(d=>d.stok), backgroundColor:data.map(d=>colors[d.category]), borderWidth:2, borderColor:getCSS('--bg-panel'), hoverOffset:6 }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'66%',
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ backgroundColor:getCSS('--bg-raised'), titleColor:getCSS('--text-primary'), bodyColor:getCSS('--text-secondary'), borderColor:getCSS('--border'), borderWidth:1, padding:10 }
+      }
+    }
+  });
+  const legend = document.getElementById('category-legend');
+  legend.innerHTML = data.map(d => `
+    <div class="legend-row">
+      <span class="legend-dot" style="background:${colors[d.category]}"></span>
+      <span class="legend-name">${escapeHtml(d.category)} <span class="legend-count">(${d.produk} produk)</span></span>
+      <span class="legend-val">${d.stok}</span>
+    </div>`).join('');
+}
+
+/* ============ RANKING PEMAKAIAN ============ */
+// Diturunkan langsung dari DASHBOARD_DATA.parts setiap render, sehingga tidak pernah basi.
+function computeRanking(){
+  return DASHBOARD_DATA.parts
+    .map(p => ({ sku:p.sku, name:p.name, category:p.category, unit:p.unit, value:p.keluar_30d || 0 }))
+    .sort((a,b) => b.value - a.value || a.name.localeCompare(b.name));
+}
+function renderRanking(){
+  const list = computeRanking().slice(0,8);
+  const colors = getCategoryColors();
+  const maxVal = Math.max.apply(null, list.map(x => x.value).concat([1]));
+  const sub = document.getElementById('ranking-sub');
+  if(sub) sub.textContent = 'Top 8 part · total pemakaian 30 hari';
+  const container = document.getElementById('ranking-list');
+  container.innerHTML = list.map((item, idx) => {
+    const pct = Math.round((item.value/maxVal)*100);
+    return `
+      <div class="rank-row">
+        <div class="rank-num">${idx+1}</div>
+        <div class="rank-info">
+          <div class="rank-name">${escapeHtml(item.name)}</div>
+          <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${pct}%; background:${colors[item.category]}"></div></div>
+        </div>
+        <div class="rank-value">${item.value} ${escapeHtml(item.unit)}</div>
+      </div>`;
+  }).join('');
+}
+
+/* ============ RANKING KONSUMSI PER UNIT GENSET ============ */
+// Sumber angka: DASHBOARD_DATA.consumption_by_group — agregat konsumsi PENUH untuk
+// jendela meta.consumption_window_days (30 hari), bukan sampel dari ledger transaksi.
+// R6 menghitung panel ini dari 20 transaksi terakhir saja, yang hanya mencakup 45 dari
+// 88 pcs keluar (51%) dan menampilkan 3 grup sebagai "0" secara keliru.
+// Saat backend tersambung, ganti fungsi ini dengan:
+//   SELECT genset_group, SUM(qty) FROM transactions
+//   WHERE type='keluar' AND date >= today - 30 GROUP BY genset_group
+function computeGensetConsumption(){
+  const agg = DASHBOARD_DATA.consumption_by_group || {};
+  return GENSET_GROUPS
+    .map(g => {
+      const total = agg[g.name] || 0;
+      return { name:g.name, total, units:g.count, perUnit: total / g.count };
+    })
+    .sort((a,b) => b.total - a.total || a.name.localeCompare(b.name));
+}
+// Rekonsiliasi: total ranking harus sama dengan KPI Barang Keluar 30 Hari.
+// Kalau tidak, ada konsumsi yang tidak terpetakan ke grup manapun — panel wajib bilang.
+function gensetConsumptionAudit(){
+  const sum = computeGensetConsumption().reduce((a,x) => a + x.total, 0);
+  const kpi = DASHBOARD_DATA.kpi.barang_keluar_30d;
+  return { sum, kpi, balanced: sum === kpi, gap: kpi - sum };
+}
+function renderGensetRanking(){
+  const list = computeGensetConsumption();
+  const audit = gensetConsumptionAudit();
+  const days = (DASHBOARD_DATA.meta && DASHBOARD_DATA.meta.consumption_window_days) || 30;
+  const sub = document.getElementById('genset-ranking-sub');
+  if(sub){
+    sub.innerHTML = audit.balanced
+      ? `${days} hari terakhir · total ${audit.sum} pcs, cocok dengan KPI Barang Keluar`
+      : `${days} hari terakhir · total ${audit.sum} pcs, <span style="color:var(--accent-amber)">selisih ${Math.abs(audit.gap)} pcs belum terpetakan ke grup manapun</span>`;
+  }
+  const container = document.getElementById('genset-ranking-list');
+  if(list.every(x => x.total === 0)){
+    container.innerHTML = `<div class="empty-state">Belum ada konsumsi part tercatat dalam ${days} hari terakhir. Catat pemakaian lewat tombol "Input Data Pemakaian".</div>`;
+    return;
+  }
+  const maxVal = Math.max.apply(null, list.map(x => x.total).concat([1]));
+  const limeGradient = `linear-gradient(90deg, ${getCSS('--accent-lime-deep')}, ${getCSS('--accent-lime')})`;
+  container.innerHTML = list.map((item, idx) => {
+    const pct = Math.round((item.total/maxVal)*100);
+    return `
+      <div class="rank-row">
+        <div class="rank-num">${idx+1}</div>
+        <div class="rank-info">
+          <div class="rank-name">${escapeHtml(item.name)} <span class="legend-count">${item.units} unit</span></div>
+          <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${pct}%; background:${limeGradient}"></div></div>
+        </div>
+        <div class="rank-value">${item.total} pcs<span class="rank-subvalue">${item.perUnit.toFixed(1)} /unit</span></div>
+      </div>`;
+  }).join('');
+}
+
+/* ============ ACTIVITY ============ */
+function renderActivity(){
+  const el = document.getElementById('activity-list');
+  // Ledger penuh disimpan di DASHBOARD_DATA.transactions (hanya pemakaian/keluar);
+  // panel hanya menampilkan 20 terbaru.
+  const rows = DASHBOARD_DATA.transactions.filter(e => e.type === 'keluar');
+  if(!rows.length){
+    el.innerHTML = `<div class="empty-state">Belum ada riwayat pemakaian tercatat.</div>`;
+    return;
+  }
+  el.innerHTML = rows.slice(0,20).map(e => `
+    <div class="activity-item">
+      <div class="activity-icon keluar">–</div>
+      <div class="activity-body">
+        <div class="activity-title">${escapeHtml(e.name)} <span class="mono qty keluar">-${e.qty} ${escapeHtml(e.unit)}</span></div>
+        <div class="activity-meta">${escapeHtml(e.ref)}${e.genset_group ? ' · ' + escapeHtml(e.genset_group) : ''}</div>
+      </div>
+      <div class="activity-time">${formatDateShort(e.date)}</div>
+    </div>`).join('');
+}
+
+/* ============ TABLE ============ */
+function populateCategoryFilter(){
+  const sel = document.getElementById('filter-category');
+  const terpilih = sel.value || 'all';
+  sel.innerHTML = '<option value="all">Semua Kategori</option>';
+  DASHBOARD_DATA.category_distribution.map(c=>c.category).forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    sel.appendChild(opt);
+  });
+  sel.value = [...sel.options].some(o => o.value === terpilih) ? terpilih : 'all';
+}
+function getFilteredSortedParts(){
+  let list = DASHBOARD_DATA.parts.slice();
+  const q = state.table.search.trim().toLowerCase();
+  if(q){
+    list = list.filter(p => p.sku.toLowerCase().includes(q) || p.name.toLowerCase().includes(q));
+  }
+  if(state.table.category !== 'all'){
+    list = list.filter(p => p.category === state.table.category);
+  }
+  if(state.table.gensetGroup && state.table.gensetGroup !== 'all'){
+    list = list.filter(p => p.genset_groups.includes(state.table.gensetGroup));
+  }
+  if(state.table.sortKey){
+    const key = state.table.sortKey;
+    const dir = state.table.sortDir === 'asc' ? 1 : -1;
+    list.sort((a,b) => {
+      let av = a[key], bv = b[key];
+      if(typeof av === 'string'){ av = av.toLowerCase(); bv = bv.toLowerCase(); }
+      if(av < bv) return -1*dir;
+      if(av > bv) return 1*dir;
+      return 0;
+    });
+  }
+  return list;
+}
+function renderTable(){
+  const list = getFilteredSortedParts();
+  const totalRows = list.length;
+  const totalPages = Math.max(1, Math.ceil(totalRows / state.table.pageSize));
+  if(state.table.page > totalPages) state.table.page = totalPages;
+  if(state.table.page < 1) state.table.page = 1;
+  const startIdx = (state.table.page-1)*state.table.pageSize;
+  const pageItems = list.slice(startIdx, startIdx+state.table.pageSize);
+
+  const colors = getCategoryColors();
+  const tbody = document.getElementById('inv-tbody');
+  if(pageItems.length === 0){
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted)">Tidak ada part yang cocok dengan filter/pencarian.</td></tr>`;
+  } else {
+    tbody.innerHTML = pageItems.map((p, i) => `
+      <tr class="inv-row">
+        <td class="mono muted">${startIdx+i+1}</td>
+        <td class="mono">${escapeHtml(p.sku)}</td>
+        <td>${escapeHtml(p.name)}</td>
+        <td><span class="cat-chip" style="--chip-color:${colors[p.category]}">${escapeHtml(p.category)}</span></td>
+        <td class="num out">-${p.keluar_30d}</td>
+        <td><button class="expand-btn" data-detail="${p.id}">Detail <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button></td>
+      </tr>
+      <tr class="detail-row hidden" data-detail-row="${p.id}">
+        <td colspan="6">
+          <b>Digunakan pada model engine:</b> ${escapeHtml(p.engine_models.join(', '))}<br>
+          <b>Unit genset:</b> ${escapeHtml(p.genset_groups.join(', '))}
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  document.getElementById('inv-summary').textContent =
+    totalRows === 0 ? 'Menampilkan 0 dari 0 produk' :
+    `Menampilkan ${startIdx+1}-${Math.min(startIdx+state.table.pageSize,totalRows)} dari ${totalRows} produk`;
+
+  renderPagination(totalPages);
+  updateSortIndicators();
+  attachDetailToggles();
+}
+function renderPagination(totalPages){
+  const el = document.getElementById('inv-pagination');
+  el.innerHTML = '';
+  const mkBtn = (label, page, opts={}) => {
+    const btn = document.createElement('button');
+    btn.className = 'page-btn' + (opts.active ? ' active' : '');
+    btn.textContent = label;
+    btn.disabled = !!opts.disabled;
+    if(!opts.disabled){ btn.addEventListener('click', ()=>{ state.table.page = page; renderTable(); }); }
+    return btn;
+  };
+  el.appendChild(mkBtn('‹', state.table.page-1, {disabled: state.table.page<=1}));
+  for(let i=1;i<=totalPages;i++){
+    el.appendChild(mkBtn(String(i), i, {active: i===state.table.page}));
+  }
+  el.appendChild(mkBtn('›', state.table.page+1, {disabled: state.table.page>=totalPages}));
+}
+function updateSortIndicators(){
+  document.querySelectorAll('.inv-table th.sortable').forEach(th => {
+    const key = th.getAttribute('data-key');
+    const icon = th.querySelector('.sort-icon');
+    if(key === state.table.sortKey){
+      icon.textContent = state.table.sortDir === 'asc' ? '▲' : '▼';
+      icon.classList.add('active');
+    } else {
+      icon.textContent = '▲▼';
+      icon.classList.remove('active');
+    }
+  });
+}
+function attachDetailToggles(){
+  document.querySelectorAll('[data-detail]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-detail');
+      const row = document.querySelector(`[data-detail-row="${id}"]`);
+      const isHidden = row.classList.contains('hidden');
+      row.classList.toggle('hidden');
+      btn.classList.toggle('open', isHidden);
+    });
+  });
+}
+
+/* ============ INPUT DATA PEMAKAIAN ============ */
+function populateModalPartSelect(){
+  const sel = document.getElementById('modal-part-select');
+  sel.innerHTML = DASHBOARD_DATA.parts
+    .slice()
+    .sort((a,b)=> a.name.localeCompare(b.name))
+    .map(p => `<option value="${p.id}">${escapeHtml(p.sku)} — ${escapeHtml(p.name)} (stok: ${p.current_stock} ${escapeHtml(p.unit)})</option>`)
+    .join('');
+}
+// Grup dibatasi pada genset_groups milik part terpilih, sehingga tidak mungkin mencatat
+// pemakaian part pada unit yang secara BOM tidak memakainya.
+function populateModalGensetSelect(){
+  const sel = document.getElementById('modal-genset-select');
+  const part = DASHBOARD_DATA.parts.find(p => p.id === document.getElementById('modal-part-select').value);
+  const allowed = part ? GENSET_GROUPS.filter(g => part.genset_groups.includes(g.name)) : [];
+  sel.innerHTML = allowed.length
+    ? allowed.map(g => `<option value="${escapeHtml(g.name)}">${escapeHtml(g.name)} · ${g.count} unit</option>`).join('')
+    : `<option value="">Part ini belum dipetakan ke unit manapun</option>`;
+  sel.disabled = allowed.length === 0;
+}
+function openInputModal(mode){
+  modalMode = 'keluar';
+  document.getElementById('modal-title').textContent = 'Input Data Pemakaian';
+  document.getElementById('modal-qty-label').textContent = 'Jumlah dipakai';
+  const qtyInput = document.getElementById('modal-qty-input');
+  qtyInput.min = '1';
+  document.getElementById('modal-ref-group').style.display = '';
+  document.getElementById('modal-genset-group').style.display = '';
+  document.getElementById('modal-ref-input').value = '';
+  document.getElementById('modal-ref-input').placeholder = 'Contoh: PM Rutin 500 jam';
+  populateModalPartSelect();
+  populateModalGensetSelect();
+  qtyInput.value = '';
+  const hint = document.getElementById('modal-hint');
+  hint.textContent = ''; hint.style.color = 'var(--text-muted)';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+function closeInputModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  modalMode = null;
+}
+function bumpLatestTrendBucket(type, qty){
+  ['daily','weekly','monthly'].forEach(period => {
+    const arr = DASHBOARD_DATA.trend[period];
+    if(arr && arr.length) arr[arr.length-1][type] += qty;
+  });
+}
+function bumpCategoryStock(category, delta){
+  const entry = DASHBOARD_DATA.category_distribution.find(c => c.category === category);
+  if(entry) entry.stok = Math.max(0, entry.stok + delta);
+}
+function nextActivityId(){
+  const maxNum = DASHBOARD_DATA.transactions.reduce((max,e)=>{
+    const n = parseInt(String(e.id).replace(/\D/g,''),10);
+    return isNaN(n) ? max : Math.max(max,n);
+  }, 0);
+  return 'TX' + String(maxNum+1).padStart(5,'0');
+}
+function submitInputModal(){
+  const partId = document.getElementById('modal-part-select').value;
+  let qty = parseInt(document.getElementById('modal-qty-input').value,10);
+  const hint = document.getElementById('modal-hint');
+  if(isNaN(qty) || qty < 1){
+    hint.style.color = 'var(--accent-red)';
+    hint.textContent = 'Masukkan jumlah yang valid.';
+    return;
+  }
+  const part = DASHBOARD_DATA.parts.find(p => p.id === partId);
+  if(!part) return;
+
+  // ---- Validasi penuh SEBELUM state apa pun berubah ----
+  // R6 melakukan clamp diam-diam lalu tetap commit sambil membiarkan modal terbuka,
+  // sehingga klik "Simpan" kedua menghasilkan transaksi ganda, dan stok 0 menghasilkan
+  // transaksi ber-qty 0. Sekarang input ditolak tanpa menyentuh data.
+  if(qty > part.current_stock){
+    hint.style.color = 'var(--accent-red)';
+    hint.textContent = part.current_stock === 0
+      ? `Stok ${part.sku} habis. Pemakaian tidak bisa dicatat sampai stok tersedia kembali.`
+      : `Stok ${part.sku} tinggal ${part.current_stock} ${part.unit}. Turunkan jumlahnya.`;
+    return;
+  }
+  const gensetGroup = document.getElementById('modal-genset-select').value;
+  if(!gensetGroup){
+    hint.style.color = 'var(--accent-red)';
+    hint.textContent = 'Pilih unit genset tujuan agar pemakaian ini masuk ke ranking konsumsi.';
+    return;
+  }
+
+  let refText = document.getElementById('modal-ref-input').value.trim();
+
+  // ---- MODE ONLINE: server yang mencatat & memvalidasi (validasi klien di atas
+  //      hanya untuk umpan balik cepat; server tetap otoritatif). ----
+  if(SB_ONLINE){
+    sbSave(
+      sbRpc('catat_transaksi', {
+        p_part_id: partId, p_qty: qty, p_tipe: 'keluar',
+        p_genset_group: gensetGroup, p_ref: refText, p_pic: sbPicEmail()
+      }),
+      `Pemakaian tercatat: ${part.sku} -${qty} ${part.unit}.`,
+      hint
+    );
+    return;
+  }
+
+  if(!refText) refText = 'Pemakaian Manual';
+  part.current_stock -= qty;
+  part.keluar_30d += qty;
+  DASHBOARD_DATA.kpi.barang_keluar_30d += qty;
+  bumpLatestTrendBucket('keluar', qty);
+  bumpCategoryStock(part.category, -qty);
+  // Agregat konsumsi ikut naik, sehingga rekonsiliasi terhadap KPI tetap seimbang.
+  DASHBOARD_DATA.consumption_by_group[gensetGroup] =
+    (DASHBOARD_DATA.consumption_by_group[gensetGroup] || 0) + qty;
+
+  // Ledger tidak pernah dipotong — renderActivity() yang membatasi tampilan ke 20 baris.
+  DASHBOARD_DATA.transactions.unshift({
+    id: nextActivityId(), date: DASHBOARD_DATA.meta.today, type: 'keluar',
+    sku: part.sku, name: part.name, category: part.category,
+    qty: qty, unit: part.unit, ref: refText, genset_group: gensetGroup,
+    stock_after: part.current_stock
+  });
+
+  renderKPIs();
+  renderActivity();
+  renderTable();
+  renderTrendChart();
+  renderCategoryChart();
+  renderRanking();
+  renderGensetRanking();
+  toast(`Pemakaian tercatat: ${part.sku} -${qty} ${part.unit}.`);
+  closeInputModal();
+}
+document.getElementById('btn-input-pemakaian').addEventListener('click', () => openInputModal('keluar'));
+
+/* ============ GENERIC DOWNLOAD DROPDOWNS ============ */
+function closeDropdown(dropdownEl){
+  const menu = dropdownEl.querySelector('.dropdown-menu');
+  const toggleBtn = dropdownEl.querySelector('.dropdown-toggle');
+  if(menu) menu.classList.remove('open');
+  if(toggleBtn) toggleBtn.setAttribute('aria-expanded','false');
+}
+function closeAllDropdowns(except){
+  document.querySelectorAll('.dropdown').forEach(dd => { if(dd !== except) closeDropdown(dd); });
+}
+document.querySelectorAll('.dropdown').forEach(dropdownEl => {
+  const toggleBtn = dropdownEl.querySelector('.dropdown-toggle');
+  const menu = dropdownEl.querySelector('.dropdown-menu');
+  if(!toggleBtn || !menu) return;
+  toggleBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    const isOpen = menu.classList.toggle('open');
+    toggleBtn.setAttribute('aria-expanded', String(isOpen));
+    closeAllDropdowns(dropdownEl);
+  });
+  menu.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', () => closeDropdown(dropdownEl));
+  });
+});
+document.addEventListener('click', e => {
+  document.querySelectorAll('.dropdown').forEach(dd => { if(!dd.contains(e.target)) closeDropdown(dd); });
+});
+
+document.getElementById('btn-activity-csv').addEventListener('click', exportActivityCSV);
+document.getElementById('btn-activity-excel').addEventListener('click', exportActivityExcel);
+document.getElementById('btn-activity-pdf').addEventListener('click', exportActivityPDF);
+document.getElementById('btn-genset-csv').addEventListener('click', exportGensetRankingCSV);
+document.getElementById('btn-genset-excel').addEventListener('click', exportGensetRankingExcel);
+document.getElementById('btn-genset-pdf').addEventListener('click', exportGensetRankingPDF);
+
+function gensetRankingExportRows(){
+  return computeGensetConsumption().map((item, idx) => ({
+    'Peringkat': idx+1,
+    'Grup Unit Genset': item.name,
+    'Total Part Keluar (pcs)': item.total,
+    'Jumlah Unit': item.units,
+    'Rata-rata per Unit': Number(item.perUnit.toFixed(2))
+  }));
+}
+function exportGensetRankingCSV(){
+  const rows = gensetRankingExportRows();
+  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
+  const headers = Object.keys(rows[0]);
+  const lines = [headers.join(',')];
+  rows.forEach(r => { lines.push(headers.map(h => `"${String(r[h]).replace(/"/g,'""')}"`).join(',')); });
+  const blob = new Blob(["\uFEFF"+lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+  downloadBlob(blob, `ranking-unit-genset-${todayStr()}.csv`);
+  toast(`CSV ranking unit genset berhasil diexport (${rows.length} baris).`);
+}
+function exportGensetRankingExcel(){
+  const rows = gensetRankingExportRows();
+  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:10},{wch:30},{wch:22},{wch:12},{wch:18}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Ranking Unit Genset');
+  XLSX.writeFile(wb, `ranking-unit-genset-${todayStr()}.xlsx`);
+  toast(`Excel ranking unit genset berhasil diexport (${rows.length} baris).`);
+}
+function exportGensetRankingPDF(){
+  const rows = gensetRankingExportRows();
+  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:'portrait'});
+  doc.setFontSize(13);
+  doc.text('Ranking Konsumsi Part per Unit Genset - PB Field', 14, 15);
+  doc.setFontSize(9);
+  doc.setTextColor(110,110,110);
+  doc.text(`Tanggal cetak: ${formatDateLong(todayStr())}`, 14, 21);
+  const headers = Object.keys(rows[0]);
+  doc.autoTable({
+    startY: 26,
+    head: [headers],
+    body: rows.map(r => headers.map(h => r[h])),
+    styles:{ fontSize:9, cellPadding:4 },
+    headStyles:{ fillColor:[20,24,26], textColor:[255,255,255] },
+    alternateRowStyles:{ fillColor:[245,246,243] }
+  });
+  doc.save(`ranking-unit-genset-${todayStr()}.pdf`);
+  toast(`PDF ranking unit genset berhasil diexport (${rows.length} baris).`);
+}
+
+function activityExportRows(){
+  // Export seluruh riwayat pemakaian (keluar), bukan hanya yang tampil di panel.
+  return DASHBOARD_DATA.transactions.filter(e => e.type === 'keluar').map(e => ({
+    'Tanggal': e.date,
+    'SKU': e.sku,
+    'Nama Part': e.name,
+    'Kategori': e.category,
+    'Jumlah': e.qty,
+    'Satuan': e.unit,
+    'Unit Genset': e.genset_group || '-',
+    'Referensi': e.ref,
+    'Stok Sesudah': e.stock_after
+  }));
+}
+function exportActivityCSV(){
+  const rows = activityExportRows();
+  if(!rows.length){ toast('Tidak ada riwayat pemakaian untuk diexport.'); return; }
+  const headers = Object.keys(rows[0]);
+  const lines = [headers.join(',')];
+  rows.forEach(r => { lines.push(headers.map(h => `"${String(r[h]).replace(/"/g,'""')}"`).join(',')); });
+  const blob = new Blob(["\uFEFF"+lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+  downloadBlob(blob, `riwayat-pemakaian-genset-${todayStr()}.csv`);
+  toast(`CSV riwayat pemakaian berhasil diexport (${rows.length} baris).`);
+}
+function exportActivityExcel(){
+  const rows = activityExportRows();
+  if(!rows.length){ toast('Tidak ada riwayat pemakaian untuk diexport.'); return; }
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:12},{wch:12},{wch:28},{wch:14},{wch:9},{wch:9},{wch:24},{wch:38},{wch:13}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Pemakaian');
+  XLSX.writeFile(wb, `riwayat-pemakaian-genset-${todayStr()}.xlsx`);
+  toast(`Excel riwayat pemakaian berhasil diexport (${rows.length} baris).`);
+}
+function exportActivityPDF(){
+  const rows = activityExportRows();
+  if(!rows.length){ toast('Tidak ada riwayat pemakaian untuk diexport.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:'landscape'});
+  doc.setFontSize(13);
+  doc.text('Laporan Riwayat Pemakaian Part Genset - PB Field', 14, 15);
+  doc.setFontSize(9);
+  doc.setTextColor(110,110,110);
+  doc.text(`Tanggal cetak: ${formatDateLong(todayStr())}`, 14, 21);
+  const headers = Object.keys(rows[0]);
+  doc.autoTable({
+    startY: 26,
+    head: [headers],
+    body: rows.map(r => headers.map(h => r[h])),
+    styles:{ fontSize:8, cellPadding:3 },
+    headStyles:{ fillColor:[20,24,26], textColor:[255,255,255] },
+    alternateRowStyles:{ fillColor:[245,246,243] }
+  });
+  doc.save(`riwayat-pemakaian-genset-${todayStr()}.pdf`);
+  toast(`PDF riwayat pemakaian berhasil diexport (${rows.length} baris).`);
+}
+
+document.getElementById('modal-cancel').addEventListener('click', closeInputModal);
+document.getElementById('modal-close').addEventListener('click', closeInputModal);
+document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target.id === 'modal-overlay') closeInputModal(); });
+document.getElementById('modal-save').addEventListener('click', submitInputModal);
+
+/* ============ EXPORT ============ */
+function tableExportRows(){
+  return getFilteredSortedParts().map(p => ({
+    'SKU': p.sku,
+    'Nama Part': p.name,
+    'Kategori': p.category,
+    'Satuan': p.unit,
+    'Pemakaian (30 Hari)': p.keluar_30d
+  }));
+}
+function exportCSV(){
+  const rows = tableExportRows();
+  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
+  const headers = Object.keys(rows[0]);
+  const lines = [headers.join(',')];
+  rows.forEach(r => { lines.push(headers.map(h => `"${String(r[h]).replace(/"/g,'""')}"`).join(',')); });
+  const blob = new Blob(["\uFEFF"+lines.join('\n')], {type:'text/csv;charset=utf-8;'});
+  downloadBlob(blob, `inventaris-genset-${todayStr()}.csv`);
+  toast(`CSV berhasil diexport (${rows.length} baris).`);
+}
+function exportExcel(){
+  const rows = tableExportRows();
+  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
+  const ws = XLSX.utils.json_to_sheet(rows);
+  ws['!cols'] = [{wch:12},{wch:28},{wch:14},{wch:9},{wch:15}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Inventaris');
+  XLSX.writeFile(wb, `inventaris-genset-${todayStr()}.xlsx`);
+  toast(`Excel berhasil diexport (${rows.length} baris).`);
+}
+function exportPDF(){
+  const rows = tableExportRows();
+  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({orientation:'landscape'});
+  doc.setFontSize(13);
+  doc.text('Laporan Inventaris Part Genset - PB Field (TEMI)', 14, 15);
+  doc.setFontSize(9);
+  doc.setTextColor(110,110,110);
+  doc.text(`Tanggal cetak: ${formatDateLong(todayStr())}`, 14, 21);
+  const headers = Object.keys(rows[0]);
+  doc.autoTable({
+    startY: 26,
+    head: [headers],
+    body: rows.map(r => headers.map(h => r[h])),
+    styles:{ fontSize:8, cellPadding:3 },
+    headStyles:{ fillColor:[20,24,26], textColor:[255,255,255] },
+    alternateRowStyles:{ fillColor:[245,246,243] }
+  });
+  doc.save(`inventaris-genset-${todayStr()}.pdf`);
+  toast(`PDF berhasil diexport (${rows.length} baris).`);
+}
+
+/* ============ EVENTS ============ */
+function debounce(fn, wait){
+  let t; return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), wait); };
+}
+function bindEvents(){
+  document.getElementById('trend-tabs').addEventListener('click', e => {
+    const btn = e.target.closest('.tab-btn'); if(!btn) return;
+    document.querySelectorAll('#trend-tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.trendPeriod = btn.getAttribute('data-period');
+    renderTrendChart();
+  });
+
+  const syncSearch = debounce(val => { state.table.search = val; state.table.page = 1; renderTable(); }, 200);
+  document.getElementById('table-search').addEventListener('input', e => syncSearch(e.target.value));
+  document.getElementById('global-search').addEventListener('input', e => {
+    document.getElementById('table-search').value = e.target.value;
+    syncSearch(e.target.value);
+    document.getElementById('content').scrollIntoView({behavior:'smooth'});
+  });
+  document.getElementById('filter-category').addEventListener('change', e => {
+    state.table.category = e.target.value; state.table.page = 1; renderTable();
+  });
+  document.querySelectorAll('.inv-table th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.getAttribute('data-key');
+      if(state.table.sortKey === key){
+        state.table.sortDir = state.table.sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        state.table.sortKey = key; state.table.sortDir = 'asc';
+      }
+      renderTable();
+    });
+  });
+
+  document.getElementById('export-csv').addEventListener('click', exportCSV);
+  document.getElementById('export-excel').addEventListener('click', exportExcel);
+  document.getElementById('export-pdf').addEventListener('click', exportPDF);
+
+  // Daftar unit genset selalu mengikuti BOM part yang sedang dipilih.
+  document.getElementById('modal-part-select').addEventListener('change', () => {
+    if(modalMode === 'keluar') populateModalGensetSelect();
+  });
+
+  document.getElementById('menu-toggle').addEventListener('click', () => {
+    document.getElementById('app-shell').classList.add('sidebar-open');
+    document.getElementById('sidebar-scrim').style.display = 'block';
+  });
+  document.getElementById('sidebar-scrim').addEventListener('click', () => {
+    document.getElementById('app-shell').classList.remove('sidebar-open');
+    document.getElementById('sidebar-scrim').style.display = 'none';
+  });
+
+  document.getElementById('nav-all-units').addEventListener('click', () => {
+    expandedGensetGroup = null;
+    selectGensetGroup('all');
+  });
+}
+
+/* ============ INIT ============ */
+function renderAll(){
+  renderGensetNav();
+  populateCategoryFilter();
+  renderKPIs();
+  renderTrendChart();
+  renderCategoryChart();
+  renderRanking();
+  renderGensetRanking();
+  renderActivity();
+  renderTable();
+}
+async function init(){
+  renderAll();
+  bindEvents();
+  // Bila Supabase dikonfigurasi, muat data nyata dari server menimpa JSON tertanam.
+  if(SB_ONLINE){
+    setConnState('loading');
+    try{
+      DASHBOARD_DATA = await sbLoadDashboard();
+      renderAll();
+      setConnState('online');
+    }catch(err){
+      setConnState('error', err.message);
+    }
+  } else {
+    setConnState('demo');
+  }
+}
+function setConnState(mode, detail){
+  const el = document.getElementById('conn-badge');
+  if(!el) return;
+  const map = {
+    loading: ['Memuat data…', 'var(--accent-amber)'],
+    online:  ['● Tersambung', 'var(--accent-lime)'],
+    demo:    ['● Mode demo (data contoh)', 'var(--text-muted)'],
+    error:   ['● Gagal tersambung', 'var(--accent-red)']
+  };
+  const v = map[mode] || map.demo;
+  el.textContent = v[0];
+  el.style.color = v[1];
+  el.title = detail || '';
+}
+document.addEventListener('DOMContentLoaded', init);
+})();
+</script>
+</body>
+</html>
