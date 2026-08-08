@@ -98,17 +98,19 @@ button{font-family:inherit}
 .nav-item.nav-group-toggle{text-transform:uppercase; letter-spacing:.02em; font-size:12.3px}
 .nav-count{margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); flex-shrink:0}
 .nav-item.active .nav-count{color:var(--accent-lime)}
-.nav-chevron{font-size:9px; width:10px; flex-shrink:0; color:var(--text-muted); transition:transform .15s ease; display:inline-block}
+.nav-chevron{width:15px; height:15px; flex-shrink:0; color:var(--text-muted); transition:transform .15s ease; display:inline-flex; align-items:center; justify-content:center}
+.nav-chevron svg{width:100%; height:100%}
 .nav-item.expanded .nav-chevron{transform:rotate(90deg); color:var(--accent-lime)}
+.nav-unit-list{margin:2px 0 6px 0; padding-left:14px; border-left:2px solid var(--border-soft)}
 .nav-unit{
-  display:flex; flex-direction:column; gap:1px; padding:7px 10px 7px 32px; border-radius:8px;
-  color:var(--text-secondary); cursor:pointer; margin-bottom:1px; font-size:12.2px;
+  display:flex; flex-direction:column; gap:1px; padding:7px 10px; border-radius:8px;
+  color:var(--text-secondary); cursor:pointer; margin-bottom:1px;
 }
 .nav-unit:hover{background:var(--bg-raised); color:var(--text-primary)}
-.nav-unit.active{background:var(--bg-raised); color:var(--accent-lime)}
-.nav-unit-tag{font-weight:600; font-size:12.6px}
-.nav-unit-model{font-size:10.4px; color:var(--text-muted)}
-.nav-unit.active .nav-unit-model{color:inherit; opacity:.75}
+.nav-unit.active{background:color-mix(in srgb, var(--accent-lime) 12%, transparent); color:var(--accent-lime)}
+.nav-unit-tag{font-weight:600; font-size:12.4px}
+.nav-unit-model{font-size:10.2px; color:var(--text-muted)}
+.nav-unit.active .nav-unit-model{color:inherit; opacity:.8}
 
 .sidebar-foot{padding:14px 20px 18px; border-top:1px solid var(--border-soft)}
 .plant-tag{display:flex; flex-direction:column; gap:2px}
@@ -230,6 +232,14 @@ button{font-family:inherit}
 .activity-title .qty.keluar{color:var(--accent-cyan)}
 .activity-meta{font-size:11.3px; color:var(--text-muted)}
 .activity-time{font-size:11px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; padding-top:2px}
+.undo-btn{
+  width:26px; height:26px; border-radius:7px; border:1px solid var(--border); background:var(--bg-raised);
+  color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;
+  flex-shrink:0;
+}
+.undo-btn:hover{color:var(--accent-red); border-color:var(--accent-red); background:color-mix(in srgb, var(--accent-red) 12%, transparent)}
+.undo-btn:disabled{opacity:.5; cursor:not-allowed}
+.undo-btn svg{width:13px;height:13px}
 
 /* ============ TABLE / TOOLBAR ============ */
 .table-toolbar{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:16px}
@@ -283,6 +293,13 @@ table.inv-table{width:100%; border-collapse:collapse; font-size:12.7px; min-widt
 .expand-btn:hover{color:var(--text-primary); border-color:var(--text-muted)}
 .expand-btn svg{width:11px;height:11px; transition:transform .15s}
 .expand-btn.open svg{transform:rotate(180deg)}
+.add-usage-btn{
+  width:26px; height:26px; border-radius:7px; border:1px solid var(--border); background:var(--bg-raised);
+  color:var(--accent-lime); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;
+}
+.add-usage-btn:hover{background:color-mix(in srgb, var(--accent-lime) 14%, transparent); border-color:var(--accent-lime)}
+.add-usage-btn svg{width:14px;height:14px}
+.row-actions{display:flex; align-items:center; gap:6px}
 tr.detail-row td{background:var(--bg-panel-2); padding:14px 20px; font-size:12px; color:var(--text-muted); line-height:1.8}
 tr.detail-row b{color:var(--text-secondary); font-weight:600}
 
@@ -335,7 +352,23 @@ tr.detail-row b{color:var(--text-secondary); font-weight:600}
   color:var(--text-primary); padding:0 12px; font-size:13px; font-family:'Inter',sans-serif;
 }
 .modal-body select:focus, .modal-body input:focus{outline:2px solid var(--accent-lime); outline-offset:1px}
+.modal-body select:disabled, .modal-body input:disabled{
+  color:var(--text-muted); background:var(--bg-void); cursor:not-allowed; opacity:.6;
+}
 .modal-hint{font-size:11.3px; min-height:16px; margin:8px 0 0; color:var(--text-muted)}
+.filter-chip{
+  display:inline-flex; align-items:center; gap:8px; margin-top:9px; padding:5px 10px;
+  border-radius:999px; font-size:11.5px; font-weight:600;
+  background:color-mix(in srgb, var(--accent-lime) 13%, transparent);
+  color:var(--accent-lime); border:1px solid color-mix(in srgb, var(--accent-lime) 35%, transparent);
+}
+.filter-chip button{
+  background:none; border:none; color:inherit; cursor:pointer; font-size:14px;
+  line-height:1; padding:0; opacity:.75;
+}
+.filter-chip button:hover{opacity:1}
+.modal-subnote{font-size:10.8px; color:var(--text-muted); margin:5px 0 0}
+.modal-subnote.auto{color:var(--accent-lime)}
 .modal-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px}
 .modal-actions .btn-secondary, .modal-actions .btn-primary{
   height:38px; border-radius:9px; font-size:12.8px; font-weight:600; padding:0 16px; cursor:pointer; border:1px solid var(--border);
@@ -343,6 +376,9 @@ tr.detail-row b{color:var(--text-secondary); font-weight:600}
 .modal-actions .btn-secondary{background:var(--bg-raised); color:var(--text-primary)}
 .modal-actions .btn-primary{background:var(--accent-lime); color:#0a0d0e; border-color:var(--accent-lime)}
 .modal-actions .btn-primary:hover{filter:brightness(1.06)}
+.modal-actions .btn-primary:disabled{
+  background:var(--border); color:var(--text-muted); border-color:var(--border); cursor:not-allowed; filter:none; opacity:1;
+}
 .modal-close{
   width:30px;height:30px; border-radius:999px; border:1px solid var(--border); background:none;
   color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center;
@@ -465,7 +501,7 @@ tr.detail-row b{color:var(--text-secondary); font-weight:600}
           <div class="panel-header">
             <div>
               <h2 class="panel-title">Distribusi Kategori</h2>
-              <div class="panel-sub">Berdasarkan stok saat ini</div>
+              <div class="panel-sub">Berdasarkan pemakaian 30 hari</div>
             </div>
           </div>
           <div class="category-flex">
@@ -515,10 +551,6 @@ tr.detail-row b{color:var(--text-secondary); font-weight:600}
             <div class="panel-sub">20 riwayat pemakaian terbaru — export berisi seluruh riwayat</div>
           </div>
           <div style="display:flex; gap:8px; flex-wrap:wrap">
-            <button class="btn-cta" id="btn-input-pemakaian">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-              Input Data Pemakaian
-            </button>
             <div class="dropdown" id="activity-download-dropdown">
               <button class="icon-btn dropdown-toggle" id="btn-activity-download-toggle" title="Download aktivitas" aria-label="Download aktivitas" aria-haspopup="true" aria-expanded="false">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
@@ -540,6 +572,7 @@ tr.detail-row b{color:var(--text-secondary); font-weight:600}
           <div>
             <h2 class="panel-title">Tabel Inventaris Lengkap</h2>
             <div class="panel-sub">Klik header kolom untuk mengurutkan · klik "Detail" untuk melihat unit genset</div>
+            <div id="active-filter-chip"></div>
           </div>
         </div>
         <div class="table-toolbar">
@@ -572,6 +605,7 @@ tr.detail-row b{color:var(--text-secondary); font-weight:600}
                 <th class="sortable" data-key="name">Nama Part <span class="sort-icon">▲▼</span></th>
                 <th class="sortable" data-key="category">Kategori <span class="sort-icon">▲▼</span></th>
                 <th class="sortable" data-key="keluar_30d" style="text-align:right">Pemakaian 30h <span class="sort-icon">▲▼</span></th>
+                <th style="width:68px"></th>
                 <th></th>
               </tr>
             </thead>
@@ -604,6 +638,7 @@ tr.detail-row b{color:var(--text-secondary); font-weight:600}
       <div id="modal-genset-group">
         <label for="modal-genset-select">Unit genset tujuan</label>
         <select id="modal-genset-select"></select>
+        <p id="modal-genset-note" class="modal-subnote"></p>
       </div>
       <label id="modal-qty-label" for="modal-qty-input">Jumlah dipakai</label>
       <input type="number" id="modal-qty-input" min="1" step="1" placeholder="0">
@@ -620,61 +655,52 @@ tr.detail-row b{color:var(--text-secondary); font-weight:600}
   </div>
 </div>
 
-<script id="dashboard-data-json" type="application/json">{"meta": {"today": "2026-08-02", "period_start": "2025-08-03", "generated_for": "PB Field - TEMI Genset Filter Inventory", "consumption_window_days": 30}, "kpi": {"total_produk": 23, "total_kategori": 6, "barang_keluar_30d": 88, "barang_keluar_prev30": 79, "barang_keluar_delta_pct": 11}, "parts": [{"id": "P001", "sku": "FS1000", "name": "Fuel Filter FS1000", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 11, "keluar_30d": 3}, {"id": "P002", "sku": "FS1212", "name": "Fuel Filter FS1212", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 14, "unit": "pcs", "current_stock": 10, "keluar_30d": 5}, {"id": "P003", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 9, "unit": "pcs", "current_stock": 1, "keluar_30d": 10}, {"id": "P004", "sku": "FS1280", "name": "Fuel Filter FS1280", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 9, "unit": "pcs", "current_stock": 6, "keluar_30d": 1}, {"id": "P005", "sku": "FS19765", "name": "Fuel pro Fleet guard FS 19765", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)"], "n_units": 2, "unit": "pcs", "current_stock": 3, "keluar_30d": 3}, {"id": "P006", "sku": "GEN-FUE-135", "name": "Fuel Filter (Generic 6BTAA5.9)", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 8, "keluar_30d": 0}, {"id": "P007", "sku": "LF670", "name": "Filter LF670", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 10, "keluar_30d": 7}, {"id": "P008", "sku": "LF777", "name": "Oil Filter LF777", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 10, "keluar_30d": 2}, {"id": "P009", "sku": "LF3000", "name": "Oil Filter LF3000", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 9, "unit": "pcs", "current_stock": 6, "keluar_30d": 9}, {"id": "P010", "sku": "LF9009", "name": "Oil Filter LF9009", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 5, "unit": "pcs", "current_stock": 1, "keluar_30d": 4}, {"id": "P011", "sku": "GEN-OIL-135", "name": "Oil Filter (Generic 6BTAA5.9)", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 4, "keluar_30d": 0}, {"id": "P012", "sku": "WF2076", "name": "Water Filter WF2076", "category": "Water Filter", "category_id": "cat-3", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 5, "keluar_30d": 4}, {"id": "P013", "sku": "WF2075", "name": "Water Filter WF2075", "category": "Water Filter", "category_id": "cat-3", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 5, "unit": "pcs", "current_stock": 0, "keluar_30d": 12}, {"id": "P014", "sku": "GEN-WAT-135", "name": "Water Filter (Generic 6BTAA5.9)", "category": "Water Filter", "category_id": "cat-3", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 4, "keluar_30d": 0}, {"id": "P015", "sku": "500FH", "name": "Racor Filter 500FH", "category": "Racor Filter", "category_id": "cat-4", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 10, "keluar_30d": 3}, {"id": "P016", "sku": "FH900", "name": "Racor Filter FH900", "category": "Racor Filter", "category_id": "cat-4", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 8, "keluar_30d": 2}, {"id": "P017", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 5, "keluar_30d": 9}, {"id": "P018", "sku": "KW2448C2", "name": "Air Filter KW2448C2", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["6LTAA (250 kVA)"], "genset_groups": ["250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 7, "unit": "pcs", "current_stock": 3, "keluar_30d": 4}, {"id": "P019", "sku": "AF928M", "name": "Air Filter AF928M", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 5, "unit": "pcs", "current_stock": 7, "keluar_30d": 2}, {"id": "P020", "sku": "K19950C1", "name": "Air Filter K19950C1", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 0, "keluar_30d": 4}, {"id": "P021", "sku": "K28900", "name": "Air Filter K28900", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["6CTAA (200 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)"], "n_units": 2, "unit": "pcs", "current_stock": 4, "keluar_30d": 2}, {"id": "P022", "sku": "SNS-OILP-01", "name": "Oil Pressure Sensor 0-10 bar", "category": "Sensor", "category_id": "cat-6", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 29, "unit": "unit", "current_stock": 1, "keluar_30d": 2}, {"id": "P023", "sku": "SNS-TEMP-01", "name": "Temperature Sensor", "category": "Sensor", "category_id": "cat-6", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 29, "unit": "unit", "current_stock": 3, "keluar_30d": 0}], "trend": {"daily": [{"date": "2026-07-04", "label": "4 Jul", "keluar": 0}, {"date": "2026-07-05", "label": "5 Jul", "keluar": 1}, {"date": "2026-07-06", "label": "6 Jul", "keluar": 6}, {"date": "2026-07-07", "label": "7 Jul", "keluar": 1}, {"date": "2026-07-08", "label": "8 Jul", "keluar": 0}, {"date": "2026-07-09", "label": "9 Jul", "keluar": 3}, {"date": "2026-07-10", "label": "10 Jul", "keluar": 4}, {"date": "2026-07-11", "label": "11 Jul", "keluar": 2}, {"date": "2026-07-12", "label": "12 Jul", "keluar": 0}, {"date": "2026-07-13", "label": "13 Jul", "keluar": 0}, {"date": "2026-07-14", "label": "14 Jul", "keluar": 5}, {"date": "2026-07-15", "label": "15 Jul", "keluar": 2}, {"date": "2026-07-16", "label": "16 Jul", "keluar": 0}, {"date": "2026-07-17", "label": "17 Jul", "keluar": 0}, {"date": "2026-07-18", "label": "18 Jul", "keluar": 0}, {"date": "2026-07-19", "label": "19 Jul", "keluar": 3}, {"date": "2026-07-20", "label": "20 Jul", "keluar": 0}, {"date": "2026-07-21", "label": "21 Jul", "keluar": 0}, {"date": "2026-07-22", "label": "22 Jul", "keluar": 7}, {"date": "2026-07-23", "label": "23 Jul", "keluar": 0}, {"date": "2026-07-24", "label": "24 Jul", "keluar": 9}, {"date": "2026-07-25", "label": "25 Jul", "keluar": 0}, {"date": "2026-07-26", "label": "26 Jul", "keluar": 2}, {"date": "2026-07-27", "label": "27 Jul", "keluar": 8}, {"date": "2026-07-28", "label": "28 Jul", "keluar": 13}, {"date": "2026-07-29", "label": "29 Jul", "keluar": 5}, {"date": "2026-07-30", "label": "30 Jul", "keluar": 4}, {"date": "2026-07-31", "label": "31 Jul", "keluar": 12}, {"date": "2026-08-01", "label": "1 Agu", "keluar": 1}, {"date": "2026-08-02", "label": "2 Agu", "keluar": 0}], "weekly": [{"week_start": "2026-05-11", "week_end": "2026-05-17", "label": "11 Mei", "keluar": 14}, {"week_start": "2026-05-18", "week_end": "2026-05-24", "label": "18 Mei", "keluar": 18}, {"week_start": "2026-05-25", "week_end": "2026-05-31", "label": "25 Mei", "keluar": 16}, {"week_start": "2026-06-01", "week_end": "2026-06-07", "label": "1 Jun", "keluar": 17}, {"week_start": "2026-06-08", "week_end": "2026-06-14", "label": "8 Jun", "keluar": 17}, {"week_start": "2026-06-15", "week_end": "2026-06-21", "label": "15 Jun", "keluar": 31}, {"week_start": "2026-06-22", "week_end": "2026-06-28", "label": "22 Jun", "keluar": 11}, {"week_start": "2026-06-29", "week_end": "2026-07-05", "label": "29 Jun", "keluar": 15}, {"week_start": "2026-07-06", "week_end": "2026-07-12", "label": "6 Jul", "keluar": 16}, {"week_start": "2026-07-13", "week_end": "2026-07-19", "label": "13 Jul", "keluar": 10}, {"week_start": "2026-07-20", "week_end": "2026-07-26", "label": "20 Jul", "keluar": 18}, {"week_start": "2026-07-27", "week_end": "2026-08-02", "label": "27 Jul", "keluar": 43}], "monthly": [{"label": "Sep 25", "keluar": 91}, {"label": "Okt 25", "keluar": 72}, {"label": "Nov 25", "keluar": 96}, {"label": "Des 25", "keluar": 62}, {"label": "Jan 26", "keluar": 86}, {"label": "Feb 26", "keluar": 87}, {"label": "Mar 26", "keluar": 87}, {"label": "Apr 26", "keluar": 73}, {"label": "Mei 26", "keluar": 86}, {"label": "Jun 26", "keluar": 79}, {"label": "Jul 26", "keluar": 98}, {"label": "Agu 26", "keluar": 1}]}, "category_distribution": [{"category": "Fuel Filter", "produk": 6, "stok": 39}, {"category": "Oil Filter", "produk": 5, "stok": 31}, {"category": "Water Filter", "produk": 3, "stok": 9}, {"category": "Racor Filter", "produk": 2, "stok": 18}, {"category": "Air Filter", "produk": 5, "stok": 19}, {"category": "Sensor", "produk": 2, "stok": 4}], "transactions": [{"id": "TX00679", "date": "2026-08-01", "type": "keluar", "sku": "LF3000", "name": "Oil Filter LF3000", "category": "Oil Filter", "qty": 1, "unit": "pcs", "ref": "PM Rutin (Preventive Maintenance) - 250 KVA (CL2A)", "stock_after": 1, "genset_group": "250 KVA (CL2A)"}, {"id": "TX00676", "date": "2026-07-31", "type": "keluar", "sku": "LF3000", "name": "Oil Filter LF3000", "category": "Oil Filter", "qty": 3, "unit": "pcs", "ref": "PM Rutin (Preventive Maintenance) - 250 KVA (CL2A)", "stock_after": 2, "genset_group": "250 KVA (CL2A)"}, {"id": "TX00677", "date": "2026-07-31", "type": "keluar", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "qty": 2, "unit": "pcs", "ref": "Penggantian Terjadwal - 500 KVA (CL2B)", "stock_after": 5, "genset_group": "500 KVA (CL2B)"}, {"id": "TX00678", "date": "2026-07-31", "type": "keluar", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "qty": 7, "unit": "pcs", "ref": "Overhaul Genset - 250 KVA (CL2A)", "stock_after": 1, "genset_group": "250 KVA (CL2A)"}, {"id": "TX00674", "date": "2026-07-30", "type": "keluar", "sku": "K19950C1", "name": "Air Filter K19950C1", "category": "Air Filter", "qty": 4, "unit": "pcs", "ref": "Overhaul Genset - 135 KVA - Utility (CL3)", "stock_after": 0, "genset_group": "135 KVA - Utility (CL3)"}, {"id": "TX00671", "date": "2026-07-29", "type": "keluar", "sku": "FS19765", "name": "Fuel pro Fleet guard FS 19765", "category": "Fuel Filter", "qty": 2, "unit": "pcs", "ref": "Perbaikan Insidentil - 200 KVA - Utility (CL4)", "stock_after": 3, "genset_group": "200 KVA - Utility (CL4)"}, {"id": "TX00672", "date": "2026-07-29", "type": "keluar", "sku": "WF2076", "name": "Water Filter WF2076", "category": "Water Filter", "qty": 1, "unit": "pcs", "ref": "PM Rutin (Preventive Maintenance) - 500 KVA (Injection-2)", "stock_after": 5, "genset_group": "500 KVA (Injection-2)"}, {"id": "TX00673", "date": "2026-07-29", "type": "keluar", "sku": "LF9009", "name": "Oil Filter LF9009", "category": "Oil Filter", "qty": 2, "unit": "pcs", "ref": "Overhaul Genset - 250 KVA (Anjani)", "stock_after": 1, "genset_group": "250 KVA (Anjani)"}, {"id": "TX00667", "date": "2026-07-28", "type": "keluar", "sku": "LF670", "name": "Filter LF670", "category": "Oil Filter", "qty": 2, "unit": "pcs", "ref": "Perbaikan Insidentil - 500 KVA (CL-4)", "stock_after": 10, "genset_group": "500 KVA (CL-4)"}, {"id": "TX00668", "date": "2026-07-28", "type": "keluar", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "qty": 2, "unit": "pcs", "ref": "Perbaikan Insidentil - 500 KVA (CL-4)", "stock_after": 7, "genset_group": "500 KVA (CL-4)"}, {"id": "TX00670", "date": "2026-07-28", "type": "keluar", "sku": "WF2075", "name": "Water Filter WF2075", "category": "Water Filter", "qty": 9, "unit": "pcs", "ref": "Overhaul Genset - 250 KVA (Anjani)", "stock_after": 0, "genset_group": "250 KVA (Anjani)"}, {"id": "TX00662", "date": "2026-07-27", "type": "keluar", "sku": "FS1212", "name": "Fuel Filter FS1212", "category": "Fuel Filter", "qty": 1, "unit": "pcs", "ref": "Penggantian Terjadwal - 250 KVA (CL2A)", "stock_after": 10, "genset_group": "250 KVA (CL2A)"}, {"id": "TX00663", "date": "2026-07-27", "type": "keluar", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "qty": 1, "unit": "pcs", "ref": "Perbaikan Insidentil - 200 KVA - Utility (CL4)", "stock_after": 0, "genset_group": "200 KVA - Utility (CL4)"}, {"id": "TX00664", "date": "2026-07-27", "type": "keluar", "sku": "WF2076", "name": "Water Filter WF2076", "category": "Water Filter", "qty": 1, "unit": "pcs", "ref": "Perbaikan Insidentil - 500 KVA (Injection-1)", "stock_after": 6, "genset_group": "500 KVA (Injection-1)"}, {"id": "TX00665", "date": "2026-07-27", "type": "keluar", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "qty": 3, "unit": "pcs", "ref": "Penggantian Terjadwal - 500 KVA (CL-4)", "stock_after": 9, "genset_group": "500 KVA (CL-4)"}, {"id": "TX00666", "date": "2026-07-27", "type": "keluar", "sku": "SNS-OILP-01", "name": "Oil Pressure Sensor 0-10 bar", "category": "Sensor", "qty": 2, "unit": "unit", "ref": "Overhaul Genset - 250 KVA (CL3)", "stock_after": 1, "genset_group": "250 KVA (CL3)"}, {"id": "TX00661", "date": "2026-07-26", "type": "keluar", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "qty": 2, "unit": "pcs", "ref": "Penggantian Terjadwal - 250 KVA (CL2A)", "stock_after": 1, "genset_group": "250 KVA (CL2A)"}], "consumption_by_group": {"500 KVA (Agung)": 8, "500 KVA (Injection-1)": 5, "500 KVA (Injection-2)": 4, "250 KVA (Agung)": 6, "250 KVA (Anjani)": 13, "250 KVA (CL2A)": 16, "500 KVA (CL2B)": 7, "250 KVA (CL3)": 7, "500 KVA (CL-4)": 9, "500 KVA - Utility (Agung)": 4, "200 KVA - Utility (CL4)": 4, "135 KVA - Utility (CL3)": 5}}</script>
+<script id="dashboard-data-json" type="application/json">{"meta": {"today": "2026-08-02", "period_start": "2025-08-03", "generated_for": "PB Field - TEMI Genset Filter Inventory", "consumption_window_days": 30}, "kpi": {"total_produk": 23, "total_kategori": 6, "barang_keluar_30d": 88, "barang_keluar_prev30": 79, "barang_keluar_delta_pct": 11}, "parts": [{"id": "P001", "sku": "FS1000", "name": "Fuel Filter FS1000", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 11, "keluar_30d": 3}, {"id": "P002", "sku": "FS1212", "name": "Fuel Filter FS1212", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 14, "unit": "pcs", "current_stock": 10, "keluar_30d": 5}, {"id": "P003", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 9, "unit": "pcs", "current_stock": 1, "keluar_30d": 10}, {"id": "P004", "sku": "FS1280", "name": "Fuel Filter FS1280", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 9, "unit": "pcs", "current_stock": 6, "keluar_30d": 1}, {"id": "P005", "sku": "FS19765", "name": "Fuel pro Fleet guard FS 19765", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6CTAA (200 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)"], "n_units": 2, "unit": "pcs", "current_stock": 3, "keluar_30d": 3}, {"id": "P006", "sku": "GEN-FUE-135", "name": "Fuel Filter (Generic 6BTAA5.9)", "category": "Fuel Filter", "category_id": "cat-1", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 8, "keluar_30d": 0}, {"id": "P007", "sku": "LF670", "name": "Filter LF670", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 10, "keluar_30d": 7}, {"id": "P008", "sku": "LF777", "name": "Oil Filter LF777", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 10, "keluar_30d": 2}, {"id": "P009", "sku": "LF3000", "name": "Oil Filter LF3000", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 9, "unit": "pcs", "current_stock": 6, "keluar_30d": 9}, {"id": "P010", "sku": "LF9009", "name": "Oil Filter LF9009", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 5, "unit": "pcs", "current_stock": 1, "keluar_30d": 4}, {"id": "P011", "sku": "GEN-OIL-135", "name": "Oil Filter (Generic 6BTAA5.9)", "category": "Oil Filter", "category_id": "cat-2", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 4, "keluar_30d": 0}, {"id": "P012", "sku": "WF2076", "name": "Water Filter WF2076", "category": "Water Filter", "category_id": "cat-3", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 5, "keluar_30d": 4}, {"id": "P013", "sku": "WF2075", "name": "Water Filter WF2075", "category": "Water Filter", "category_id": "cat-3", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 5, "unit": "pcs", "current_stock": 0, "keluar_30d": 12}, {"id": "P014", "sku": "GEN-WAT-135", "name": "Water Filter (Generic 6BTAA5.9)", "category": "Water Filter", "category_id": "cat-3", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 4, "keluar_30d": 0}, {"id": "P015", "sku": "500FH", "name": "Racor Filter 500FH", "category": "Racor Filter", "category_id": "cat-4", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 10, "keluar_30d": 3}, {"id": "P016", "sku": "FH900", "name": "Racor Filter FH900", "category": "Racor Filter", "category_id": "cat-4", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 8, "keluar_30d": 2}, {"id": "P017", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)"], "genset_groups": ["500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 15, "unit": "pcs", "current_stock": 5, "keluar_30d": 9}, {"id": "P018", "sku": "KW2448C2", "name": "Air Filter KW2448C2", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["6LTAA (250 kVA)"], "genset_groups": ["250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 7, "unit": "pcs", "current_stock": 3, "keluar_30d": 4}, {"id": "P019", "sku": "AF928M", "name": "Air Filter AF928M", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "n_units": 5, "unit": "pcs", "current_stock": 7, "keluar_30d": 2}, {"id": "P020", "sku": "K19950C1", "name": "Air Filter K19950C1", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "n_units": 2, "unit": "pcs", "current_stock": 0, "keluar_30d": 4}, {"id": "P021", "sku": "K28900", "name": "Air Filter K28900", "category": "Air Filter", "category_id": "cat-5", "engine_models": ["6CTAA (200 kVA)"], "genset_groups": ["200 KVA - Utility (CL4)"], "n_units": 2, "unit": "pcs", "current_stock": 4, "keluar_30d": 2}, {"id": "P022", "sku": "SNS-OILP-01", "name": "Oil Pressure Sensor 0-10 bar", "category": "Sensor", "category_id": "cat-6", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 29, "unit": "unit", "current_stock": 1, "keluar_30d": 2}, {"id": "P023", "sku": "SNS-TEMP-01", "name": "Temperature Sensor", "category": "Sensor", "category_id": "cat-6", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500KVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (CL2A)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Agung)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "n_units": 29, "unit": "unit", "current_stock": 3, "keluar_30d": 0}], "trend": {"daily": [{"date": "2026-07-04", "label": "4 Jul", "keluar": 0}, {"date": "2026-07-05", "label": "5 Jul", "keluar": 1}, {"date": "2026-07-06", "label": "6 Jul", "keluar": 6}, {"date": "2026-07-07", "label": "7 Jul", "keluar": 1}, {"date": "2026-07-08", "label": "8 Jul", "keluar": 0}, {"date": "2026-07-09", "label": "9 Jul", "keluar": 3}, {"date": "2026-07-10", "label": "10 Jul", "keluar": 4}, {"date": "2026-07-11", "label": "11 Jul", "keluar": 2}, {"date": "2026-07-12", "label": "12 Jul", "keluar": 0}, {"date": "2026-07-13", "label": "13 Jul", "keluar": 0}, {"date": "2026-07-14", "label": "14 Jul", "keluar": 5}, {"date": "2026-07-15", "label": "15 Jul", "keluar": 2}, {"date": "2026-07-16", "label": "16 Jul", "keluar": 0}, {"date": "2026-07-17", "label": "17 Jul", "keluar": 0}, {"date": "2026-07-18", "label": "18 Jul", "keluar": 0}, {"date": "2026-07-19", "label": "19 Jul", "keluar": 3}, {"date": "2026-07-20", "label": "20 Jul", "keluar": 0}, {"date": "2026-07-21", "label": "21 Jul", "keluar": 0}, {"date": "2026-07-22", "label": "22 Jul", "keluar": 7}, {"date": "2026-07-23", "label": "23 Jul", "keluar": 0}, {"date": "2026-07-24", "label": "24 Jul", "keluar": 9}, {"date": "2026-07-25", "label": "25 Jul", "keluar": 0}, {"date": "2026-07-26", "label": "26 Jul", "keluar": 2}, {"date": "2026-07-27", "label": "27 Jul", "keluar": 8}, {"date": "2026-07-28", "label": "28 Jul", "keluar": 13}, {"date": "2026-07-29", "label": "29 Jul", "keluar": 5}, {"date": "2026-07-30", "label": "30 Jul", "keluar": 4}, {"date": "2026-07-31", "label": "31 Jul", "keluar": 12}, {"date": "2026-08-01", "label": "1 Agu", "keluar": 1}, {"date": "2026-08-02", "label": "2 Agu", "keluar": 0}], "weekly": [{"week_start": "2026-05-11", "week_end": "2026-05-17", "label": "11 Mei", "keluar": 14}, {"week_start": "2026-05-18", "week_end": "2026-05-24", "label": "18 Mei", "keluar": 18}, {"week_start": "2026-05-25", "week_end": "2026-05-31", "label": "25 Mei", "keluar": 16}, {"week_start": "2026-06-01", "week_end": "2026-06-07", "label": "1 Jun", "keluar": 17}, {"week_start": "2026-06-08", "week_end": "2026-06-14", "label": "8 Jun", "keluar": 17}, {"week_start": "2026-06-15", "week_end": "2026-06-21", "label": "15 Jun", "keluar": 31}, {"week_start": "2026-06-22", "week_end": "2026-06-28", "label": "22 Jun", "keluar": 11}, {"week_start": "2026-06-29", "week_end": "2026-07-05", "label": "29 Jun", "keluar": 15}, {"week_start": "2026-07-06", "week_end": "2026-07-12", "label": "6 Jul", "keluar": 16}, {"week_start": "2026-07-13", "week_end": "2026-07-19", "label": "13 Jul", "keluar": 10}, {"week_start": "2026-07-20", "week_end": "2026-07-26", "label": "20 Jul", "keluar": 18}, {"week_start": "2026-07-27", "week_end": "2026-08-02", "label": "27 Jul", "keluar": 43}], "monthly": [{"label": "Sep 25", "keluar": 91}, {"label": "Okt 25", "keluar": 72}, {"label": "Nov 25", "keluar": 96}, {"label": "Des 25", "keluar": 62}, {"label": "Jan 26", "keluar": 86}, {"label": "Feb 26", "keluar": 87}, {"label": "Mar 26", "keluar": 87}, {"label": "Apr 26", "keluar": 73}, {"label": "Mei 26", "keluar": 86}, {"label": "Jun 26", "keluar": 79}, {"label": "Jul 26", "keluar": 98}, {"label": "Agu 26", "keluar": 1}]}, "category_distribution": [{"category": "Fuel Filter", "produk": 6, "keluar": 22}, {"category": "Oil Filter", "produk": 5, "keluar": 22}, {"category": "Water Filter", "produk": 3, "keluar": 16}, {"category": "Racor Filter", "produk": 2, "keluar": 5}, {"category": "Air Filter", "produk": 5, "keluar": 21}, {"category": "Sensor", "produk": 2, "keluar": 2}], "transactions": [{"id": "TX00679", "date": "2026-08-01", "type": "keluar", "sku": "LF3000", "name": "Oil Filter LF3000", "category": "Oil Filter", "qty": 1, "unit": "pcs", "ref": "PM Rutin (Preventive Maintenance) - 250 KVA (CL2A) · Unit G2", "stock_after": 1, "genset_group": "250 KVA (CL2A)", "genset_unit_tag": "G2"}, {"id": "TX00676", "date": "2026-07-31", "type": "keluar", "sku": "LF3000", "name": "Oil Filter LF3000", "category": "Oil Filter", "qty": 3, "unit": "pcs", "ref": "PM Rutin (Preventive Maintenance) - 250 KVA (CL2A) · Unit G2", "stock_after": 2, "genset_group": "250 KVA (CL2A)", "genset_unit_tag": "G2"}, {"id": "TX00677", "date": "2026-07-31", "type": "keluar", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "qty": 2, "unit": "pcs", "ref": "Penggantian Terjadwal - 500 KVA (CL2B) · Unit G3", "stock_after": 5, "genset_group": "500 KVA (CL2B)", "genset_unit_tag": "G3"}, {"id": "TX00678", "date": "2026-07-31", "type": "keluar", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "qty": 7, "unit": "pcs", "ref": "Overhaul Genset - 250 KVA (CL2A) · Unit G3", "stock_after": 1, "genset_group": "250 KVA (CL2A)", "genset_unit_tag": "G3"}, {"id": "TX00674", "date": "2026-07-30", "type": "keluar", "sku": "K19950C1", "name": "Air Filter K19950C1", "category": "Air Filter", "qty": 4, "unit": "pcs", "ref": "Overhaul Genset - 135 KVA - Utility (CL3) · Unit G1", "stock_after": 0, "genset_group": "135 KVA - Utility (CL3)", "genset_unit_tag": "G1"}, {"id": "TX00671", "date": "2026-07-29", "type": "keluar", "sku": "FS19765", "name": "Fuel pro Fleet guard FS 19765", "category": "Fuel Filter", "qty": 2, "unit": "pcs", "ref": "Perbaikan Insidentil - 200 KVA - Utility (CL4) · Unit G1", "stock_after": 3, "genset_group": "200 KVA - Utility (CL4)", "genset_unit_tag": "G1"}, {"id": "TX00672", "date": "2026-07-29", "type": "keluar", "sku": "WF2076", "name": "Water Filter WF2076", "category": "Water Filter", "qty": 1, "unit": "pcs", "ref": "PM Rutin (Preventive Maintenance) - 500 KVA (Injection-2) · Unit G6", "stock_after": 5, "genset_group": "500 KVA (Injection-2)", "genset_unit_tag": "G6"}, {"id": "TX00673", "date": "2026-07-29", "type": "keluar", "sku": "LF9009", "name": "Oil Filter LF9009", "category": "Oil Filter", "qty": 2, "unit": "pcs", "ref": "Overhaul Genset - 250 KVA (Anjani) · Unit G1", "stock_after": 1, "genset_group": "250 KVA (Anjani)", "genset_unit_tag": "G1"}, {"id": "TX00667", "date": "2026-07-28", "type": "keluar", "sku": "LF670", "name": "Filter LF670", "category": "Oil Filter", "qty": 2, "unit": "pcs", "ref": "Perbaikan Insidentil - 500 KVA (CL-4) · Unit G3", "stock_after": 10, "genset_group": "500 KVA (CL-4)", "genset_unit_tag": "G3"}, {"id": "TX00668", "date": "2026-07-28", "type": "keluar", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "qty": 2, "unit": "pcs", "ref": "Perbaikan Insidentil - 500 KVA (CL-4) · Unit G3", "stock_after": 7, "genset_group": "500 KVA (CL-4)", "genset_unit_tag": "G3"}, {"id": "TX00670", "date": "2026-07-28", "type": "keluar", "sku": "WF2075", "name": "Water Filter WF2075", "category": "Water Filter", "qty": 9, "unit": "pcs", "ref": "Overhaul Genset - 250 KVA (Anjani) · Unit G1", "stock_after": 0, "genset_group": "250 KVA (Anjani)", "genset_unit_tag": "G1"}, {"id": "TX00662", "date": "2026-07-27", "type": "keluar", "sku": "FS1212", "name": "Fuel Filter FS1212", "category": "Fuel Filter", "qty": 1, "unit": "pcs", "ref": "Penggantian Terjadwal - 250 KVA (CL2A) · Unit G3", "stock_after": 10, "genset_group": "250 KVA (CL2A)", "genset_unit_tag": "G3"}, {"id": "TX00663", "date": "2026-07-27", "type": "keluar", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "qty": 1, "unit": "pcs", "ref": "Perbaikan Insidentil - 200 KVA - Utility (CL4) · Unit G1", "stock_after": 0, "genset_group": "200 KVA - Utility (CL4)", "genset_unit_tag": "G1"}, {"id": "TX00664", "date": "2026-07-27", "type": "keluar", "sku": "WF2076", "name": "Water Filter WF2076", "category": "Water Filter", "qty": 1, "unit": "pcs", "ref": "Perbaikan Insidentil - 500 KVA (Injection-1) · Unit G4", "stock_after": 6, "genset_group": "500 KVA (Injection-1)", "genset_unit_tag": "G4"}, {"id": "TX00665", "date": "2026-07-27", "type": "keluar", "sku": "SFH7802", "name": "Air Filter SFH7802", "category": "Air Filter", "qty": 3, "unit": "pcs", "ref": "Penggantian Terjadwal - 500 KVA (CL-4) · Unit G1", "stock_after": 9, "genset_group": "500 KVA (CL-4)", "genset_unit_tag": "G1"}, {"id": "TX00666", "date": "2026-07-27", "type": "keluar", "sku": "SNS-OILP-01", "name": "Oil Pressure Sensor 0-10 bar", "category": "Sensor", "qty": 2, "unit": "unit", "ref": "Overhaul Genset - 250 KVA (CL3) · Unit G1", "stock_after": 1, "genset_group": "250 KVA (CL3)", "genset_unit_tag": "G1"}, {"id": "TX00661", "date": "2026-07-26", "type": "keluar", "sku": "FF5052", "name": "Fuel Filter FF5052", "category": "Fuel Filter", "qty": 2, "unit": "pcs", "ref": "Penggantian Terjadwal - 250 KVA (CL2A) · Unit G2", "stock_after": 1, "genset_group": "250 KVA (CL2A)", "genset_unit_tag": "G2"}], "consumption_by_group": {"500 KVA (Agung)": 8, "500 KVA (Injection-1)": 5, "500 KVA (Injection-2)": 4, "250 KVA (Agung)": 6, "250 KVA (Anjani)": 13, "250 KVA (CL2A)": 16, "500 KVA (CL2B)": 7, "250 KVA (CL3)": 7, "500 KVA (CL-4)": 9, "500 KVA - Utility (Agung)": 4, "200 KVA - Utility (CL4)": 4, "135 KVA - Utility (CL3)": 5}}</script>
 <script>
 (function(){
 'use strict';
 
-/* ============ MODUL SUPABASE ============ */
-/* ============================================================
- *  SUPABASE — koneksi, derive, dan tulis
- *  Logika derive di-port dari Kode.gs (yang sudah lolos 39 uji).
- *  Bedanya: di sini derive jalan di browser atas data mentah dari REST API.
- * ============================================================ */
+/* ============ MODUL SUPABASE (skema baru - tanpa stok) ============
+ * Tabel:
+ *   part(part_id, sku, nama, kategori, satuan, engine_models[], genset_groups[], aktif)
+ *   transaksi(tx_id, tanggal, part_id, qty, genset_group, ref, pic_email, created_at)
+ * Fungsi RPC:
+ *   catat_transaksi(p_part_id, p_qty, p_genset_group, p_ref, p_pic)
+ *   -- TIDAK ADA p_tipe (cuma satu jenis: pemakaian/keluar)
+ *   -- TIDAK ADA pengecekan stok di server
+ * ================================================================== */
 
-// ---- KONFIG: URL project + publishable/anon key dari Project Settings > API Keys ----
-const SUPABASE_URL_RAW = 'https://tlajadnwafrykbvqwkqh.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_IVq5fbdJYtg5birTGg40XA_BDTG3XhG';
-
-// Normalisasi: buang trailing slash dan '/rest/v1' bila tak sengaja ikut tercantum,
-// supaya path tidak pernah dobel jadi '/rest/v1//rest/v1/'.
+const SUPABASE_URL_RAW = 'https://pnnvivarcxuvjhviqvgb.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_ZfTdfsLXYGvu01SOUobFHA_dJTATXTB';
 const SUPABASE_URL = SUPABASE_URL_RAW.replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
 
-const KONSUMSI_WINDOW = 30;   // hari — jendela ranking konsumsi
-const KPI_WINDOW = 30;        // hari
-const GERAKAN_WINDOW = 90;    // hari
+const KPI_WINDOW = 30;
+const KONSUMSI_WINDOW = 30;
 const ID_BULAN_SB = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 
-// Deteksi placeholder dari AWAL string, bukan dari mana pun di dalamnya — supaya key asli
-// yang mengandung '__' di tengah tidak salah dianggap belum diisi.
 const SB_ONLINE = SUPABASE_URL.startsWith('https://') && !SUPABASE_ANON_KEY.startsWith('__');
 
 function sbHeaders() {
   return { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
            'Content-Type': 'application/json' };
 }
-
-// Ambil seluruh tabel via PostgREST (satu request per tabel).
 async function sbFetch(path) {
   const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, { headers: sbHeaders() });
-  if (!res.ok) throw new Error('Gagal membaca data (' + res.status + '). Cek URL/anon key dan koneksi.');
+  if(!res.ok) throw new Error('Gagal membaca data (' + res.status + '). Cek URL/anon key dan koneksi.');
   return res.json();
 }
-
-// Panggil fungsi database (RPC). Semua validasi ada di server.
 async function sbRpc(fn, args) {
   const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, {
     method: 'POST', headers: sbHeaders(), body: JSON.stringify(args)
   });
-  const data = await res.json().catch(function () { return null; });
-  if (!res.ok) {
-    // PostgREST membungkus pesan RAISE di field message
+  const data = await res.json().catch(() => null);
+  if(!res.ok) {
     throw new Error((data && (data.message || data.hint)) || ('Gagal menyimpan (' + res.status + ').'));
   }
   return data;
 }
 
-/* ---- Util tanggal (samakan dengan Kode.gs) ---- */
+/* ---- Util tanggal ---- */
 function sbToday() {
   const d = new Date();
   return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
@@ -696,166 +722,113 @@ function labelHari(iso) {
 }
 
 /**
- * Ubah baris mentah part+transaksi menjadi objek DASHBOARD_DATA
- * dengan bentuk yang sama persis seperti R7, sehingga semua fungsi
- * render lama tidak perlu diubah.
+ * Ubah baris mentah part + transaksi (dari Supabase) menjadi DASHBOARD_DATA.
+ * Skema baru: tidak ada stok sama sekali — current_stock selalu 0/tidak dipakai,
+ * karena dashboard ini murni pencatatan & monitoring PEMAKAIAN.
  */
 function deriveDashboard(rawParts, rawTx) {
   const hariIni = sbToday();
-  const bts = function (n) { return shiftISO(hariIni, -n); };
-
-  const partAktif = rawParts.filter(function (p) { return p.aktif !== false; });
-
-  // -- stok berjalan + akumulator per part --
-  const stok = {}, masuk = {}, keluar = {}, gerakan = {}, cutoff = {};
-  partAktif.forEach(function (p) {
-    stok[p.part_id] = Number(p.stok_awal) || 0;
-    masuk[p.part_id] = 0; keluar[p.part_id] = 0; gerakan[p.part_id] = 0;
-    cutoff[p.part_id] = isoOf(p.tanggal_stok_awal);
-  });
+  const partAktif = rawParts.filter(p => p.aktif !== false);
   const partById = {};
-  partAktif.forEach(function (p) { partById[p.part_id] = p; });
+  partAktif.forEach(p => { partById[p.part_id] = p; });
 
   const grupSet = {};
-  partAktif.forEach(function (p) {
-    (p.genset_groups || []).forEach(function (g) { grupSet[g] = true; });
-  });
+  partAktif.forEach(p => (p.genset_groups || []).forEach(g => { grupSet[g] = true; }));
   const konsumsi = {};
-  Object.keys(grupSet).forEach(function (g) { konsumsi[g] = 0; });
+  Object.keys(grupSet).forEach(g => { konsumsi[g] = 0; });
 
-  // -- olah ledger sekali; abaikan part tak dikenal --
+  const bts30 = shiftISO(hariIni, -KPI_WINDOW);
+  const bts60 = shiftISO(hariIni, -2 * KPI_WINDOW);
+
+  const keluar30 = {};
+  partAktif.forEach(p => { keluar30[p.part_id] = 0; });
+
+  let kNow = 0, kPrev = 0;
   const txValid = [];
-  rawTx.forEach(function (t) {
+  rawTx.forEach(t => {
     const pid = t.part_id;
-    if (!(pid in stok)) return;
+    if(!(pid in keluar30)) return;
     const tgl = isoOf(t.tanggal);
     const qty = Number(t.qty) || 0;
-    const tipe = t.tipe;
-    if (qty <= 0 || (tipe !== 'masuk' && tipe !== 'keluar')) return;
-
-    if (tgl > cutoff[pid]) stok[pid] += (tipe === 'masuk' ? qty : -qty);
-    if (tgl >= bts(KPI_WINDOW)) { if (tipe === 'masuk') masuk[pid] += qty; else keluar[pid] += qty; }
-    if (tgl >= bts(GERAKAN_WINDOW)) gerakan[pid] += qty;
-    if (tipe === 'keluar' && tgl >= bts(KONSUMSI_WINDOW)) {
-      const g = t.genset_group;
-      if (g && (g in konsumsi)) konsumsi[g] += qty;
+    if(qty <= 0) return;
+    if(tgl >= bts30) { keluar30[pid] += qty; kNow += qty; }
+    else if(tgl >= bts60) { kPrev += qty; }
+    if(t.genset_group && (t.genset_group in konsumsi) && tgl >= shiftISO(hariIni, -KONSUMSI_WINDOW)) {
+      konsumsi[t.genset_group] += qty;
     }
-    txValid.push({ tgl: tgl, tipe: tipe, pid: pid, qty: qty, row: t });
+    txValid.push({ tgl, qty, pid, row: t });
   });
 
-  // -- saldo berjalan per transaksi (untuk kolom stock_after di export) --
-  txValid.sort(function (a, b) {
-    return a.tgl === b.tgl ? String(a.row.tx_id).localeCompare(String(b.row.tx_id))
-                           : (a.tgl < b.tgl ? -1 : 1);
-  });
-  const berjalan = {};
-  partAktif.forEach(function (p) { berjalan[p.part_id] = Number(p.stok_awal) || 0; });
-  txValid.forEach(function (t) {
-    if (t.tgl > cutoff[t.pid]) { berjalan[t.pid] += (t.tipe === 'masuk' ? t.qty : -t.qty); t.after = berjalan[t.pid]; }
-    else t.after = null;
-  });
-  // urut terbaru dulu untuk feed
-  txValid.sort(function (a, b) {
-    return a.tgl === b.tgl ? String(b.row.tx_id).localeCompare(String(a.row.tx_id))
-                           : (a.tgl < b.tgl ? 1 : -1);
-  });
+  const parts = partAktif.map(p => ({
+    id: p.part_id, sku: p.sku, name: p.nama, category: p.kategori, unit: p.satuan,
+    engine_models: p.engine_models || [], genset_groups: p.genset_groups || [],
+    current_stock: 0, keluar_30d: keluar30[p.part_id] || 0
+  }));
 
-  // -- parts --
-  // Catatan: stok fisik (current_stock) tetap dihitung dari SELURUH ledger (termasuk
-  // transaksi 'masuk' historis bila ada), supaya jumlah stok tersedia akurat saat
-  // memvalidasi input pemakaian. Dashboard ini fokus pada monitoring PEMAKAIAN saja —
-  // tidak ada lagi konsep status stok (ok/low/out) atau peringatan stok minimum.
-  const parts = partAktif.map(function (p) {
-    const s = stok[p.part_id];
-    return {
-      id: p.part_id, sku: p.sku, name: p.nama, category: p.kategori, unit: p.satuan,
-      engine_models: p.engine_models || [], genset_groups: p.genset_groups || [],
-      current_stock: s, keluar_30d: keluar[p.part_id]
-    };
-  });
-
-  // -- kategori --
   const katMap = {};
-  parts.forEach(function (p) {
-    if (!katMap[p.category]) katMap[p.category] = { category: p.category, produk: 0, stok: 0 };
-    katMap[p.category].produk++; katMap[p.category].stok += p.current_stock;
+  parts.forEach(p => {
+    if(!katMap[p.category]) katMap[p.category] = { category: p.category, produk: 0, keluar: 0 };
+    katMap[p.category].produk++;
+    katMap[p.category].keluar += p.keluar_30d;
   });
-  const kategori = Object.keys(katMap).map(function (k) { return katMap[k]; });
 
-  // -- KPI --
-  const prev = periodeSum(txValid, shiftISO(hariIni, -2 * KPI_WINDOW), shiftISO(hariIni, -KPI_WINDOW), false);
-  const kNow = sumObj(keluar);
   const kpi = {
-    total_produk: parts.length, total_kategori: kategori.length,
+    total_produk: parts.length, total_kategori: Object.keys(katMap).length,
     barang_keluar_30d: kNow,
-    barang_keluar_delta_pct: pctDelta(kNow, prev.keluar)
+    barang_keluar_delta_pct: kPrev ? Math.round(((kNow - kPrev) / kPrev) * 100) : null
   };
 
-  // -- transactions (feed & export) — hanya tampilkan riwayat PEMAKAIAN (keluar);
-  // transaksi 'masuk' historis (bila ada di ledger) tetap ikut menghitung stok fisik
-  // di atas, tapi tidak ditampilkan di riwayat/aktivitas dashboard ini.
-  const transactions = txValid.filter(function (t) { return t.tipe === 'keluar'; }).map(function (t) {
-    const p = partById[t.pid];
-    return { id: t.row.tx_id, date: t.tgl, type: t.tipe, sku: t.row.sku,
-             name: p ? p.nama : t.row.sku, category: p ? p.kategori : '',
-             qty: t.qty, unit: p ? p.satuan : 'pcs',
-             ref: t.row.ref || '', genset_group: t.row.genset_group || null,
-             pic: t.row.pic_email || '', stock_after: t.after,
-             voided: !!t.row.void_of_tx_id };
-  });
+  const transactions = txValid
+    .slice()
+    .sort((a, b) => b.tgl === a.tgl ? String(b.row.tx_id).localeCompare(String(a.row.tx_id)) : (b.tgl > a.tgl ? 1 : -1))
+    .map(t => {
+      const p = partById[t.pid];
+      return { id: t.row.tx_id, date: t.tgl, type: 'keluar', sku: t.row.sku || (p ? p.sku : t.pid),
+               name: p ? p.nama : t.pid, category: p ? p.kategori : '',
+               qty: t.qty, unit: p ? p.satuan : 'pcs', ref: t.row.ref || '',
+               genset_group: t.row.genset_group || null, genset_unit_tag: t.row.genset_unit_tag || null,
+               pic: t.row.pic_email || '' };
+    });
 
   return {
-    meta: { today: hariIni, consumption_window_days: KONSUMSI_WINDOW, server: true },
-    kpi: kpi, parts: parts,
-    category_distribution: kategori, consumption_by_group: konsumsi,
-    trend: buildTrend(txValid, hariIni), transactions: transactions
+    meta: { today: hariIni, server: true },
+    kpi, parts,
+    category_distribution: Object.values(katMap),
+    consumption_by_group: konsumsi,
+    trend: buildTrend(txValid, hariIni),
+    transactions
   };
 }
 
-// Hanya mengagregasi transaksi 'keluar' (pemakaian); 'masuk' (bila ada di ledger
-// historis) diabaikan di sini karena dashboard ini fokus pada tren pemakaian saja.
 function buildTrend(txValid, hariIni) {
-  const txKeluar = txValid.filter(function (t) { return t.tipe === 'keluar'; });
   const perHari = {};
-  txKeluar.forEach(function (t) {
-    perHari[t.tgl] = (perHari[t.tgl] || 0) + t.qty;
-  });
+  txValid.forEach(t => { perHari[t.tgl] = (perHari[t.tgl] || 0) + t.qty; });
   const daily = [];
-  for (let i = 29; i >= 0; i--) {
+  for(let i = 29; i >= 0; i--) {
     const tgl = shiftISO(hariIni, -i);
     daily.push({ date: tgl, label: labelHari(tgl), keluar: perHari[tgl] || 0 });
   }
   const weekly = [];
-  for (let i = 11; i >= 0; i--) {
+  for(let i = 11; i >= 0; i--) {
     const akhir = shiftISO(hariIni, -i * 7), awal = shiftISO(akhir, -6);
-    const s = periodeSum(txKeluar, awal, akhir, true);
+    const s = periodeSum(txValid, awal, akhir, true);
     weekly.push({ week_start: awal, week_end: akhir, label: labelHari(awal), keluar: s });
   }
   const bln = {};
-  txKeluar.forEach(function (t) {
-    const k = t.tgl.substring(0, 7);
-    bln[k] = (bln[k] || 0) + t.qty;
-  });
+  txValid.forEach(t => { const k = t.tgl.substring(0, 7); bln[k] = (bln[k] || 0) + t.qty; });
   const monthly = [];
-  for (let i = 11; i >= 0; i--) {
+  for(let i = 11; i >= 0; i--) {
     const dt = new Date(hariIni + 'T00:00:00'); dt.setMonth(dt.getMonth() - i);
     const k = dt.getFullYear() + '-' + p2(dt.getMonth() + 1);
-    monthly.push({ label: ID_BULAN_SB[dt.getMonth()] + ' ' + String(dt.getFullYear()).slice(2),
-                   keluar: bln[k] || 0 });
+    monthly.push({ label: ID_BULAN_SB[dt.getMonth()] + ' ' + String(dt.getFullYear()).slice(2), keluar: bln[k] || 0 });
   }
-  return { daily: daily, weekly: weekly, monthly: monthly };
+  return { daily, weekly, monthly };
 }
-
 function periodeSum(tx, awal, akhir, inklusifAwal) {
   let k = 0;
-  tx.forEach(function (t) {
-    const okAwal = inklusifAwal ? (t.tgl >= awal) : (t.tgl > awal);
-    if (okAwal && t.tgl <= akhir) k += t.qty;
-  });
+  tx.forEach(t => { const ok = inklusifAwal ? (t.tgl >= awal) : (t.tgl > awal); if(ok && t.tgl <= akhir) k += t.qty; });
   return k;
 }
-function sumObj(o) { return Object.keys(o).reduce(function (a, k) { return a + o[k]; }, 0); }
-function pctDelta(now, before) { return before ? Math.round(((now - before) / before) * 100) : null; }
 
 // Muat ulang seluruh dashboard dari server.
 async function sbLoadDashboard() {
@@ -864,44 +837,43 @@ async function sbLoadDashboard() {
   return deriveDashboard(parts, tx);
 }
 
-// Email PIC: tanpa login per-user (satu anon key), pakai nilai tersimpan opsional.
 function sbPicEmail() {
-  try { return window.__PIC_EMAIL || ''; } catch (e) { return ''; }
+  try { return window.__PIC_EMAIL || ''; } catch(e) { return ''; }
 }
 
-// Jalankan promise RPC, tampilkan busy, muat ulang data, tutup modal, toast.
-// Semua penulisan lewat sini agar perilakunya konsisten.
+// Jalankan RPC, tampilkan busy, muat ulang data, tutup modal, toast.
 function sbSave(rpcPromise, successMsg, hintEl) {
   setModalBusy(true);
   rpcPromise
-    .then(function () { return sbLoadDashboard(); })
-    .then(function (fresh) {
+    .then(() => sbLoadDashboard())
+    .then(fresh => {
       DASHBOARD_DATA = fresh;
       renderAll();
       setModalBusy(false);
       closeInputModal();
       toast(successMsg);
+      setConnState('online');
     })
-    .catch(function (err) {
+    .catch(err => {
       setModalBusy(false);
-      if (hintEl) { hintEl.style.color = 'var(--accent-red)'; hintEl.textContent = err.message; }
+      if(hintEl) { hintEl.style.color = 'var(--accent-red)'; hintEl.textContent = err.message; }
       else toast('Gagal: ' + err.message);
     });
 }
 
 function setModalBusy(sibuk) {
   const btn = document.getElementById('modal-save');
-  if (!btn) return;
+  if(!btn) return;
   btn.disabled = sibuk;
   btn.dataset.label = btn.dataset.label || btn.textContent;
-  btn.textContent = sibuk ? 'Menyimpan…' : btn.dataset.label;
+  btn.textContent = sibuk ? 'Menyimpan...' : btn.dataset.label;
   btn.style.opacity = sibuk ? '.6' : '';
 }
 
 
 /* ============ DATA ============ */
 // DASHBOARD_DATA sekarang bisa diganti: diisi dari JSON tertanam (fallback/offline)
-// lalu ditimpa data server saat init() bila SB_ONLINE.
+// DASHBOARD_DATA diisi dari JSON tertanam (fallback offline) lalu ditimpa data Supabase saat init() bila SB_ONLINE.
 let DASHBOARD_DATA = JSON.parse(document.getElementById('dashboard-data-json').textContent);
 
 const ID_BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
@@ -909,7 +881,7 @@ const ID_BULAN_FULL = ['Januari','Februari','Maret','April','Mei','Juni','Juli',
 
 const state = {
   trendPeriod: 'daily',
-  table: { search:'', category:'all', gensetGroup:'all', sortKey:null, sortDir:'asc', page:1, pageSize:10 }
+  table: { search:'', category:'all', gensetGroup:'all', gensetUnitTag:null, gensetUnitModel:null, sortKey:null, sortDir:'asc', page:1, pageSize:10 }
 };
 
 let trendChart = null;
@@ -1021,24 +993,38 @@ function downloadBlob(blob, filename){
   setTimeout(()=>URL.revokeObjectURL(url), 1000);
 }
 
-/* ============ GRUP & UNIT GENSET (sidebar) ============ */
+/* ============ GRUP GENSET (sidebar) ============
+ * Klik header grup = filter berdasarkan grup saja (semua part yang dipakai di grup itu).
+ * Klik salah satu unit di dalamnya (misal "G1") = filter LEBIH SPESIFIK: hanya part yang
+ * engine_models-nya cocok dengan model engine unit itu. Ini filter sungguhan (bukan
+ * dekorasi) — dua unit di grup yang sama tapi beda model engine akan menghasilkan
+ * daftar part yang berbeda.
+ */
 function renderGensetNav(){
   let html = '';
   GENSET_GROUPS.forEach(g => {
     const isOpen = expandedGensetGroup === g.name;
-    const isActive = state.table.gensetGroup === g.name;
-    html += `<div class="nav-item nav-group-toggle ${isActive?'active':''} ${isOpen?'expanded':''}" data-group="${escapeHtml(g.name)}">
-      <span class="nav-chevron">&#9656;</span>
+    const isGroupActive = state.table.gensetGroup === g.name && !state.table.gensetUnitTag;
+    html += `<div class="nav-item nav-group-toggle ${isGroupActive?'active':''} ${isOpen?'expanded':''}" data-group="${escapeHtml(g.name)}">
+      <span class="nav-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
       <span style="flex:1">${escapeHtml(g.name)}</span>
       <span class="nav-count">${g.count}</span>
     </div>`;
     if(isOpen){
-      GENSET_UNITS.filter(u => u[1] === g.name).forEach(u => {
-        html += `<div class="nav-unit ${isActive?'active':''}" data-group="${escapeHtml(g.name)}">
-          <span class="nav-unit-tag">${u[0]}</span>
+      const units = GENSET_UNITS.filter(u => u[1] === g.name);
+      html += `<div class="nav-unit-list">`;
+      html += `<div class="nav-unit ${isGroupActive?'active':''}" data-group="${escapeHtml(g.name)}" data-tag="">
+        <span class="nav-unit-tag">Semua unit</span>
+        <span class="nav-unit-model">${units.length} unit di grup ini</span>
+      </div>`;
+      units.forEach(u => {
+        const isUnitActive = state.table.gensetGroup === g.name && state.table.gensetUnitTag === u[0];
+        html += `<div class="nav-unit ${isUnitActive?'active':''}" data-group="${escapeHtml(g.name)}" data-tag="${escapeHtml(u[0])}" data-model="${escapeHtml(u[2])}">
+          <span class="nav-unit-tag">Unit ${escapeHtml(u[0])}</span>
           <span class="nav-unit-model">${escapeHtml(u[2])}</span>
         </div>`;
       });
+      html += `</div>`;
     }
   });
   document.getElementById('genset-group-nav').innerHTML = html;
@@ -1052,14 +1038,32 @@ function renderGensetNav(){
   document.querySelectorAll('#genset-group-nav .nav-unit').forEach(el => {
     el.addEventListener('click', e => {
       e.stopPropagation();
-      selectGensetGroup(el.getAttribute('data-group'));
+      const group = el.getAttribute('data-group');
+      const tag = el.getAttribute('data-tag');
+      if(!tag){ selectGensetGroup(group); return; }
+      selectGensetUnit(group, tag, el.getAttribute('data-model'));
     });
   });
 }
 function selectGensetGroup(g){
   state.table.gensetGroup = g;
+  state.table.gensetUnitTag = null;
+  state.table.gensetUnitModel = null;
   state.table.page = 1;
   document.getElementById('nav-all-units').classList.toggle('active', g === 'all');
+  renderGensetNav();
+  renderTable();
+  const tableSection = document.querySelector('.inv-table').closest('section');
+  if(tableSection) tableSection.scrollIntoView({behavior:'smooth', block:'start'});
+  document.getElementById('app-shell').classList.remove('sidebar-open');
+  document.getElementById('sidebar-scrim').style.display = 'none';
+}
+function selectGensetUnit(group, tag, engineModel){
+  state.table.gensetGroup = group;
+  state.table.gensetUnitTag = tag;
+  state.table.gensetUnitModel = engineModel;
+  state.table.page = 1;
+  document.getElementById('nav-all-units').classList.remove('active');
   renderGensetNav();
   renderTable();
   const tableSection = document.querySelector('.inv-table').closest('section');
@@ -1131,7 +1135,7 @@ function renderCategoryChart(){
     type:'doughnut',
     data:{
       labels:data.map(d=>d.category),
-      datasets:[{ data:data.map(d=>d.stok), backgroundColor:data.map(d=>colors[d.category]), borderWidth:2, borderColor:getCSS('--bg-panel'), hoverOffset:6 }]
+      datasets:[{ data:data.map(d=>d.keluar || 0), backgroundColor:data.map(d=>colors[d.category]), borderWidth:2, borderColor:getCSS('--bg-panel'), hoverOffset:6 }]
     },
     options:{
       responsive:true, maintainAspectRatio:false, cutout:'66%',
@@ -1146,7 +1150,7 @@ function renderCategoryChart(){
     <div class="legend-row">
       <span class="legend-dot" style="background:${colors[d.category]}"></span>
       <span class="legend-name">${escapeHtml(d.category)} <span class="legend-count">(${d.produk} produk)</span></span>
-      <span class="legend-val">${d.stok}</span>
+      <span class="legend-val">${d.keluar || 0}</span>
     </div>`).join('');
 }
 
@@ -1179,31 +1183,56 @@ function renderRanking(){
 }
 
 /* ============ RANKING KONSUMSI PER UNIT GENSET ============ */
-// Sumber angka: DASHBOARD_DATA.consumption_by_group — agregat konsumsi PENUH untuk
-// jendela meta.consumption_window_days (30 hari), bukan sampel dari ledger transaksi.
-// R6 menghitung panel ini dari 20 transaksi terakhir saja, yang hanya mencakup 45 dari
-// 88 pcs keluar (51%) dan menampilkan 3 grup sebagai "0" secara keliru.
-// Saat backend tersambung, ganti fungsi ini dengan:
-//   SELECT genset_group, SUM(qty) FROM transactions
-//   WHERE type='keluar' AND date >= today - 30 GROUP BY genset_group
-function computeGensetConsumption(){
-  const agg = DASHBOARD_DATA.consumption_by_group || {};
-  return GENSET_GROUPS
-    .map(g => {
-      const total = agg[g.name] || 0;
-      return { name:g.name, total, units:g.count, perUnit: total / g.count };
-    })
-    .sort((a,b) => b.total - a.total || a.name.localeCompare(b.name));
+// Konsumsi per UNIT INDIVIDUAL (bukan per grup). Database/skema saat ini hanya
+// menyimpan genset_group (level grup) per transaksi — tidak ada kolom unit
+// tersendiri. Atribusi ke unit spesifik (G1/G2/G3, dst) diambil dari pola
+// "Unit <tag>" yang otomatis tercatat di kolom Catatan/Referensi saat transaksi
+// dibuat lewat sidebar (lihat openInputModal). Transaksi lama/tanpa pola itu
+// masuk ke bucket "unit tidak tercatat" per grup — bukan disamaratakan/ditebak.
+// Konsumsi per UNIT INDIVIDUAL. Sumber utama: kolom terstruktur t.genset_unit_tag
+// (ada setelah migrasi SQL "migrasi-genset-unit-tag.sql" dijalankan). Untuk
+// transaksi LAMA yang direkam sebelum migrasi (kolom itu masih null), fallback ke
+// pola teks "Unit <tag>" di kolom ref — supaya riwayat lama tidak semuanya jatuh
+// ke "unit tidak tercatat" begitu saja.
+function computeUnitConsumption(){
+  const hariIni = DASHBOARD_DATA.meta.today;
+  const windowDays = (DASHBOARD_DATA.meta && DASHBOARD_DATA.meta.consumption_window_days) || KONSUMSI_WINDOW;
+  const cutoff = shiftISO(hariIni, -windowDays);
+
+  const buckets = {};
+  GENSET_UNITS.forEach(u => {
+    const key = u[1] + '||' + u[0];
+    buckets[key] = { group: u[1], tag: u[0], model: u[2], total: 0, mapped: true };
+  });
+
+  DASHBOARD_DATA.transactions.forEach(t => {
+    if(t.type !== 'keluar' || !t.genset_group) return;
+    if(t.date < cutoff) return;
+    let tag = t.genset_unit_tag || null;
+    if(!tag){
+      const m = /Unit\s+([A-Za-z0-9]+)/i.exec(t.ref || '');
+      tag = m ? m[1] : null;
+    }
+    const mappedKey = tag ? (t.genset_group + '||' + tag) : null;
+    const key = (mappedKey && buckets[mappedKey]) ? mappedKey : (t.genset_group + '||__unmapped__');
+    if(!buckets[key]) buckets[key] = { group: t.genset_group, tag: null, model: null, total: 0, mapped: false };
+    buckets[key].total += t.qty;
+  });
+
+  return Object.values(buckets).sort((a,b) => b.total - a.total || a.group.localeCompare(b.group));
+}
+function unitLabel(item){
+  return item.mapped ? `${item.group} — Unit ${item.tag}` : `${item.group} — unit tidak tercatat`;
 }
 // Rekonsiliasi: total ranking harus sama dengan KPI Barang Keluar 30 Hari.
-// Kalau tidak, ada konsumsi yang tidak terpetakan ke grup manapun — panel wajib bilang.
+// Kalau tidak, ada konsumsi yang tidak terpetakan ke grup manapun (genset_group kosong).
 function gensetConsumptionAudit(){
-  const sum = computeGensetConsumption().reduce((a,x) => a + x.total, 0);
+  const sum = computeUnitConsumption().reduce((a,x) => a + x.total, 0);
   const kpi = DASHBOARD_DATA.kpi.barang_keluar_30d;
   return { sum, kpi, balanced: sum === kpi, gap: kpi - sum };
 }
 function renderGensetRanking(){
-  const list = computeGensetConsumption();
+  const list = computeUnitConsumption();
   const audit = gensetConsumptionAudit();
   const days = (DASHBOARD_DATA.meta && DASHBOARD_DATA.meta.consumption_window_days) || 30;
   const sub = document.getElementById('genset-ranking-sub');
@@ -1214,7 +1243,7 @@ function renderGensetRanking(){
   }
   const container = document.getElementById('genset-ranking-list');
   if(list.every(x => x.total === 0)){
-    container.innerHTML = `<div class="empty-state">Belum ada konsumsi part tercatat dalam ${days} hari terakhir. Catat pemakaian lewat tombol "Input Data Pemakaian".</div>`;
+    container.innerHTML = `<div class="empty-state">Belum ada konsumsi part tercatat dalam ${days} hari terakhir. Catat pemakaian lewat ikon "+" di Tabel Inventaris Lengkap.</div>`;
     return;
   }
   const maxVal = Math.max.apply(null, list.map(x => x.total).concat([1]));
@@ -1225,10 +1254,10 @@ function renderGensetRanking(){
       <div class="rank-row">
         <div class="rank-num">${idx+1}</div>
         <div class="rank-info">
-          <div class="rank-name">${escapeHtml(item.name)} <span class="legend-count">${item.units} unit</span></div>
+          <div class="rank-name">${escapeHtml(unitLabel(item))}${item.model ? ` <span class="legend-count">${escapeHtml(item.model)}</span>` : ''}</div>
           <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${pct}%; background:${limeGradient}"></div></div>
         </div>
-        <div class="rank-value">${item.total} pcs<span class="rank-subvalue">${item.perUnit.toFixed(1)} /unit</span></div>
+        <div class="rank-value">${item.total} pcs</div>
       </div>`;
   }).join('');
 }
@@ -1237,7 +1266,8 @@ function renderGensetRanking(){
 function renderActivity(){
   const el = document.getElementById('activity-list');
   // Ledger penuh disimpan di DASHBOARD_DATA.transactions (hanya pemakaian/keluar);
-  // panel hanya menampilkan 20 terbaru.
+  // panel hanya menampilkan 20 terbaru. Tombol undo dipindah ke Tabel Inventaris
+  // Lengkap (di sebelah ikon +), bukan di sini lagi.
   const rows = DASHBOARD_DATA.transactions.filter(e => e.type === 'keluar');
   if(!rows.length){
     el.innerHTML = `<div class="empty-state">Belum ada riwayat pemakaian tercatat.</div>`;
@@ -1252,6 +1282,47 @@ function renderActivity(){
       </div>
       <div class="activity-time">${formatDateShort(e.date)}</div>
     </div>`).join('');
+}
+// Hapus satu transaksi (salah input) — di mode online lewat RPC hapus_transaksi,
+// di mode offline langsung dibuang dari array lokal.
+function undoTransaksi(txId, btn){
+  const row = DASHBOARD_DATA.transactions.find(t => t.id === txId);
+  if(!row) return;
+  const yakin = confirm(`Batalkan pencatatan ini?\n\n${row.name} — ${row.qty} ${row.unit}\n${row.genset_group || ''}\n\nTindakan ini akan menghapus transaksi dari riwayat.`);
+  if(!yakin) return;
+
+  if(SB_ONLINE){
+    if(btn) btn.disabled = true;
+    sbRpc('hapus_transaksi', { p_tx_id: txId })
+      .then(() => sbLoadDashboard())
+      .then(fresh => { DASHBOARD_DATA = fresh; renderAll(); toast('Transaksi dibatalkan.'); })
+      .catch(err => { if(btn) btn.disabled = false; toast('Gagal membatalkan: ' + err.message); });
+    return;
+  }
+
+  // ---- Fallback offline ----
+  DASHBOARD_DATA.transactions = DASHBOARD_DATA.transactions.filter(t => t.id !== txId);
+  const part = DASHBOARD_DATA.parts.find(p => p.sku === row.sku);
+  if(part) part.keluar_30d = Math.max(0, part.keluar_30d - row.qty);
+  DASHBOARD_DATA.kpi.barang_keluar_30d = Math.max(0, DASHBOARD_DATA.kpi.barang_keluar_30d - row.qty);
+  if(row.genset_group && DASHBOARD_DATA.consumption_by_group[row.genset_group] != null){
+    DASHBOARD_DATA.consumption_by_group[row.genset_group] = Math.max(0, DASHBOARD_DATA.consumption_by_group[row.genset_group] - row.qty);
+  }
+  renderAll();
+  toast('Transaksi dibatalkan (offline).');
+}
+// Cari transaksi pemakaian PALING BARU untuk satu part spesifik, lalu batalkan.
+// Dipakai oleh tombol undo di baris Tabel Inventaris Lengkap.
+function undoLastForPart(partId, btn){
+  const part = DASHBOARD_DATA.parts.find(p => p.id === partId);
+  if(!part) return;
+  // DASHBOARD_DATA.transactions selalu sudah terurut terbaru dulu.
+  const last = DASHBOARD_DATA.transactions.find(t => t.type === 'keluar' && t.sku === part.sku);
+  if(!last){
+    toast(`Belum ada riwayat pemakaian untuk ${part.sku}.`);
+    return;
+  }
+  undoTransaksi(last.id, btn);
 }
 
 /* ============ TABLE ============ */
@@ -1278,6 +1349,9 @@ function getFilteredSortedParts(){
   if(state.table.gensetGroup && state.table.gensetGroup !== 'all'){
     list = list.filter(p => p.genset_groups.includes(state.table.gensetGroup));
   }
+  if(state.table.gensetUnitModel){
+    list = list.filter(p => p.engine_models.includes(state.table.gensetUnitModel));
+  }
   if(state.table.sortKey){
     const key = state.table.sortKey;
     const dir = state.table.sortDir === 'asc' ? 1 : -1;
@@ -1291,7 +1365,19 @@ function getFilteredSortedParts(){
   }
   return list;
 }
+function renderActiveFilterChip(){
+  const el = document.getElementById('active-filter-chip');
+  if(!el) return;
+  const g = state.table.gensetGroup;
+  if(!g || g === 'all'){ el.innerHTML = ''; return; }
+  const label = state.table.gensetUnitTag ? `${g} — Unit ${state.table.gensetUnitTag}` : `${g} (semua unit)`;
+  el.innerHTML = `<span class="filter-chip">Menampilkan: ${escapeHtml(label)}
+    <button id="clear-genset-filter" title="Tampilkan semua unit" aria-label="Hapus filter">&times;</button></span>`;
+  const btn = document.getElementById('clear-genset-filter');
+  if(btn) btn.addEventListener('click', () => { expandedGensetGroup = null; selectGensetGroup('all'); });
+}
 function renderTable(){
+  renderActiveFilterChip();
   const list = getFilteredSortedParts();
   const totalRows = list.length;
   const totalPages = Math.max(1, Math.ceil(totalRows / state.table.pageSize));
@@ -1303,7 +1389,7 @@ function renderTable(){
   const colors = getCategoryColors();
   const tbody = document.getElementById('inv-tbody');
   if(pageItems.length === 0){
-    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-muted)">Tidak ada part yang cocok dengan filter/pencarian.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted)">Tidak ada part yang cocok dengan filter/pencarian.</td></tr>`;
   } else {
     tbody.innerHTML = pageItems.map((p, i) => `
       <tr class="inv-row">
@@ -1312,10 +1398,18 @@ function renderTable(){
         <td>${escapeHtml(p.name)}</td>
         <td><span class="cat-chip" style="--chip-color:${colors[p.category]}">${escapeHtml(p.category)}</span></td>
         <td class="num out">-${p.keluar_30d}</td>
+        <td class="row-actions">
+          <button class="add-usage-btn" data-add-usage="${p.id}" title="Catat pemakaian part ini" aria-label="Catat pemakaian ${escapeHtml(p.name)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <button class="undo-btn" data-undo-part="${p.id}" title="Batalkan pemakaian terakhir untuk part ini" aria-label="Undo pemakaian terakhir ${escapeHtml(p.name)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7"/></svg>
+          </button>
+        </td>
         <td><button class="expand-btn" data-detail="${p.id}">Detail <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button></td>
       </tr>
       <tr class="detail-row hidden" data-detail-row="${p.id}">
-        <td colspan="6">
+        <td colspan="7">
           <b>Digunakan pada model engine:</b> ${escapeHtml(p.engine_models.join(', '))}<br>
           <b>Unit genset:</b> ${escapeHtml(p.genset_groups.join(', '))}
         </td>
@@ -1371,29 +1465,83 @@ function attachDetailToggles(){
       btn.classList.toggle('open', isHidden);
     });
   });
+  document.querySelectorAll('[data-add-usage]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      openInputModal('keluar', btn.getAttribute('data-add-usage'));
+    });
+  });
+  document.querySelectorAll('[data-undo-part]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      undoLastForPart(btn.getAttribute('data-undo-part'), btn);
+    });
+  });
 }
 
 /* ============ INPUT DATA PEMAKAIAN ============ */
 function populateModalPartSelect(){
   const sel = document.getElementById('modal-part-select');
-  sel.innerHTML = DASHBOARD_DATA.parts
-    .slice()
-    .sort((a,b)=> a.name.localeCompare(b.name))
-    .map(p => `<option value="${p.id}">${escapeHtml(p.sku)} — ${escapeHtml(p.name)} (stok: ${p.current_stock} ${escapeHtml(p.unit)})</option>`)
-    .join('');
+  const byCategory = {};
+  DASHBOARD_DATA.parts.forEach(p => {
+    if(!byCategory[p.category]) byCategory[p.category] = [];
+    byCategory[p.category].push(p);
+  });
+  const categories = Object.keys(byCategory).sort((a,b) => a.localeCompare(b));
+  sel.innerHTML = categories.map(cat => {
+    const items = byCategory[cat].slice().sort((a,b) => a.name.localeCompare(b.name));
+    const opts = items.map(p => `<option value="${p.id}">${escapeHtml(p.sku)} — ${escapeHtml(p.name)} (${escapeHtml(p.unit)})</option>`).join('');
+    return `<optgroup label="${escapeHtml(cat)}">${opts}</optgroup>`;
+  }).join('');
 }
-// Grup dibatasi pada genset_groups milik part terpilih, sehingga tidak mungkin mencatat
-// pemakaian part pada unit yang secara BOM tidak memakainya.
+// Dropdown unit di modal HANYA berisi unit yang benar-benar memakai part terpilih
+// (dicocokkan lewat genset_groups + engine_models part tersebut). Nilainya
+// otomatis terisi dari konteks sidebar — jadi bukan langkah manual berulang,
+// tapi tetap bisa dikoreksi kalau konteksnya belum/salah diset.
+function unitsForPart(part){
+  if(!part) return [];
+  return GENSET_UNITS
+    .filter(u => part.genset_groups.includes(u[1]))
+    .filter(u => !part.engine_models.length || part.engine_models.includes(u[2]));
+}
 function populateModalGensetSelect(){
   const sel = document.getElementById('modal-genset-select');
+  const note = document.getElementById('modal-genset-note');
   const part = DASHBOARD_DATA.parts.find(p => p.id === document.getElementById('modal-part-select').value);
-  const allowed = part ? GENSET_GROUPS.filter(g => part.genset_groups.includes(g.name)) : [];
-  sel.innerHTML = allowed.length
-    ? allowed.map(g => `<option value="${escapeHtml(g.name)}">${escapeHtml(g.name)} · ${g.count} unit</option>`).join('')
-    : `<option value="">Part ini belum dipetakan ke unit manapun</option>`;
-  sel.disabled = allowed.length === 0;
+  const units = unitsForPart(part);
+
+  if(!units.length){
+    sel.innerHTML = `<option value="">Part ini belum dipetakan ke unit manapun</option>`;
+    sel.disabled = true;
+    note.textContent = 'Periksa data engine_models / genset_groups part ini di database.';
+    note.classList.remove('auto');
+    return;
+  }
+  sel.disabled = false;
+  sel.innerHTML = units.map(u =>
+    `<option value="${escapeHtml(u[1])}||${escapeHtml(u[0])}">${escapeHtml(u[1])} — Unit ${escapeHtml(u[0])} (${escapeHtml(u[2])})</option>`
+  ).join('');
+
+  // Auto-pilih sesuai konteks sidebar bila cocok.
+  const wantGroup = state.table.gensetGroup;
+  const wantTag = state.table.gensetUnitTag;
+  let matched = '';
+  if(wantGroup && wantGroup !== 'all'){
+    if(wantTag && units.some(u => u[1] === wantGroup && u[0] === wantTag)){
+      matched = `${wantGroup}||${wantTag}`;
+    } else {
+      const first = units.find(u => u[1] === wantGroup);
+      if(first) matched = `${first[1]}||${first[0]}`;
+    }
+  }
+  if(matched){
+    sel.value = matched;
+    note.textContent = wantTag ? 'Terisi otomatis dari unit yang dipilih di sidebar.' : 'Terisi otomatis dari grup di sidebar — pastikan unitnya benar.';
+    note.classList.add('auto');
+  } else {
+    note.textContent = 'Pilih unit genset yang memakai part ini.';
+    note.classList.remove('auto');
+  }
 }
-function openInputModal(mode){
+function openInputModal(mode, presetPartId){
   modalMode = 'keluar';
   document.getElementById('modal-title').textContent = 'Input Data Pemakaian';
   document.getElementById('modal-qty-label').textContent = 'Jumlah dipakai';
@@ -1404,6 +1552,7 @@ function openInputModal(mode){
   document.getElementById('modal-ref-input').value = '';
   document.getElementById('modal-ref-input').placeholder = 'Contoh: PM Rutin 500 jam';
   populateModalPartSelect();
+  if(presetPartId) document.getElementById('modal-part-select').value = presetPartId;
   populateModalGensetSelect();
   qtyInput.value = '';
   const hint = document.getElementById('modal-hint');
@@ -1413,23 +1562,6 @@ function openInputModal(mode){
 function closeInputModal(){
   document.getElementById('modal-overlay').classList.remove('open');
   modalMode = null;
-}
-function bumpLatestTrendBucket(type, qty){
-  ['daily','weekly','monthly'].forEach(period => {
-    const arr = DASHBOARD_DATA.trend[period];
-    if(arr && arr.length) arr[arr.length-1][type] += qty;
-  });
-}
-function bumpCategoryStock(category, delta){
-  const entry = DASHBOARD_DATA.category_distribution.find(c => c.category === category);
-  if(entry) entry.stok = Math.max(0, entry.stok + delta);
-}
-function nextActivityId(){
-  const maxNum = DASHBOARD_DATA.transactions.reduce((max,e)=>{
-    const n = parseInt(String(e.id).replace(/\D/g,''),10);
-    return isNaN(n) ? max : Math.max(max,n);
-  }, 0);
-  return 'TX' + String(maxNum+1).padStart(5,'0');
 }
 function submitInputModal(){
   const partId = document.getElementById('modal-part-select').value;
@@ -1443,69 +1575,44 @@ function submitInputModal(){
   const part = DASHBOARD_DATA.parts.find(p => p.id === partId);
   if(!part) return;
 
-  // ---- Validasi penuh SEBELUM state apa pun berubah ----
-  // R6 melakukan clamp diam-diam lalu tetap commit sambil membiarkan modal terbuka,
-  // sehingga klik "Simpan" kedua menghasilkan transaksi ganda, dan stok 0 menghasilkan
-  // transaksi ber-qty 0. Sekarang input ditolak tanpa menyentuh data.
-  if(qty > part.current_stock){
+  const rawUnit = document.getElementById('modal-genset-select').value;
+  if(!rawUnit){
     hint.style.color = 'var(--accent-red)';
-    hint.textContent = part.current_stock === 0
-      ? `Stok ${part.sku} habis. Pemakaian tidak bisa dicatat sampai stok tersedia kembali.`
-      : `Stok ${part.sku} tinggal ${part.current_stock} ${part.unit}. Turunkan jumlahnya.`;
+    hint.textContent = 'Pilih unit genset tujuan dulu agar pemakaian tercatat ke unit yang benar.';
     return;
   }
-  const gensetGroup = document.getElementById('modal-genset-select').value;
-  if(!gensetGroup){
-    hint.style.color = 'var(--accent-red)';
-    hint.textContent = 'Pilih unit genset tujuan agar pemakaian ini masuk ke ranking konsumsi.';
-    return;
-  }
+  const [gensetGroup, gensetUnitTag] = rawUnit.split('||');
 
   let refText = document.getElementById('modal-ref-input').value.trim();
+  if(!refText) refText = 'Pemakaian Manual';
 
-  // ---- MODE ONLINE: server yang mencatat & memvalidasi (validasi klien di atas
-  //      hanya untuk umpan balik cepat; server tetap otoritatif). ----
   if(SB_ONLINE){
     sbSave(
       sbRpc('catat_transaksi', {
-        p_part_id: partId, p_qty: qty, p_tipe: 'keluar',
-        p_genset_group: gensetGroup, p_ref: refText, p_pic: sbPicEmail()
+        p_part_id: partId, p_qty: qty,
+        p_genset_group: gensetGroup, p_ref: refText, p_pic: sbPicEmail(),
+        p_genset_unit_tag: gensetUnitTag || null
       }),
-      `Pemakaian tercatat: ${part.sku} -${qty} ${part.unit}.`,
+      `Pemakaian tercatat: ${part.sku} \u2013${qty} ${part.unit}.`,
       hint
     );
     return;
   }
 
-  if(!refText) refText = 'Pemakaian Manual';
-  part.current_stock -= qty;
-  part.keluar_30d += qty;
+  // ---- Fallback offline (Supabase tidak terkonfigurasi/tidak terjangkau) ----
+  DASHBOARD_DATA.parts.find(p => p.id === partId).keluar_30d += qty;
   DASHBOARD_DATA.kpi.barang_keluar_30d += qty;
-  bumpLatestTrendBucket('keluar', qty);
-  bumpCategoryStock(part.category, -qty);
-  // Agregat konsumsi ikut naik, sehingga rekonsiliasi terhadap KPI tetap seimbang.
-  DASHBOARD_DATA.consumption_by_group[gensetGroup] =
-    (DASHBOARD_DATA.consumption_by_group[gensetGroup] || 0) + qty;
-
-  // Ledger tidak pernah dipotong — renderActivity() yang membatasi tampilan ke 20 baris.
+  DASHBOARD_DATA.consumption_by_group[gensetGroup] = (DASHBOARD_DATA.consumption_by_group[gensetGroup] || 0) + qty;
   DASHBOARD_DATA.transactions.unshift({
-    id: nextActivityId(), date: DASHBOARD_DATA.meta.today, type: 'keluar',
+    id: 'LOCAL' + Date.now(), date: DASHBOARD_DATA.meta.today, type: 'keluar',
     sku: part.sku, name: part.name, category: part.category,
-    qty: qty, unit: part.unit, ref: refText, genset_group: gensetGroup,
-    stock_after: part.current_stock
+    qty, unit: part.unit, ref: refText, genset_group: gensetGroup,
+    genset_unit_tag: gensetUnitTag || null
   });
-
-  renderKPIs();
-  renderActivity();
-  renderTable();
-  renderTrendChart();
-  renderCategoryChart();
-  renderRanking();
-  renderGensetRanking();
-  toast(`Pemakaian tercatat: ${part.sku} -${qty} ${part.unit}.`);
+  renderAll();
+  toast(`Pemakaian tercatat (offline): ${part.sku} \u2013${qty} ${part.unit}.`);
   closeInputModal();
 }
-document.getElementById('btn-input-pemakaian').addEventListener('click', () => openInputModal('keluar'));
 
 /* ============ GENERIC DOWNLOAD DROPDOWNS ============ */
 function closeDropdown(dropdownEl){
@@ -1543,12 +1650,11 @@ document.getElementById('btn-genset-excel').addEventListener('click', exportGens
 document.getElementById('btn-genset-pdf').addEventListener('click', exportGensetRankingPDF);
 
 function gensetRankingExportRows(){
-  return computeGensetConsumption().map((item, idx) => ({
+  return computeUnitConsumption().map((item, idx) => ({
     'Peringkat': idx+1,
-    'Grup Unit Genset': item.name,
-    'Total Part Keluar (pcs)': item.total,
-    'Jumlah Unit': item.units,
-    'Rata-rata per Unit': Number(item.perUnit.toFixed(2))
+    'Unit Genset': unitLabel(item),
+    'Model Engine': item.model || '-',
+    'Total Part Keluar (pcs)': item.total
   }));
 }
 function exportGensetRankingCSV(){
@@ -1565,7 +1671,7 @@ function exportGensetRankingExcel(){
   const rows = gensetRankingExportRows();
   if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
   const ws = XLSX.utils.json_to_sheet(rows);
-  ws['!cols'] = [{wch:10},{wch:30},{wch:22},{wch:12},{wch:18}];
+  ws['!cols'] = [{wch:10},{wch:32},{wch:24},{wch:20}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Ranking Unit Genset');
   XLSX.writeFile(wb, `ranking-unit-genset-${todayStr()}.xlsx`);
@@ -1748,10 +1854,8 @@ function bindEvents(){
   document.getElementById('export-excel').addEventListener('click', exportExcel);
   document.getElementById('export-pdf').addEventListener('click', exportPDF);
 
-  // Daftar unit genset selalu mengikuti BOM part yang sedang dipilih.
-  document.getElementById('modal-part-select').addEventListener('change', () => {
-    if(modalMode === 'keluar') populateModalGensetSelect();
-  });
+  // Daftar unit selalu mengikuti part yang sedang dipilih.
+  document.getElementById('modal-part-select').addEventListener('change', populateModalGensetSelect);
 
   document.getElementById('menu-toggle').addEventListener('click', () => {
     document.getElementById('app-shell').classList.add('sidebar-open');
@@ -1763,7 +1867,6 @@ function bindEvents(){
   });
 
   document.getElementById('nav-all-units').addEventListener('click', () => {
-    expandedGensetGroup = null;
     selectGensetGroup('all');
   });
 }
@@ -1781,9 +1884,10 @@ function renderAll(){
   renderTable();
 }
 async function init(){
+  // Isi dulu dari JSON tertanam (demo/offline), lalu timpa dengan data Supabase kalau berhasil.
+  DASHBOARD_DATA = JSON.parse(document.getElementById('dashboard-data-json').textContent);
   renderAll();
   bindEvents();
-  // Bila Supabase dikonfigurasi, muat data nyata dari server menimpa JSON tertanam.
   if(SB_ONLINE){
     setConnState('loading');
     try{
@@ -1801,10 +1905,10 @@ function setConnState(mode, detail){
   const el = document.getElementById('conn-badge');
   if(!el) return;
   const map = {
-    loading: ['Memuat data…', 'var(--accent-amber)'],
-    online:  ['● Tersambung', 'var(--accent-lime)'],
+    loading: ['Memuat data dari Supabase...', 'var(--accent-amber)'],
+    online:  ['● Tersambung ke Supabase', 'var(--accent-lime)'],
     demo:    ['● Mode demo (data contoh)', 'var(--text-muted)'],
-    error:   ['● Gagal tersambung', 'var(--accent-red)']
+    error:   ['● Gagal tersambung ke Supabase', 'var(--accent-red)']
   };
   const v = map[mode] || map.demo;
   el.textContent = v[0];
