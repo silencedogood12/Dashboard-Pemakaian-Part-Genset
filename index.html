@@ -1,913 +1,454 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="dark">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Pemakaian Part Genset — TEMI PB Field</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consumable Genset — PB Field</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.20/jspdf.plugin.autotable.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 <style>
-/* ============ DESIGN TOKENS ============ */
-:root[data-theme="dark"]{
-  --bg-void:#0a0d0e; --bg-panel:#14181a; --bg-panel-2:#171c1e; --bg-raised:#1c2224;
-  --border:#262d30; --border-soft:#1d2325;
-  --text-primary:#eef2f0; --text-secondary:#9aa5a3; --text-muted:#6f7a78;
-  --accent-lime:#c8f751; --accent-lime-deep:#9fcf2e; --accent-cyan:#52d4e0;
-  --accent-amber:#ffb648; --accent-red:#ff5c5c;
-  --accent-violet:#b98ce8; --accent-coral:#ff8b6b; --accent-gold:#f5c84c; --accent-slateblue:#7fa6e0;
-  --shadow-panel: 0 1px 0 rgba(255,255,255,0.02) inset, 0 12px 30px -18px rgba(0,0,0,0.6);
-  --scrollbar: #333c3f;
-}
-:root[data-theme="light"]{
-  --bg-void:#eef1ec; --bg-panel:#ffffff; --bg-panel-2:#f7f8f5; --bg-raised:#f1f3ef;
-  --border:#dde1d9; --border-soft:#e8ebe3;
-  --text-primary:#161a17; --text-secondary:#4d5652; --text-muted:#838d87;
-  --accent-lime:#6f9a1c; --accent-lime-deep:#547313; --accent-cyan:#0f8b93;
-  --accent-amber:#b56a06; --accent-red:#c9403f;
-  --accent-violet:#8b5fc4; --accent-coral:#d1613f; --accent-gold:#a9821f; --accent-slateblue:#4d72b0;
-  --shadow-panel: 0 1px 0 rgba(255,255,255,0.6) inset, 0 12px 30px -20px rgba(0,0,0,0.18);
-  --scrollbar: #c9cec5;
+:root{
+  --bg:#0d0f0d; --surface:#171a16; --surface-2:#12150f; --text:#e6ebe0;
+  --text-muted:rgba(226,232,214,.6); --text-mute2:rgba(226,232,214,.5);
+  --border:rgba(230,236,220,.09); --border-soft:rgba(230,236,220,.07);
+  --accent:#b4e600; --accent-100:#1c2416; --accent-200:#26301a; --accent-300:#33421d;
+  --accent-600:#c7f43a; --accent-800:#eaffb4; --accent-900:#f3ffd8;
+  --radius-sm:10px; --radius-md:14px; --radius-lg:18px;
+  --font-mono:'IBM Plex Mono',ui-monospace,monospace; --font-body:'IBM Plex Sans',system-ui,sans-serif;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;height:100%}
-body{
-  background:var(--bg-void); color:var(--text-primary);
-  font-family:'Inter',sans-serif; font-size:14px; line-height:1.5;
-  -webkit-font-smoothing:antialiased;
-  background-image:
-    linear-gradient(var(--border-soft) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
-  background-size: 42px 42px;
-  background-attachment:fixed;
-  position:relative;
-}
-body::before{
-  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-  background: radial-gradient(700px 480px at 88% -8%, rgba(200,247,81,0.07), transparent 60%);
-}
-::-webkit-scrollbar{width:8px;height:8px}
-::-webkit-scrollbar-thumb{background:var(--scrollbar); border-radius:8px}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.5;font-size:14px}
+a{color:var(--accent)}
+::selection{background:rgba(180,230,0,.28)}
+*:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-thumb{background:#2b2f27;border-radius:999px}
 ::-webkit-scrollbar-track{background:transparent}
-a{color:inherit}
-button{font-family:inherit}
-.mono{font-family:'JetBrains Mono',monospace}
-.muted{color:var(--text-muted)}
-.hidden{display:none !important}
 
-/* ============ APP SHELL ============ */
-.app-shell{position:relative; z-index:1; display:flex; min-height:100vh}
-.sidebar{
-  width:252px; flex-shrink:0; background:var(--bg-panel); border-right:1px solid var(--border);
-  display:flex; flex-direction:column; position:sticky; top:0; height:100vh; z-index:40;
-  transition:transform .25s ease;
-}
-.brand{padding:22px 20px 18px; border-bottom:1px solid var(--border-soft)}
-.brand-mark{display:flex; align-items:center; gap:10px}
-.brand-badge{
-  width:36px; height:36px; border-radius:10px; flex-shrink:0;
-  background:linear-gradient(145deg, var(--accent-lime), var(--accent-lime-deep));
-  display:flex; align-items:center; justify-content:center;
-  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; color:#0a0d0e;
-}
-.brand-text{display:flex; flex-direction:column; line-height:1.25}
-.brand-title{font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14.5px; letter-spacing:.01em}
-.brand-sub{font-size:11px; color:var(--text-muted)}
+.app-shell{display:flex; min-height:100vh; padding:12px; gap:12px}
 
-.nav-scroll{flex:1; overflow-y:auto; padding:14px 12px}
-.nav-label{font-size:10.5px; text-transform:uppercase; letter-spacing:.09em; color:var(--text-muted); padding:14px 10px 8px}
-.nav-item{
-  display:flex; align-items:center; gap:11px; padding:9px 10px; border-radius:9px;
-  color:var(--text-secondary); font-size:13.3px; font-weight:500; cursor:pointer;
-  margin-bottom:2px; position:relative; user-select:none;
-}
-.nav-item svg{width:17px;height:17px; flex-shrink:0; opacity:.85}
-.nav-item:hover{background:var(--bg-raised); color:var(--text-primary)}
-.nav-item.active{background:var(--bg-raised); color:var(--accent-lime)}
-.nav-item.active svg{opacity:1}
-.nav-item.active::before{
-  content:''; position:absolute; left:-12px; top:50%; transform:translateY(-50%);
-  width:3px; height:16px; border-radius:3px; background:var(--accent-lime);
-}
-.nav-soon{margin-left:auto; font-size:9px; letter-spacing:.04em; color:var(--text-muted);
-  border:1px solid var(--border); padding:2px 6px; border-radius:999px; text-transform:uppercase}
-.nav-item.nav-group-toggle{text-transform:uppercase; letter-spacing:.02em; font-size:12.3px}
-.nav-count{margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); flex-shrink:0}
-.nav-item.active .nav-count{color:var(--accent-lime)}
-.nav-chevron{width:15px; height:15px; flex-shrink:0; color:var(--text-muted); transition:transform .15s ease; display:inline-flex; align-items:center; justify-content:center}
-.nav-chevron svg{width:100%; height:100%}
-.nav-item.expanded .nav-chevron{transform:rotate(90deg); color:var(--accent-lime)}
-.nav-unit-list{margin:2px 0 6px 0; padding-left:14px; border-left:2px solid var(--border-soft)}
-.nav-unit{
-  display:flex; flex-direction:column; gap:1px; padding:7px 10px; border-radius:8px;
-  color:var(--text-secondary); cursor:pointer; margin-bottom:1px;
-}
-.nav-unit:hover{background:var(--bg-raised); color:var(--text-primary)}
-.nav-unit.active{background:color-mix(in srgb, var(--accent-lime) 12%, transparent); color:var(--accent-lime)}
-.nav-unit-tag{font-weight:600; font-size:12.4px}
-.nav-unit-model{font-size:10.2px; color:var(--text-muted)}
-.nav-unit.active .nav-unit-model{color:inherit; opacity:.8}
+.sidebar{width:236px; flex:none; background:var(--surface-2); border:1px solid var(--border-soft); border-radius:var(--radius-lg); position:sticky; top:12px; height:calc(100vh - 24px); display:flex; flex-direction:column; overflow:hidden; transition:transform .2s}
+.sidebar-head{padding:20px 20px 18px}
+.sidebar-brand{display:flex; align-items:center; gap:11px}
+.sidebar-badge{width:34px;height:34px;flex:none;border-radius:11px;background:var(--accent);color:#12160e;display:grid;place-items:center;font-family:var(--font-mono);font-weight:700;font-size:14px;position:relative;cursor:default}
+.sidebar-badge::after{content:attr(data-tooltip);position:absolute;left:50%;top:calc(100% + 9px);transform:translateX(-50%) translateY(4px);background:var(--surface);color:var(--text);border:1px solid var(--border);padding:6px 11px;border-radius:8px;font-family:var(--font-body);font-weight:500;font-size:12px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s ease, transform .15s ease;z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+.sidebar-badge:hover::after{opacity:1;transform:translateX(-50%) translateY(0)}
+.sidebar-title{font-family:var(--font-mono); font-weight:600; font-size:14.5px; letter-spacing:-.01em}
+.sidebar-sub{font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-muted)}
+.sidebar-nav{flex:1; padding:6px 12px; display:flex; flex-direction:column; gap:4px; overflow:auto}
+.nav-label{font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-mute2); padding:6px 10px 8px}
+.nav-item{display:grid; grid-template-columns:26px 1fr; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; cursor:pointer; font-size:13.5px; color:rgba(226,232,214,.72); background:transparent; border:0; width:100%; text-align:left; font-family:inherit}
+.nav-item:hover{background:rgba(180,230,0,.09)}
+.nav-item.active{background:var(--accent); color:#12160e; font-weight:600}
+.nav-num{font-family:var(--font-mono); font-size:11px; opacity:.6}
+.scope-box{background:var(--surface); border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:9px; margin-top:8px}
+.scope-row{display:flex; justify-content:space-between; font-size:12.5px}
+.scope-row span:first-child{color:var(--text-mute2)}
+.sidebar-foot{padding:16px 20px 20px; font-size:11px; line-height:1.5; color:var(--text-muted)}
+.sidebar-foot .org{color:var(--text); font-size:12px}
 
-.sidebar-foot{padding:14px 20px 18px; border-top:1px solid var(--border-soft)}
-.plant-tag{display:flex; flex-direction:column; gap:2px}
-.plant-tag .p1{font-size:12px; font-weight:600; color:var(--text-primary)}
-.plant-tag .p2{font-size:11px; color:var(--text-muted)}
+.main-col{flex:1; min-width:0; display:flex; flex-direction:column; gap:12px}
 
-.sidebar-close{display:none}
+.topbar{display:flex; align-items:center; gap:16px; padding:14px 20px; background:var(--surface-2); border:1px solid var(--border-soft); border-radius:var(--radius-lg); flex-wrap:wrap}
+.topbar-kicker{font-size:11px; letter-spacing:.09em; text-transform:uppercase; color:var(--text-muted)}
+.topbar-title{margin:2px 0 0; font-size:22px; letter-spacing:-.005em; font-weight:600}
+.topbar-right{margin-left:auto; display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.search-box{display:flex; align-items:center; gap:9px; background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:9px 15px; width:230px}
+.search-box input{border:0; outline:0; background:transparent; font:inherit; font-size:13px; color:var(--text); width:100%}
+.seg{border:1px solid var(--border); border-radius:999px; overflow:hidden; background:var(--surface); display:flex}
+.seg button{border:0; background:transparent; color:rgba(226,232,214,.65); font-size:12px; padding:8px 14px; cursor:pointer; font-family:inherit}
+.seg button.active{background:var(--accent); color:#12160e; border-radius:999px; font-weight:600}
+.menu-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; width:34px; height:34px; align-items:center; justify-content:center; color:var(--text-muted); cursor:pointer}
 
-/* ============ MAIN COLUMN ============ */
-.main-col{flex:1; min-width:0; display:flex; flex-direction:column}
-.navbar{
-  position:sticky; top:0; z-index:30; height:66px; flex-shrink:0;
-  background:color-mix(in srgb, var(--bg-panel) 88%, transparent);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--border);
-  display:flex; align-items:center; justify-content:space-between;
-  padding:0 22px; gap:16px;
-}
-.nav-left{display:flex; align-items:center; gap:14px; min-width:0}
-.menu-toggle{display:none; background:none; border:1px solid var(--border); border-radius:8px; width:34px;height:34px; align-items:center; justify-content:center; color:var(--text-secondary); cursor:pointer}
-.page-heading{min-width:0}
-.page-heading h1{font-family:'Space Grotesk',sans-serif; font-size:16.5px; font-weight:600; margin:0; letter-spacing:.01em}
-.page-heading .sub{font-size:11.5px; color:var(--text-muted); margin-top:1px}
-.nav-right{display:flex; align-items:center; gap:10px; flex-shrink:0}
-.search-box{
-  display:flex; align-items:center; gap:8px; background:var(--bg-raised); border:1px solid var(--border);
-  border-radius:9px; padding:7px 11px; width:220px;
-}
-.search-box svg{width:15px;height:15px; color:var(--text-muted); flex-shrink:0}
-.search-box input{
-  border:none; outline:none; background:transparent; color:var(--text-primary); font-size:12.8px; width:100%;
-}
-.search-box input::placeholder{color:var(--text-muted)}
-.icon-btn{
-  width:36px;height:36px; border-radius:9px; border:1px solid var(--border); background:var(--bg-raised);
-  display:flex; align-items:center; justify-content:center; color:var(--text-secondary); cursor:pointer; position:relative;
-}
-.icon-btn svg{width:16px;height:16px}
-.icon-btn:hover{color:var(--text-primary); border-color:var(--accent-lime)}
-.bell-badge{
-  position:absolute; top:-4px; right:-4px; background:var(--accent-red); color:#fff; font-size:9.5px; font-weight:700;
-  min-width:15px; height:15px; border-radius:999px; display:flex; align-items:center; justify-content:center; padding:0 3px;
-}
-.user-avatar{width:36px;height:36px; border-radius:999px; background:linear-gradient(145deg,var(--accent-lime),var(--accent-lime-deep)); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#0a0d0e; font-family:'Space Grotesk',sans-serif; cursor:default; flex-shrink:0}
+main.screen-area{flex:1; display:flex; flex-direction:column; gap:12px}
+.screen{display:none; flex-direction:column; gap:12px}
+.screen.active{display:flex}
 
-.content{flex:1; padding:22px 26px 60px; display:flex; flex-direction:column; gap:20px; max-width:1520px; width:100%; margin:0 auto}
+.card{background:var(--surface); border:1px solid var(--border-soft); border-radius:16px; padding:16px 18px}
+.card-head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px}
+.card-title{font-size:15px; font-weight:600}
+.card-sub{font-size:12px; color:var(--text-muted); margin-top:2px}
 
-/* ============ PANEL / SECTION SHELL ============ */
-.panel{
-  background:var(--bg-panel); border:1px solid var(--border); border-radius:16px; padding:20px 22px;
-  box-shadow:var(--shadow-panel);
-}
-.panel-header{display:flex; align-items:flex-start; justify-content:space-between; gap:14px; margin-bottom:16px; flex-wrap:wrap}
-.panel-title{font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:600; margin:0; display:flex; align-items:center; gap:8px}
-.panel-sub{font-size:11.5px; color:var(--text-muted); margin-top:3px}
+.kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
+.kpi-card{background:var(--surface); border:1px solid var(--border-soft); border-radius:16px; padding:16px 18px 0; overflow:hidden; display:flex; flex-direction:column}
+.kpi-top{display:flex; align-items:baseline; justify-content:space-between; gap:8px}
+.kpi-label{font-size:12.5px; color:var(--text-muted)}
+.kpi-badge{font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-mute2)}
+.kpi-val-row{display:flex; align-items:baseline; gap:6px; margin-top:8px}
+.kpi-val{font-family:var(--font-mono); font-size:26px; font-weight:600}
+.kpi-unit{font-size:12px; color:var(--text-muted)}
+.kpi-note{font-size:11.5px; color:var(--text-mute2); margin-top:2px; padding-bottom:12px}
+.kpi-spark{height:44px; margin-top:auto}
 
-.tab-group{display:flex; background:var(--bg-raised); border:1px solid var(--border); border-radius:999px; padding:3px; gap:2px}
-.tab-btn{padding:6px 13px; border-radius:999px; font-size:11.8px; font-weight:600; color:var(--text-muted); background:none; border:none; cursor:pointer; white-space:nowrap}
-.tab-btn.active{background:var(--accent-lime); color:#0a0d0e}
+.row-2{display:grid; grid-template-columns:1.5fr 1fr; gap:12px}
+.row-2 .card{min-width:0}
 
-.row-2{display:grid; grid-template-columns:1.55fr 1fr; gap:20px}
-.row-2b{display:grid; grid-template-columns:1.1fr 1fr; gap:20px}
+.tag{border-radius:999px; border:0; display:inline-block; white-space:nowrap; padding:4px 10px; font-size:11.5px}
 
-/* ============ KPI CARDS ============ */
-.kpi-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px}
-.kpi-card{
-  background:var(--bg-panel); border:1px solid var(--border); border-radius:14px; padding:16px 18px;
-  box-shadow:var(--shadow-panel); display:flex; flex-direction:column; gap:8px; min-width:0;
-}
-.kpi-eyebrow{font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.07em; text-transform:uppercase; color:var(--text-muted)}
-.kpi-value{font-family:'JetBrains Mono',monospace; font-size:1.85rem; font-weight:700; line-height:1; display:flex; align-items:baseline; gap:5px}
-.kpi-value .unit{font-size:.68rem; color:var(--text-muted); font-weight:500}
-.kpi-delta{font-size:11.3px; color:var(--text-secondary); display:flex; align-items:center; gap:5px; min-height:15px}
-.kpi-delta .arrow-up{color:var(--accent-lime)}
-.kpi-delta .arrow-down{color:var(--accent-cyan)}
-
-/* ============ TREND / CATEGORY PANELS ============ */
-.chart-box{height:270px; position:relative}
-.legend-list{display:flex; flex-direction:column; gap:10px; margin-top:6px}
-.legend-row{display:flex; align-items:center; gap:10px; font-size:12.5px}
-.legend-dot{width:9px;height:9px;border-radius:3px; flex-shrink:0}
-.legend-name{flex:1; color:var(--text-secondary)}
-.legend-val{font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-primary)}
-.legend-count{font-size:10.5px; color:var(--text-muted)}
-.category-flex{display:flex; gap:22px; align-items:center; flex-wrap:wrap}
-.category-flex .chart-box{width:170px; height:170px; flex-shrink:0}
-.category-flex .legend-list{flex:1; min-width:180px}
-
-/* ============ RANKING ============ */
-.rank-row{display:flex; align-items:center; gap:12px; padding:8px 0}
-.rank-row + .rank-row{border-top:1px solid var(--border-soft)}
-.rank-num{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); width:16px; text-align:center; flex-shrink:0}
+.rank-row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border-soft)}
+.rank-row:last-child{border-bottom:0}
+.rank-num{font-family:var(--font-mono); font-size:11px; color:var(--text-mute2); width:20px; flex-shrink:0}
 .rank-info{flex:1; min-width:0}
-.rank-name{font-size:12.6px; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:5px}
-.rank-bar-track{height:6px; border-radius:4px; background:var(--border-soft); overflow:hidden}
-.rank-bar-fill{height:100%; border-radius:4px}
-.rank-value{font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-secondary); white-space:nowrap; flex-shrink:0; text-align:right}
-.rank-value .rank-subvalue{display:block; font-size:10px; color:var(--text-muted); margin-top:3px}
+.rank-name{font-size:13px; margin-bottom:5px}
+.rank-track{height:5px; border-radius:999px; background:#22261e; overflow:hidden}
+.rank-fill{height:100%; background:linear-gradient(90deg,#8ab81a,#d3ff3d); border-radius:999px}
+.rank-val{font-family:var(--font-mono); font-size:12.5px; flex-shrink:0; text-align:right; min-width:56px}
 
-.btn-mini{
-  font-size:11px; font-weight:600; padding:6px 11px; border-radius:7px; border:1px solid var(--border);
-  background:var(--bg-panel); color:var(--text-secondary); cursor:pointer; white-space:nowrap; flex-shrink:0;
-}
-.btn-mini:hover{border-color:var(--accent-lime); color:var(--accent-lime)}
-.empty-state{font-size:12.5px; color:var(--text-muted); padding:18px 4px; text-align:center}
+.table{width:100%; border-collapse:collapse; font-size:13.5px}
+.table th{color:rgba(226,232,214,.62); border-bottom:1px solid var(--border-soft); font-size:11px; letter-spacing:.08em; text-transform:uppercase; font-weight:500; text-align:left; padding:8px 10px}
+.table td{border-bottom:1px solid rgba(230,236,220,.06); color:var(--text); padding:9px 10px; font-variant-numeric:tabular-nums}
+.table tbody tr:hover{background:rgba(180,230,0,.05)}
+.table td.num, .table th.num{text-align:right}
 
-/* ============ ACTIVITY FEED ============ */
-.activity-item{display:flex; align-items:flex-start; gap:12px; padding:11px 0; border-bottom:1px solid var(--border-soft)}
-.activity-item:last-child{border-bottom:none}
-.activity-icon{
-  width:30px;height:30px; border-radius:9px; flex-shrink:0; display:flex; align-items:center; justify-content:center;
-  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px;
-}
-.activity-icon.masuk{background:color-mix(in srgb, var(--accent-lime) 16%, transparent); color:var(--accent-lime)}
-.activity-icon.keluar{background:color-mix(in srgb, var(--accent-cyan) 16%, transparent); color:var(--accent-cyan)}
-.activity-body{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px}
-.activity-title{font-size:12.8px; color:var(--text-primary); display:flex; align-items:center; gap:8px; flex-wrap:wrap}
-.activity-title .qty.masuk{color:var(--accent-lime)}
-.activity-title .qty.keluar{color:var(--accent-cyan)}
-.activity-meta{font-size:11.3px; color:var(--text-muted)}
-.activity-time{font-size:11px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; padding-top:2px}
-.undo-btn{
-  width:26px; height:26px; border-radius:7px; border:1px solid var(--border); background:var(--bg-raised);
-  color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;
-  flex-shrink:0;
-}
-.undo-btn:hover{color:var(--accent-red); border-color:var(--accent-red); background:color-mix(in srgb, var(--accent-red) 12%, transparent)}
-.undo-btn:disabled{opacity:.5; cursor:not-allowed}
-.undo-btn svg{width:13px;height:13px}
+.input, select.input{background:var(--surface-2); color:var(--text); border:1px solid var(--border); border-radius:10px; height:38px; padding:0 12px; font:inherit; font-size:13px; width:100%}
+.input::placeholder{color:rgba(226,232,214,.5)}
+select.input option, select.input optgroup{background:var(--surface-2); color:var(--text)}
+.field{display:flex; flex-direction:column; gap:6px}
+.field label{color:rgba(226,232,214,.65); font-size:11px; font-weight:500; letter-spacing:.08em; text-transform:uppercase}
 
-/* ============ TABLE / TOOLBAR ============ */
-.table-toolbar{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:16px}
-.toolbar-left{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
-.toolbar-search{
-  display:flex; align-items:center; gap:8px; background:var(--bg-raised); border:1px solid var(--border);
-  border-radius:9px; padding:8px 12px; width:230px;
-}
-.toolbar-search svg{width:14px;height:14px; color:var(--text-muted); flex-shrink:0}
-.toolbar-search input{border:none; outline:none; background:transparent; color:var(--text-primary); font-size:12.6px; width:100%}
-.toolbar-search input::placeholder{color:var(--text-muted)}
-.select-field{
-  background:var(--bg-raised); border:1px solid var(--border); border-radius:9px; padding:8px 30px 8px 12px;
-  color:var(--text-secondary); font-size:12.4px; cursor:pointer; appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239aa5a3' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat; background-position:right 9px center; background-size:13px;
-}
-.export-group{display:flex; gap:8px}
-.btn-export{
-  display:flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:8px 13px; border-radius:9px;
-  border:1px solid var(--border); background:var(--bg-raised); color:var(--text-secondary); cursor:pointer;
-}
-.btn-export svg{width:13px;height:13px}
-.btn-export:hover{border-color:var(--accent-lime); color:var(--accent-lime)}
+.btn{color:var(--text); border:1px solid var(--border); border-radius:10px; background:transparent; cursor:pointer; font:inherit; font-size:13px; padding:9px 16px}
+.btn:hover{background:rgba(180,230,0,.1)}
+.btn-primary{background:var(--accent); color:#12160e; border-color:var(--accent); font-weight:600}
+.btn-primary:hover{background:var(--accent-600)}
+.btn-primary:disabled{opacity:.5; cursor:not-allowed; background:var(--border)}
+.btn-ghost{border-color:transparent}
+.btn-block{width:100%; display:block; text-align:center}
 
-.table-scroll{overflow-x:auto}
-table.inv-table{width:100%; border-collapse:collapse; font-size:12.7px; min-width:920px}
-.inv-table thead th{
-  text-align:left; padding:9px 12px; color:var(--text-muted); font-size:10.6px; text-transform:uppercase;
-  letter-spacing:.045em; border-bottom:1px solid var(--border); white-space:nowrap; user-select:none;
-}
-.inv-table thead th.sortable{cursor:pointer}
-.inv-table thead th.sortable:hover{color:var(--text-primary)}
-.sort-icon{opacity:.35; margin-left:3px; font-size:9px}
-.sort-icon.active{opacity:1; color:var(--accent-lime)}
-.inv-table tbody td{padding:10px 12px; border-bottom:1px solid var(--border-soft); color:var(--text-secondary); vertical-align:middle}
-.inv-table tbody tr.inv-row:hover{background:var(--bg-raised)}
-.inv-table td.num{text-align:right; font-family:'JetBrains Mono',monospace}
-.inv-table td.num.in{color:var(--accent-lime)}
-.inv-table td.num.out{color:var(--accent-cyan)}
-.unit-tag{font-size:10px; color:var(--text-muted); font-family:'Inter',sans-serif}
-.cat-chip{
-  display:inline-flex; align-items:center; gap:6px; font-size:11px; padding:3px 9px; border-radius:999px;
-  background:var(--bg-raised); border:1px solid var(--border); color:var(--text-secondary); white-space:nowrap;
-}
-.cat-chip::before{content:''; width:7px;height:7px; border-radius:999px; background:var(--chip-color)}
-.expand-btn{
-  font-size:11px; font-weight:600; color:var(--text-muted); background:none; border:1px solid var(--border);
-  border-radius:7px; padding:5px 10px; cursor:pointer; display:flex; align-items:center; gap:4px;
-}
-.expand-btn:hover{color:var(--text-primary); border-color:var(--text-muted)}
-.expand-btn svg{width:11px;height:11px; transition:transform .15s}
-.expand-btn.open svg{transform:rotate(180deg)}
-.add-usage-btn{
-  width:26px; height:26px; border-radius:7px; border:1px solid var(--border); background:var(--bg-raised);
-  color:var(--accent-lime); cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;
-}
-.add-usage-btn:hover{background:color-mix(in srgb, var(--accent-lime) 14%, transparent); border-color:var(--accent-lime)}
-.add-usage-btn svg{width:14px;height:14px}
-.row-actions{display:flex; align-items:center; gap:6px}
-tr.detail-row td{background:var(--bg-panel-2); padding:14px 20px; font-size:12px; color:var(--text-muted); line-height:1.8}
-tr.detail-row b{color:var(--text-secondary); font-weight:600}
+.chip-group-label{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-mute2); margin:14px 0 8px}
+.chip-group-label:first-child{margin-top:0}
+/* compact search box above parts list */
+.part-search-wrap{position:relative; margin-bottom:8px}
+.part-search-wrap .input{height:32px; padding-left:30px; font-size:12.5px}
+.part-search-wrap svg{position:absolute; left:9px; top:50%; transform:translateY(-50%); width:14px; height:14px; opacity:.5; pointer-events:none}
 
-.table-footer{display:flex; align-items:center; justify-content:space-between; margin-top:16px; flex-wrap:wrap; gap:10px}
-.table-summary{font-size:11.8px; color:var(--text-muted)}
-.pagination{display:flex; align-items:center; gap:5px}
-.page-btn{
-  min-width:30px; height:30px; padding:0 8px; border-radius:8px; border:1px solid var(--border); background:var(--bg-raised);
-  color:var(--text-secondary); font-size:12px; font-family:'JetBrains Mono',monospace; cursor:pointer;
-}
-.page-btn:hover:not(:disabled){border-color:var(--accent-lime); color:var(--accent-lime)}
-.page-btn.active{background:var(--accent-lime); color:#0a0d0e; border-color:var(--accent-lime); font-weight:700}
-.page-btn:disabled{opacity:.35; cursor:not-allowed}
+/* scroll-capped parts list */
+.parts-scroll{max-height:380px; overflow-y:auto; padding-right:2px}
 
-/* ============ CTA BUTTONS ============ */
-.btn-cta{
-  display:flex; align-items:center; gap:7px; height:34px; padding:0 14px; border-radius:9px;
-  border:1px solid var(--border); background:var(--bg-raised); color:var(--text-primary);
-  font-size:12.3px; font-weight:600; cursor:pointer; white-space:nowrap;
-}
-.btn-cta svg{width:14px;height:14px}
-.btn-cta.primary{background:var(--accent-lime); color:#0a0d0e; border-color:var(--accent-lime)}
-.btn-cta.primary:hover{filter:brightness(1.06)}
-.btn-cta:not(.primary):hover{border-color:var(--accent-lime); color:var(--accent-lime)}
+.part-row{display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--border-soft); cursor:pointer}
+.part-row:last-child{border-bottom:0}
+.part-row.selected{background:rgba(180,230,0,.05)}
+.part-row .part-name-line{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px}
+.part-row .part-name-line .sku-tag{font-size:11px; color:var(--text-muted); font-family:var(--font-mono)}
+.qty-stepper{display:flex; align-items:center; gap:6px; flex-shrink:0}
+.qty-stepper button{width:24px; height:24px; border-radius:7px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); cursor:pointer; font-size:14px; line-height:1; flex:none}
+.qty-stepper span{font-family:var(--font-mono); min-width:20px; text-align:center; font-size:12.5px}
+.qty-input{width:56px; height:24px; text-align:center; font-family:var(--font-mono); font-size:12.5px; background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:7px; padding:0 2px}
+.qty-input:focus{outline:2px solid var(--accent); outline-offset:1px}
+.qty-input::-webkit-outer-spin-button, .qty-input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+.qty-input[type=number]{-moz-appearance:textfield}
 
-/* ============ DOWNLOAD DROPDOWN ============ */
-.dropdown{position:relative}
-.dropdown-menu{
-  position:absolute; top:calc(100% + 6px); right:0; min-width:130px; background:var(--bg-panel);
-  border:1px solid var(--border); border-radius:10px; padding:6px; box-shadow:0 12px 30px -14px rgba(0,0,0,.55);
-  display:none; flex-direction:column; gap:2px; z-index:20;
-}
-.dropdown-menu.open{display:flex}
-.dropdown-item{
-  display:flex; align-items:center; gap:8px; padding:8px 10px; border-radius:7px; border:none; background:none;
-  color:var(--text-secondary); font-size:12.4px; font-weight:600; cursor:pointer; text-align:left; width:100%;
-}
-.dropdown-item:hover{background:var(--bg-raised); color:var(--accent-lime)}
+.unit-plate{display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:12px; border:1px solid var(--border-soft); background:var(--surface-2); cursor:pointer; margin-bottom:8px}
+.unit-plate.active{background:var(--accent); border-color:var(--accent)}
+.unit-plate.active .up-tag, .unit-plate.active .up-name{color:#12160e}
+.up-tag{font-family:var(--font-mono); font-weight:600; font-size:13px}
+.up-name{font-size:11.5px; color:var(--text-muted)}
+.up-bar-wrap{flex:1; min-width:0}
+.up-track{height:5px; border-radius:999px; background:#22261e; overflow:hidden; margin-top:4px}
+.up-fill{height:100%; background:linear-gradient(90deg,#8ab81a,#d3ff3d); border-radius:999px}
+.unit-plate.active .up-track{background:rgba(18,22,14,.28)}
+.unit-plate.active .up-fill{background:#12160e}
 
-/* ============ INPUT DATA MODAL ============ */
-.modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:60; padding:16px}
-.modal-overlay.open{display:flex}
-.modal-box{background:var(--bg-panel); border:1px solid var(--border-strong,var(--border)); border-radius:16px; width:min(420px,94vw); padding:22px; box-shadow:0 16px 40px -12px rgba(0,0,0,.55)}
-.modal-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px}
-.modal-head h3{font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:600; margin:0}
-.modal-body label{display:block; font-size:11.8px; color:var(--text-secondary); font-weight:600; margin:14px 0 6px}
-.modal-body > label:first-child{margin-top:0}
-.modal-body select, .modal-body input{
-  width:100%; height:38px; border-radius:9px; border:1px solid var(--border); background:var(--bg-raised);
-  color:var(--text-primary); padding:0 12px; font-size:13px; font-family:'Inter',sans-serif;
-}
-.modal-body select:focus, .modal-body input:focus{outline:2px solid var(--accent-lime); outline-offset:1px}
-.modal-body select:disabled, .modal-body input:disabled{
-  color:var(--text-muted); background:var(--bg-void); cursor:not-allowed; opacity:.6;
-}
-.modal-hint{font-size:11.3px; min-height:16px; margin:8px 0 0; color:var(--text-muted)}
-.filter-chip{
-  display:inline-flex; align-items:center; gap:8px; margin-top:9px; padding:5px 10px;
-  border-radius:999px; font-size:11.5px; font-weight:600;
-  background:color-mix(in srgb, var(--accent-lime) 13%, transparent);
-  color:var(--accent-lime); border:1px solid color-mix(in srgb, var(--accent-lime) 35%, transparent);
-}
-.filter-chip button{
-  background:none; border:none; color:inherit; cursor:pointer; font-size:14px;
-  line-height:1; padding:0; opacity:.75;
-}
-.filter-chip button:hover{opacity:1}
-.modal-subnote{font-size:10.8px; color:var(--text-muted); margin:5px 0 0}
-.modal-subnote.auto{color:var(--accent-lime)}
-.modal-actions{display:flex; justify-content:flex-end; gap:8px; margin-top:18px}
-.modal-actions .btn-secondary, .modal-actions .btn-primary{
-  height:38px; border-radius:9px; font-size:12.8px; font-weight:600; padding:0 16px; cursor:pointer; border:1px solid var(--border);
-}
-.modal-actions .btn-secondary{background:var(--bg-raised); color:var(--text-primary)}
-.modal-actions .btn-primary{background:var(--accent-lime); color:#0a0d0e; border-color:var(--accent-lime)}
-.modal-actions .btn-primary:hover{filter:brightness(1.06)}
-.modal-actions .btn-primary:disabled{
-  background:var(--border); color:var(--text-muted); border-color:var(--border); cursor:not-allowed; filter:none; opacity:1;
-}
-.modal-close{
-  width:30px;height:30px; border-radius:999px; border:1px solid var(--border); background:none;
-  color:var(--text-secondary); cursor:pointer; display:flex; align-items:center; justify-content:center;
-}
-.modal-close:hover{color:var(--text-primary); border-color:var(--accent-lime)}
+.col-toggle{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); border-radius:999px; padding:6px 12px; margin:0 6px 6px 0; cursor:pointer; font-size:12px; background:transparent; color:rgba(226,232,214,.55)}
+.col-toggle.on{background:var(--accent-300); color:var(--accent-800); border-color:var(--accent)}
 
-/* ============ TOAST ============ */
-.toast{
-  background:var(--bg-panel); border:1px solid var(--border); color:var(--text-primary); font-size:12.6px;
-  padding:11px 16px; border-radius:10px; box-shadow:0 10px 30px -12px rgba(0,0,0,.5); display:flex; align-items:center; gap:9px;
-  animation:toast-in .2s ease; max-width:320px;
-}
-.toast .dot{width:8px;height:8px;border-radius:999px; background:var(--accent-lime); flex-shrink:0}
-@keyframes toast-in{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
+.empty-state{padding:24px; text-align:center; color:var(--text-muted); font-size:13px}
+.toast{position:fixed; bottom:22px; left:50%; transform:translateX(-50%); background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:11px 20px; font-size:13px; display:flex; align-items:center; gap:9px; box-shadow:0 12px 30px rgba(0,0,0,.4); z-index:80; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(-6px)}
+.toast .dot{width:8px;height:8px;border-radius:999px; background:var(--accent); flex-shrink:0}
+.scrim{display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:35}
 
-/* ============ RESPONSIVE ============ */
 @media (max-width:1180px){
-  .row-2, .row-2b{grid-template-columns:1fr}
-  .sidebar{position:fixed; left:0; top:0; transform:translateX(-100%); box-shadow:0 0 0 9999px rgba(0,0,0,0)}
-  .app-shell.sidebar-open .sidebar{transform:translateX(0); box-shadow:20px 0 40px rgba(0,0,0,.35)}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .row-2{grid-template-columns:1fr}
+  .sidebar{position:fixed; left:12px; top:12px; transform:translateX(-260px); z-index:40}
+  .app-shell.sidebar-open .sidebar{transform:translateX(0); box-shadow:20px 0 40px rgba(0,0,0,.5)}
+  .app-shell.sidebar-open .scrim{display:block}
   .menu-toggle{display:flex}
 }
 @media (max-width:720px){
-  .content{padding:16px 14px 50px}
+  .kpi-grid{grid-template-columns:1fr 1fr}
   .search-box{display:none}
-  .navbar{padding:0 14px}
-  .category-flex{flex-direction:column; align-items:stretch}
-  .category-flex .chart-box{width:100%; margin:0 auto}
-}
-@media (max-width:460px){
-  .kpi-value{font-size:1.5rem}
+  .topbar{padding:12px 14px}
 }
 </style>
 </head>
 <body>
 <div class="app-shell" id="app-shell">
 
-  <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <div class="brand-mark">
-        <div class="brand-badge">
-          <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="#0a0d0e" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6.5" width="18" height="11" rx="2"/><path d="M12 6.5v-2M8 20.5v-2.6M16 20.5v-2.6"/><path d="M13 9.5h-2.4l1 2.6H9.4l1.2 3.4"/></svg>
-        </div>
-        <div class="brand-text">
-          <div class="brand-title">Genset Inventory System</div>
+    <div class="sidebar-head">
+      <div class="sidebar-brand">
+        <div class="sidebar-badge" data-tooltip="Riva Mustofa">RM</div>
+        <div>
+          <div class="sidebar-title">CONSUMABLE</div>
+          <div class="sidebar-sub">Genset Materials</div>
         </div>
       </div>
     </div>
-    <nav class="nav-scroll">
-      <div class="nav-label">Grup &amp; Unit Genset</div>
-      <div class="nav-item active" id="nav-all-units" data-group="all">
-        <span style="flex:1">Semua unit</span>
-        <span class="nav-count">31</span>
+    <nav class="sidebar-nav">
+      <div class="nav-label">Modul</div>
+      <button class="nav-item" data-screen="overview"><span class="nav-num">01</span><span>Overview</span></button>
+      <button class="nav-item" data-screen="catalog"><span class="nav-num">02</span><span>Katalog Material</span></button>
+      <button class="nav-item" data-screen="record"><span class="nav-num">03</span><span>Catat Pemakaian</span></button>
+      <button class="nav-item" data-screen="units"><span class="nav-num">04</span><span>Unit Genset</span></button>
+      <button class="nav-item" data-screen="reports"><span class="nav-num">05</span><span>Laporan</span></button>
+
+      <div class="nav-label" style="margin-top:14px">Lingkup Aktif</div>
+      <div class="scope-box">
+        <div class="scope-row"><span>Field</span><span>PB Field</span></div>
+        <div class="scope-row"><span>Unit genset</span><span id="scope-unit-count">–</span></div>
+        <div class="scope-row"><span>Periode</span><span id="scope-period">–</span></div>
+        <div class="scope-row"><span>Koneksi</span><span id="conn-badge">–</span></div>
       </div>
-      <div id="genset-group-nav"></div>
     </nav>
     <div class="sidebar-foot">
-      <div class="plant-tag">
-        <span class="p1">PB Field · Riau</span>
-        <span class="p2">TexCal Energy Mahato Inc.</span>
-      </div>
+      <div class="org">TexCal Energy Mahato Inc.</div>
+      <div>Maintenance &amp; Instrumentation</div>
     </div>
   </aside>
 
-  <!-- ============ MAIN ============ -->
   <div class="main-col">
-    <header class="navbar">
-      <div class="nav-left">
-        <button class="menu-toggle" id="menu-toggle" aria-label="Buka menu">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-        </button>
-        <div class="page-heading">
-          <h1>Genset Parts Inventory Dashboard</h1>
-          <div class="sub"><span id="conn-badge" style="font-weight:600">● Mode demo</span> <span id="data-asof" style="color:var(--text-muted)"></span></div>
-        </div>
+    <header class="topbar">
+      <button class="menu-toggle" id="menu-toggle" aria-label="Buka menu">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+      <div style="min-width:0">
+        <div class="topbar-kicker" id="screen-kicker">Dashboard</div>
+        <h1 class="topbar-title" id="screen-title" style="font-family:var(--font-body)">Ringkasan Konsumsi Material</h1>
       </div>
-      <div class="nav-right">
+      <div class="topbar-right">
         <div class="search-box">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
-          <input type="text" id="global-search" placeholder="Cari SKU atau nama part…">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(226,232,214,.6)" stroke-width="1.5"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.2-3.2"></path></svg>
+          <input id="global-search" placeholder="Cari SKU / material…">
         </div>
-        <div class="user-avatar" title="Riva · Instrumentation & Maintenance">RM</div>
+        <div class="seg" id="period-seg">
+          <button data-period="30" class="active">30 h</button>
+          <button data-period="90">90 h</button>
+          <button data-period="365">12 bln</button>
+        </div>
       </div>
     </header>
 
-    <main class="content" id="content">
-      <!-- ============ KPI ROW ============ -->
-      <section class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-eyebrow">Total Produk</div>
-          <div class="kpi-value" id="kpi-total-produk">–</div>
-          <div class="kpi-delta muted" id="kpi-total-kategori">–</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-eyebrow">Pemakaian · 30 Hari</div>
-          <div class="kpi-value" id="kpi-keluar">–</div>
-          <div class="kpi-delta" id="kpi-keluar-delta">–</div>
-        </div>
-      </section>
+    <main class="screen-area">
 
-      <!-- ============ TREND + CATEGORY ============ -->
-      <section class="row-2">
-        <div class="panel">
-          <div class="panel-header">
-            <div>
-              <h2 class="panel-title">Tren Pemakaian Part</h2>
-              <div class="panel-sub">Total qty part yang dipakai per periode</div>
+      <!-- ================= OVERVIEW ================= -->
+      <section class="screen active" id="screen-overview">
+        <div class="kpi-grid" id="kpi-grid"></div>
+        <div class="row-2">
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title">Tren Pemakaian</div><div class="card-sub" id="trend-sub">12 bulan terakhir</div></div>
             </div>
-            <div class="tab-group" id="trend-tabs">
-              <button class="tab-btn active" data-period="daily">Harian</button>
-              <button class="tab-btn" data-period="weekly">Mingguan</button>
-              <button class="tab-btn" data-period="monthly">Bulanan</button>
-              <button class="tab-btn" data-period="yearly">12 Bulan</button>
+            <div style="height:220px"><canvas id="trend-chart"></canvas></div>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title">Distribusi Kategori</div><div class="card-sub" id="donut-sub">Periode aktif</div></div>
             </div>
-          </div>
-          <div class="chart-box"><canvas id="trend-chart"></canvas></div>
-        </div>
-        <div class="panel">
-          <div class="panel-header">
-            <div>
-              <h2 class="panel-title">Distribusi Kategori</h2>
-              <div class="panel-sub">Berdasarkan pemakaian 30 hari</div>
-            </div>
-          </div>
-          <div class="category-flex">
-            <div class="chart-box"><canvas id="category-chart"></canvas></div>
-            <div class="legend-list" id="category-legend"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ============ RANKING PEMAKAIAN ============ -->
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">Ranking Pemakaian Produk</h2>
-            <div class="panel-sub" id="ranking-sub">–</div>
-          </div>
-        </div>
-        <div id="ranking-list"></div>
-      </section>
-
-      <!-- ============ RANKING UNIT GENSET ============ -->
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">Ranking Konsumsi Part per Unit Genset</h2>
-            <div class="panel-sub" id="genset-ranking-sub">–</div>
-          </div>
-          <div class="dropdown" id="genset-download-dropdown">
-            <button class="icon-btn dropdown-toggle" id="btn-genset-download-toggle" title="Download ranking unit genset" aria-label="Download ranking unit genset" aria-haspopup="true" aria-expanded="false">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
-            </button>
-            <div class="dropdown-menu" id="genset-download-menu">
-              <button class="dropdown-item" id="btn-genset-csv">CSV</button>
-              <button class="dropdown-item" id="btn-genset-excel">Excel</button>
-              <button class="dropdown-item" id="btn-genset-pdf">PDF</button>
+            <div style="display:flex; align-items:center; gap:16px">
+              <div style="width:130px;height:130px;flex:none"><canvas id="category-donut"></canvas></div>
+              <div id="category-legend" style="flex:1; min-width:0"></div>
             </div>
           </div>
         </div>
-        <div id="genset-ranking-list"></div>
-      </section>
-
-      <!-- ============ RECENT ACTIVITY ============ -->
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">Riwayat Pemakaian Terbaru</h2>
-            <div class="panel-sub">20 riwayat pemakaian terbaru — export berisi seluruh riwayat</div>
+        <div class="row-2">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Material teratas</div></div>
+            <div id="top-parts-list"></div>
           </div>
-          <div style="display:flex; gap:8px; flex-wrap:wrap">
-            <div class="dropdown" id="activity-download-dropdown">
-              <button class="icon-btn dropdown-toggle" id="btn-activity-download-toggle" title="Download aktivitas" aria-label="Download aktivitas" aria-haspopup="true" aria-expanded="false">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
-              </button>
-              <div class="dropdown-menu" id="activity-download-menu">
-                <button class="dropdown-item" id="btn-activity-csv">CSV</button>
-                <button class="dropdown-item" id="btn-activity-excel">Excel</button>
-                <button class="dropdown-item" id="btn-activity-pdf">PDF</button>
-              </div>
-            </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Unit genset teratas</div></div>
+            <div id="top-units-list"></div>
           </div>
         </div>
-        <div id="activity-list"></div>
-      </section>
-
-      <!-- ============ INVENTORY TABLE ============ -->
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2 class="panel-title">Tabel Inventaris Lengkap</h2>
-            <div class="panel-sub">Klik header kolom untuk mengurutkan · klik "Detail" untuk melihat unit genset</div>
-            <div id="active-filter-chip"></div>
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">Transaksi terbaru</div></div>
+            <button class="btn btn-ghost" id="btn-goto-reports" style="color:var(--accent); font-size:12px">Lihat semua →</button>
           </div>
-        </div>
-        <div class="table-toolbar">
-          <div class="toolbar-left">
-            <div class="toolbar-search">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
-              <input type="text" id="table-search" placeholder="Cari SKU / nama part…">
-            </div>
-            <select class="select-field" id="filter-category">
-              <option value="all">Semua Kategori</option>
-            </select>
-          </div>
-          <div class="dropdown" id="inv-download-dropdown">
-            <button class="icon-btn dropdown-toggle" id="btn-inv-download-toggle" title="Download inventaris" aria-label="Download inventaris" aria-haspopup="true" aria-expanded="false">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13m0 0-4-4m4 4 4-4"/><path d="M4 17v2.5A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5V17"/></svg>
-            </button>
-            <div class="dropdown-menu" id="inv-download-menu">
-              <button class="dropdown-item" id="export-csv">CSV</button>
-              <button class="dropdown-item" id="export-excel">Excel</button>
-              <button class="dropdown-item" id="export-pdf">PDF</button>
-            </div>
-          </div>
-        </div>
-        <div class="table-scroll">
-          <table class="inv-table">
-            <thead>
-              <tr>
-                <th>No</th>
-                <th class="sortable" data-key="sku">SKU <span class="sort-icon">▲▼</span></th>
-                <th class="sortable" data-key="name">Nama Part <span class="sort-icon">▲▼</span></th>
-                <th class="sortable" data-key="category">Kategori <span class="sort-icon">▲▼</span></th>
-                <th class="sortable" data-key="keluar_30d" style="text-align:right">Pemakaian 30h <span class="sort-icon">▲▼</span></th>
-                <th style="width:68px"></th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="inv-tbody"></tbody>
+          <table class="table" id="recent-tx-table">
+            <thead><tr><th>Tanggal</th><th>Material</th><th>Unit genset</th><th>Keperluan</th><th class="num">Qty</th><th></th></tr></thead>
+            <tbody id="recent-tx-body"></tbody>
           </table>
         </div>
-        <div class="table-footer">
-          <div class="table-summary" id="inv-summary">–</div>
-          <div class="pagination" id="inv-pagination"></div>
+      </section>
+
+      <!-- ================= CATALOG ================= -->
+      <section class="screen" id="screen-catalog">
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">Katalog material</div><div class="card-sub" id="catalog-count">–</div></div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px" id="catalog-filters"></div>
+          <table class="table">
+            <thead><tr><th>SKU</th><th>Material</th><th>Kategori</th><th>Satuan</th><th>Model engine</th><th class="num">Pemakaian</th><th class="num">Unit</th></tr></thead>
+            <tbody id="catalog-body"></tbody>
+          </table>
         </div>
       </section>
+
+      <!-- ================= RECORD ================= -->
+      <section class="screen" id="screen-record">
+        <div class="row-2" style="grid-template-columns:1fr 300px">
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title" id="record-unit-label">Pilih unit genset</div><div class="card-sub" id="record-unit-model">–</div></div>
+            </div>
+            <select class="input" id="record-unit-select" style="margin-bottom:0"></select>
+            <div style="border-top:1px solid var(--border-soft); margin:12px 0"></div>
+            <div class="card-sub" id="record-compat-note" style="margin-bottom:8px">–</div>
+            <div class="part-search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input class="input" id="record-part-search" placeholder="Cari material / SKU…">
+            </div>
+            <div class="parts-scroll"><div id="record-parts-list"></div></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Detail pencatatan</div></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+              <div class="field"><label>Tanggal</label><input class="input" id="record-date" type="date"></div>
+              <div class="field"><label>Keperluan</label>
+                <select class="input" id="record-ref">
+                  <option>PM 250 jam</option><option>PM 500 jam</option><option>PM 1000 jam</option>
+                  <option>Corrective maintenance</option><option>Breakdown</option><option>Top-up rutin</option>
+                </select>
+              </div>
+            </div>
+            <div style="border-top:1px solid var(--border-soft); margin:14px 0 10px"></div>
+            <div class="card-sub" style="margin-bottom:8px"><span id="record-line-count">0</span> baris · <span id="record-total-qty">0</span> unit total</div>
+            <div id="record-lines-preview" style="margin-bottom:6px"></div>
+            <button class="btn btn-primary btn-block" id="btn-record-submit" style="height:40px; border-radius:999px">Catat pemakaian</button>
+            <button class="btn btn-block" id="btn-record-reset" style="height:36px; border-radius:999px; margin-top:8px">Kosongkan</button>
+            <div class="card-sub" id="record-saved-msg" style="margin-top:10px; color:var(--accent)"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= UNITS ================= -->
+      <section class="screen" id="screen-units">
+        <div class="row-2" style="grid-template-columns:300px 1fr">
+          <div class="card" style="max-height:640px; overflow:auto">
+            <div class="card-head"><div class="card-title">Semua unit</div></div>
+            <div id="unit-plate-list"></div>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title" id="unit-detail-title">–</div><div class="card-sub" id="unit-detail-model">–</div></div>
+            </div>
+            <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:16px" id="unit-detail-stats"></div>
+            <div class="card-sub" style="margin-bottom:8px">Material terpasang</div>
+            <table class="table" style="margin-bottom:16px">
+              <thead><tr><th>SKU</th><th>Material</th><th>Kategori</th></tr></thead>
+              <tbody id="unit-detail-parts"></tbody>
+            </table>
+            <div class="card-sub" style="margin-bottom:8px">Riwayat terakhir</div>
+            <table class="table">
+              <thead><tr><th>Tanggal</th><th>Material</th><th>Keperluan</th><th class="num">Qty</th></tr></thead>
+              <tbody id="unit-detail-history"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= REPORTS ================= -->
+      <section class="screen" id="screen-reports">
+        <div class="row-2" style="grid-template-columns:320px 1fr">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Konfigurasi laporan</div></div>
+            <div style="display:flex; flex-direction:column; gap:12px">
+              <div class="field"><label>Jenis laporan</label>
+                <select class="input" id="rep-kind">
+                  <option value="material">Rekap Pemakaian per Material</option>
+                  <option value="unit">Rekap Pemakaian per Unit Genset</option>
+                  <option value="history">Riwayat Transaksi Lengkap</option>
+                  <option value="category">Rekap per Kategori</option>
+                </select>
+              </div>
+              <div style="display:flex; gap:10px">
+                <div class="field"><label>Dari</label><input class="input" id="rep-from" type="date"></div>
+                <div class="field"><label>Sampai</label><input class="input" id="rep-to" type="date"></div>
+              </div>
+              <div class="field"><label>Format</label>
+                <div class="seg" id="rep-format-seg">
+                  <button data-fmt="csv" class="active">CSV</button>
+                  <button data-fmt="excel">Excel</button>
+                  <button data-fmt="pdf">PDF</button>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-block" id="btn-rep-export" style="height:40px; border-radius:999px; margin-top:16px">Export</button>
+            <div class="card-sub" id="rep-export-msg" style="margin-top:10px; color:var(--accent)"></div>
+          </div>
+          <div class="card">
+            <div class="card-head"><div class="card-title">Pratinjau</div></div>
+            <table class="table" id="rep-preview-table">
+              <thead id="rep-preview-head"></thead>
+              <tbody id="rep-preview-body"></tbody>
+            </table>
+            <div class="card-sub" id="rep-preview-note" style="margin-top:12px"></div>
+          </div>
+        </div>
+      </section>
+
     </main>
   </div>
 </div>
+<div class="scrim" id="scrim"></div>
+<div class="toast" id="toast"><span class="dot"></span><span id="toast-text"></span></div>
 
-<div id="sidebar-scrim" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:35"></div>
-<div id="toast-root" style="position:fixed; bottom:22px; right:22px; z-index:100; display:flex; flex-direction:column; gap:8px;"></div>
-
-<div id="modal-overlay" class="modal-overlay">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h3 id="modal-title">Input Data Pemakaian</h3>
-      <button id="modal-close" class="modal-close" aria-label="Tutup">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="width:15px;height:15px"><path d="M6 6l12 12M18 6L6 18"/></svg>
-      </button>
-    </div>
-    <div class="modal-body">
-      <label for="modal-part-select">Part / SKU</label>
-      <select id="modal-part-select"></select>
-      <div id="modal-genset-group">
-        <label for="modal-genset-select">Unit genset tujuan</label>
-        <select id="modal-genset-select"></select>
-        <p id="modal-genset-note" class="modal-subnote"></p>
-      </div>
-      <label id="modal-qty-label" for="modal-qty-input">Jumlah dipakai</label>
-      <input type="number" id="modal-qty-input" min="1" step="1" placeholder="0">
-      <div id="modal-ref-group">
-        <label for="modal-ref-input">Catatan / referensi (opsional)</label>
-        <input type="text" id="modal-ref-input" placeholder="Contoh: PM Rutin 500 jam">
-      </div>
-      <p id="modal-hint" class="modal-hint"></p>
-    </div>
-    <div class="modal-actions">
-      <button id="modal-cancel" class="btn-secondary">Batal</button>
-      <button id="modal-save" class="btn-primary">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<script id="dashboard-data-json" type="application/json">{"meta": {"today": "2026-08-02", "consumption_window_days": 30}, "kpi": {"total_produk": 25, "total_kategori": 6, "barang_keluar_30d": 0, "barang_keluar_delta_pct": null}, "parts": [{"id": "P001", "sku": "OIL-PB7800-200L", "name": "PREMIUM BLUE 7800 15W40 API CI-4/SL 200L or OIL MEDITRANS SAE 40", "category": "ENGINE OIL", "unit": "liter", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P002", "sku": "LF9009", "name": "OIL FILTER LF 9009 (CUMMINS)", "category": "FILTER", "unit": "pcs", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P003", "sku": "WF2075", "name": "WATER FILTER WF 2075 or WF 2076", "category": "FILTER", "unit": "pcs", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P004", "sku": "WF2076", "name": "WATER FILTER WF 2076 (CUMMINS NTA TYPE - ONLY)", "category": "FILTER", "unit": "pcs", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P005", "sku": "FF5052", "name": "FUEL FILTER FF 5052", "category": "FILTER", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P006", "sku": "FS1280", "name": "FUEL FILTER FS 1280", "category": "FILTER", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P007", "sku": "FS1000", "name": "FUEL SEPARATOR FS 1000", "category": "FILTER", "unit": "pcs", "engine_models": ["6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P008", "sku": "FS1212", "name": "FUEL SEPARATOR FS 1212", "category": "FILTER", "unit": "pcs", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P009", "sku": "AF928M-A", "name": "AIR FILTER AF 928M-A", "category": "FILTER", "unit": "pcs", "engine_models": ["6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P010", "sku": "SNS-OILP-01", "name": "OIL PRESSURE SENSOR 0-10 BAR", "category": "SENSOR", "unit": "unit", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P011", "sku": "SNS-TEMP-01", "name": "Temperature sensor Genset SCD 20.4 98 Cummins, Dia. 2,1 cm, Lgth Core 2,5 cm, Lgth Total 7,1 cm", "category": "SENSOR", "unit": "unit", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P012", "sku": "BAT-12V-120A", "name": "BATTERY ACCU 12 VDC, 120 A", "category": "BATTERY", "unit": "unit", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P013", "sku": "BAT-12V-100A", "name": "BATTERY ACCU 12 VDC, 100 A", "category": "BATTERY", "unit": "unit", "engine_models": ["6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P014", "sku": "BAT-12V-80A", "name": "BATTERY ACCU 12 VDC, 80 A", "category": "BATTERY", "unit": "unit", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P015", "sku": "BAT-REFILL", "name": "REFILL WATER BATTERY ACCU", "category": "BATTERY", "unit": "liter", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P016", "sku": "VB-GEN-STD", "name": "VAN BELT GENSET", "category": "VAN BELT", "unit": "pcs", "engine_models": ["6CTAA (200 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P017", "sku": "VB-3290062", "name": "VAN BELT GENSET 3290062", "category": "VAN BELT", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P018", "sku": "VB-3288475", "name": "VAN BELT GENSET 3288475", "category": "VAN BELT", "unit": "pcs", "engine_models": ["6LTAA (250 kVA)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P019", "sku": "LF777", "name": "LUBE FILTER LF 777", "category": "FILTER", "unit": "pcs", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P020", "sku": "LF670", "name": "LUBE FILTER LF 670", "category": "FILTER", "unit": "pcs", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P021", "sku": "LF3345", "name": "LUBE FILTER LF 3345", "category": "FILTER", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P022", "sku": "AF-4913882", "name": "AIR FILTER 4913882 (SFA 7802)", "category": "FILTER", "unit": "pcs", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P023", "sku": "RACOR-2020PM", "name": "RACOR FILTER 2020PM", "category": "RACOR", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P024", "sku": "KW2448C2", "name": "Air Filter KW2 448 C2", "category": "FILTER", "unit": "pcs", "engine_models": ["6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P025", "sku": "K1995CL", "name": "Air Filter / cleaner K1995CL N2L-2K1", "category": "FILTER", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "current_stock": 0, "keluar_30d": 0}], "trend": {"daily": [{"date": "2026-07-04", "label": "4 Jul", "keluar": 0}, {"date": "2026-07-05", "label": "5 Jul", "keluar": 0}, {"date": "2026-07-06", "label": "6 Jul", "keluar": 0}, {"date": "2026-07-07", "label": "7 Jul", "keluar": 0}, {"date": "2026-07-08", "label": "8 Jul", "keluar": 0}, {"date": "2026-07-09", "label": "9 Jul", "keluar": 0}, {"date": "2026-07-10", "label": "10 Jul", "keluar": 0}, {"date": "2026-07-11", "label": "11 Jul", "keluar": 0}, {"date": "2026-07-12", "label": "12 Jul", "keluar": 0}, {"date": "2026-07-13", "label": "13 Jul", "keluar": 0}, {"date": "2026-07-14", "label": "14 Jul", "keluar": 0}, {"date": "2026-07-15", "label": "15 Jul", "keluar": 0}, {"date": "2026-07-16", "label": "16 Jul", "keluar": 0}, {"date": "2026-07-17", "label": "17 Jul", "keluar": 0}, {"date": "2026-07-18", "label": "18 Jul", "keluar": 0}, {"date": "2026-07-19", "label": "19 Jul", "keluar": 0}, {"date": "2026-07-20", "label": "20 Jul", "keluar": 0}, {"date": "2026-07-21", "label": "21 Jul", "keluar": 0}, {"date": "2026-07-22", "label": "22 Jul", "keluar": 0}, {"date": "2026-07-23", "label": "23 Jul", "keluar": 0}, {"date": "2026-07-24", "label": "24 Jul", "keluar": 0}, {"date": "2026-07-25", "label": "25 Jul", "keluar": 0}, {"date": "2026-07-26", "label": "26 Jul", "keluar": 0}, {"date": "2026-07-27", "label": "27 Jul", "keluar": 0}, {"date": "2026-07-28", "label": "28 Jul", "keluar": 0}, {"date": "2026-07-29", "label": "29 Jul", "keluar": 0}, {"date": "2026-07-30", "label": "30 Jul", "keluar": 0}, {"date": "2026-07-31", "label": "31 Jul", "keluar": 0}, {"date": "2026-08-01", "label": "1 Agu", "keluar": 0}, {"date": "2026-08-02", "label": "2 Agu", "keluar": 0}], "weekly": [{"week_start": "2026-05-11", "week_end": "2026-05-17", "label": "11 Mei", "keluar": 0}, {"week_start": "2026-05-18", "week_end": "2026-05-24", "label": "18 Mei", "keluar": 0}, {"week_start": "2026-05-25", "week_end": "2026-05-31", "label": "25 Mei", "keluar": 0}, {"week_start": "2026-06-01", "week_end": "2026-06-07", "label": "1 Jun", "keluar": 0}, {"week_start": "2026-06-08", "week_end": "2026-06-14", "label": "8 Jun", "keluar": 0}, {"week_start": "2026-06-15", "week_end": "2026-06-21", "label": "15 Jun", "keluar": 0}, {"week_start": "2026-06-22", "week_end": "2026-06-28", "label": "22 Jun", "keluar": 0}, {"week_start": "2026-06-29", "week_end": "2026-07-05", "label": "29 Jun", "keluar": 0}, {"week_start": "2026-07-06", "week_end": "2026-07-12", "label": "6 Jul", "keluar": 0}, {"week_start": "2026-07-13", "week_end": "2026-07-19", "label": "13 Jul", "keluar": 0}, {"week_start": "2026-07-20", "week_end": "2026-07-26", "label": "20 Jul", "keluar": 0}, {"week_start": "2026-07-27", "week_end": "2026-08-02", "label": "27 Jul", "keluar": 0}], "monthly": [{"label": "Sep 25", "keluar": 0}, {"label": "Okt 25", "keluar": 0}, {"label": "Nov 25", "keluar": 0}, {"label": "Des 25", "keluar": 0}, {"label": "Jan 26", "keluar": 0}, {"label": "Feb 26", "keluar": 0}, {"label": "Mar 26", "keluar": 0}, {"label": "Apr 26", "keluar": 0}, {"label": "Mei 26", "keluar": 0}, {"label": "Jun 26", "keluar": 0}, {"label": "Jul 26", "keluar": 0}, {"label": "Agu 26", "keluar": 0}]}, "category_distribution": [{"category": "ENGINE OIL", "produk": 1, "keluar": 0}, {"category": "FILTER", "produk": 14, "keluar": 0}, {"category": "SENSOR", "produk": 2, "keluar": 0}, {"category": "BATTERY", "produk": 4, "keluar": 0}, {"category": "VAN BELT", "produk": 3, "keluar": 0}, {"category": "RACOR", "produk": 1, "keluar": 0}], "transactions": [], "consumption_by_group": {}}</script>
+<script id="dashboard-data-json" type="application/json">
+[{"id": "P001", "sku": "OIL-PB7800-200L", "name": "PREMIUM BLUE 7800 15W40 API CI-4/SL 200L or OIL MEDITRANS SAE 40", "category": "ENGINE OIL", "unit": "liter", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P002", "sku": "LF9009", "name": "OIL FILTER LF 9009 (CUMMINS)", "category": "FILTER", "unit": "pcs", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P003", "sku": "WF2075", "name": "WATER FILTER WF 2075 or WF 2076", "category": "FILTER", "unit": "pcs", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P004", "sku": "WF2076", "name": "WATER FILTER WF 2076 (CUMMINS NTA TYPE - ONLY)", "category": "FILTER", "unit": "pcs", "engine_models": ["NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P005", "sku": "FF5052", "name": "FUEL FILTER FF 5052", "category": "FILTER", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P006", "sku": "FS1280", "name": "FUEL FILTER FS 1280", "category": "FILTER", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P007", "sku": "FS1000", "name": "FUEL SEPARATOR FS 1000", "category": "FILTER", "unit": "pcs", "engine_models": ["6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P008", "sku": "FS1212", "name": "FUEL SEPARATOR FS 1212", "category": "FILTER", "unit": "pcs", "engine_models": ["6CTAA (200 kVA)", "6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P009", "sku": "AF928M-A", "name": "AIR FILTER AF 928M-A", "category": "FILTER", "unit": "pcs", "engine_models": ["6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P010", "sku": "SNS-OILP-01", "name": "OIL PRESSURE SENSOR 0-10 BAR", "category": "SENSOR", "unit": "unit", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P011", "sku": "SNS-TEMP-01", "name": "Temperature sensor Genset SCD 20.4 98 Cummins, Dia. 2,1 cm, Lgth Core 2,5 cm, Lgth Total 7,1 cm", "category": "SENSOR", "unit": "unit", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P012", "sku": "BAT-12V-120A", "name": "BATTERY ACCU 12 VDC, 120 A", "category": "BATTERY", "unit": "unit", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P013", "sku": "BAT-12V-100A", "name": "BATTERY ACCU 12 VDC, 100 A", "category": "BATTERY", "unit": "unit", "engine_models": ["6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P014", "sku": "BAT-12V-80A", "name": "BATTERY ACCU 12 VDC, 80 A", "category": "BATTERY", "unit": "unit", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P015", "sku": "BAT-REFILL", "name": "REFILL WATER BATTERY ACCU", "category": "BATTERY", "unit": "liter", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P016", "sku": "VB-GEN-STD", "name": "VAN BELT GENSET", "category": "VAN BELT", "unit": "pcs", "engine_models": ["6CTAA (200 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P017", "sku": "VB-3290062", "name": "VAN BELT GENSET 3290062", "category": "VAN BELT", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P018", "sku": "VB-3288475", "name": "VAN BELT GENSET 3288475", "category": "VAN BELT", "unit": "pcs", "engine_models": ["6LTAA (250 kVA)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P019", "sku": "LF777", "name": "LUBE FILTER LF 777", "category": "FILTER", "unit": "pcs", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P020", "sku": "LF670", "name": "LUBE FILTER LF 670", "category": "FILTER", "unit": "pcs", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P021", "sku": "LF3345", "name": "LUBE FILTER LF 3345", "category": "FILTER", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P022", "sku": "AF-4913882", "name": "AIR FILTER 4913882 (SFA 7802)", "category": "FILTER", "unit": "pcs", "engine_models": ["KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)"], "genset_groups": ["500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P023", "sku": "RACOR-2020PM", "name": "RACOR FILTER 2020PM", "category": "RACOR", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)", "6CTAA (200 kVA)", "6LTAA (250 kVA)", "KTA 19 G1 (500 kVA)", "KTA 19 G2 (500 kVA)", "KTA 19 G3 (500 kVA)", "KTA 19 G4 (500 kVA)", "KTA 19 G5 (500 kVA)", "KTA 19-G3A (500 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["135 KVA - Utility (CL3)", "200 KVA - Utility (CL4)", "250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)", "500 KVA (Agung)", "500 KVA (CL-4)", "500 KVA (CL2B)", "500 KVA (Injection-1)", "500 KVA (Injection-2)", "500 KVA - Utility (Agung)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P024", "sku": "KW2448C2", "name": "Air Filter KW2 448 C2", "category": "FILTER", "unit": "pcs", "engine_models": ["6LTAA (250 kVA)", "NT 855 (250 kVA Kathy)"], "genset_groups": ["250 KVA (Agung)", "250 KVA (Anjani)", "250 KVA (CL2A)", "250 KVA (CL3)"], "current_stock": 0, "keluar_30d": 0}, {"id": "P025", "sku": "K1995CL", "name": "Air Filter / cleaner K1995CL N2L-2K1", "category": "FILTER", "unit": "pcs", "engine_models": ["6BTAA5.9 (135 kVA)"], "genset_groups": ["135 KVA - Utility (CL3)"], "current_stock": 0, "keluar_30d": 0}]
+</script>
 <script>
 (function(){
 'use strict';
 
-/* ============ MODUL SUPABASE (skema baru - tanpa stok) ============
- * Tabel:
- *   part(part_id, sku, nama, kategori, satuan, engine_models[], genset_groups[], aktif)
- *   transaksi(tx_id, tanggal, part_id, qty, genset_group, ref, pic_email, created_at)
- * Fungsi RPC:
- *   catat_transaksi(p_part_id, p_qty, p_genset_group, p_ref, p_pic)
- *   -- TIDAK ADA p_tipe (cuma satu jenis: pemakaian/keluar)
- *   -- TIDAK ADA pengecekan stok di server
- * ================================================================== */
-
+/* ============ SUPABASE ============ */
 const SUPABASE_URL_RAW = 'https://pnnvivarcxuvjhviqvgb.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_ZfTdfsLXYGvu01SOUobFHA_dJTATXTB';
 const SUPABASE_URL = SUPABASE_URL_RAW.replace(/\/+$/, '').replace(/\/rest\/v1$/, '');
-
-const KPI_WINDOW = 30;
-const KONSUMSI_WINDOW = 30;
-const ID_BULAN_SB = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-
 const SB_ONLINE = SUPABASE_URL.startsWith('https://') && !SUPABASE_ANON_KEY.startsWith('__');
 
-function sbHeaders() {
-  return { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-           'Content-Type': 'application/json' };
+function sbHeaders(){
+  return { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json' };
 }
-async function sbFetch(path) {
+async function sbFetch(path){
   const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, { headers: sbHeaders() });
-  if(!res.ok) throw new Error('Gagal membaca data (' + res.status + '). Cek URL/anon key dan koneksi.');
+  if(!res.ok) throw new Error('Gagal membaca data (' + res.status + ').');
   return res.json();
 }
-async function sbRpc(fn, args) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, {
-    method: 'POST', headers: sbHeaders(), body: JSON.stringify(args)
-  });
+async function sbRpc(fn, args){
+  const res = await fetch(SUPABASE_URL + '/rest/v1/rpc/' + fn, { method:'POST', headers: sbHeaders(), body: JSON.stringify(args) });
   const data = await res.json().catch(() => null);
-  if(!res.ok) {
-    throw new Error((data && (data.message || data.hint)) || ('Gagal menyimpan (' + res.status + ').'));
+  if(!res.ok){
+    const err = new Error((data && (data.message || data.hint)) || ('Gagal menyimpan (' + res.status + ').'));
+    err.code = data && data.code;
+    throw err;
   }
   return data;
 }
 
-/* ---- Util tanggal ---- */
-function sbToday() {
-  const d = new Date();
-  return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
-}
-function p2(n) { return ('0' + n).slice(-2); }
-function shiftISO(iso, hari) {
-  const d = new Date(iso + 'T00:00:00');
-  d.setDate(d.getDate() + hari);
-  return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate());
-}
-function isoOf(v) {
-  const s = String(v);
-  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  return m ? m[1] + '-' + m[2] + '-' + m[3] : s;
-}
-function labelHari(iso) {
-  const d = new Date(iso + 'T00:00:00');
-  return d.getDate() + ' ' + ID_BULAN_SB[d.getMonth()];
-}
-
-/**
- * Ubah baris mentah part + transaksi (dari Supabase) menjadi DASHBOARD_DATA.
- * Skema baru: tidak ada stok sama sekali — current_stock selalu 0/tidak dipakai,
- * karena dashboard ini murni pencatatan & monitoring PEMAKAIAN.
- */
-function deriveDashboard(rawParts, rawTx) {
-  const hariIni = sbToday();
-  const partAktif = rawParts.filter(p => p.aktif !== false);
-  const partById = {};
-  partAktif.forEach(p => { partById[p.part_id] = p; });
-
-  const grupSet = {};
-  partAktif.forEach(p => (p.genset_groups || []).forEach(g => { grupSet[g] = true; }));
-  const konsumsi = {};
-  Object.keys(grupSet).forEach(g => { konsumsi[g] = 0; });
-
-  const bts30 = shiftISO(hariIni, -KPI_WINDOW);
-  const bts60 = shiftISO(hariIni, -2 * KPI_WINDOW);
-
-  const keluar30 = {};
-  partAktif.forEach(p => { keluar30[p.part_id] = 0; });
-
-  let kNow = 0, kPrev = 0;
-  const txValid = [];
-  rawTx.forEach(t => {
-    const pid = t.part_id;
-    if(!(pid in keluar30)) return;
-    const tgl = isoOf(t.tanggal);
-    const qty = Number(t.qty) || 0;
-    if(qty <= 0) return;
-    if(tgl >= bts30) { keluar30[pid] += qty; kNow += qty; }
-    else if(tgl >= bts60) { kPrev += qty; }
-    if(t.genset_group && (t.genset_group in konsumsi) && tgl >= shiftISO(hariIni, -KONSUMSI_WINDOW)) {
-      konsumsi[t.genset_group] += qty;
-    }
-    txValid.push({ tgl, qty, pid, row: t });
-  });
-
-  const parts = partAktif.map(p => ({
-    id: p.part_id, sku: p.sku, name: p.nama, category: p.kategori, unit: p.satuan,
-    engine_models: p.engine_models || [], genset_groups: p.genset_groups || [],
-    current_stock: 0, keluar_30d: keluar30[p.part_id] || 0
-  }));
-
-  const katMap = {};
-  parts.forEach(p => {
-    if(!katMap[p.category]) katMap[p.category] = { category: p.category, produk: 0, keluar: 0 };
-    katMap[p.category].produk++;
-    katMap[p.category].keluar += p.keluar_30d;
-  });
-
-  const kpi = {
-    total_produk: parts.length, total_kategori: Object.keys(katMap).length,
-    barang_keluar_30d: kNow,
-    barang_keluar_delta_pct: kPrev ? Math.round(((kNow - kPrev) / kPrev) * 100) : null
-  };
-
-  const transactions = txValid
-    .slice()
-    .sort((a, b) => b.tgl === a.tgl ? String(b.row.tx_id).localeCompare(String(a.row.tx_id)) : (b.tgl > a.tgl ? 1 : -1))
-    .map(t => {
-      const p = partById[t.pid];
-      return { id: t.row.tx_id, date: t.tgl, type: 'keluar', sku: t.row.sku || (p ? p.sku : t.pid),
-               name: p ? p.nama : t.pid, category: p ? p.kategori : '',
-               qty: t.qty, unit: p ? p.satuan : 'pcs', ref: t.row.ref || '',
-               genset_group: t.row.genset_group || null, genset_unit_tag: t.row.genset_unit_tag || null,
-               pic: t.row.pic_email || '' };
-    });
-
-  return {
-    meta: { today: hariIni, server: true },
-    kpi, parts,
-    category_distribution: Object.values(katMap),
-    consumption_by_group: konsumsi,
-    trend: buildTrend(txValid, hariIni),
-    transactions
-  };
-}
-
-function buildTrend(txValid, hariIni) {
-  const perHari = {};
-  txValid.forEach(t => { perHari[t.tgl] = (perHari[t.tgl] || 0) + t.qty; });
-  const daily = [];
-  for(let i = 29; i >= 0; i--) {
-    const tgl = shiftISO(hariIni, -i);
-    daily.push({ date: tgl, label: labelHari(tgl), keluar: perHari[tgl] || 0 });
-  }
-  const weekly = [];
-  for(let i = 11; i >= 0; i--) {
-    const akhir = shiftISO(hariIni, -i * 7), awal = shiftISO(akhir, -6);
-    const s = periodeSum(txValid, awal, akhir, true);
-    weekly.push({ week_start: awal, week_end: akhir, label: labelHari(awal), keluar: s });
-  }
-  const bln = {};
-  txValid.forEach(t => { const k = t.tgl.substring(0, 7); bln[k] = (bln[k] || 0) + t.qty; });
-  const monthly = [];
-  for(let i = 11; i >= 0; i--) {
-    const dt = new Date(hariIni + 'T00:00:00'); dt.setMonth(dt.getMonth() - i);
-    const k = dt.getFullYear() + '-' + p2(dt.getMonth() + 1);
-    monthly.push({ label: ID_BULAN_SB[dt.getMonth()] + ' ' + String(dt.getFullYear()).slice(2), keluar: bln[k] || 0 });
-  }
-  return { daily, weekly, monthly };
-}
-function periodeSum(tx, awal, akhir, inklusifAwal) {
-  let k = 0;
-  tx.forEach(t => { const ok = inklusifAwal ? (t.tgl >= awal) : (t.tgl > awal); if(ok && t.tgl <= akhir) k += t.qty; });
-  return k;
-}
-
-// Muat ulang seluruh dashboard dari server.
-async function sbLoadDashboard() {
-  const parts = await sbFetch('part?select=*&order=part_id');
-  const tx = await sbFetch('transaksi?select=*&order=tanggal.asc,tx_id.asc');
-  return deriveDashboard(parts, tx);
-}
-
-function sbPicEmail() {
-  try { return window.__PIC_EMAIL || ''; } catch(e) { return ''; }
-}
-
-// Jalankan RPC, tampilkan busy, muat ulang data, tutup modal, toast.
-function sbSave(rpcPromise, successMsg, hintEl) {
-  setModalBusy(true);
-  rpcPromise
-    .then(() => sbLoadDashboard())
-    .then(fresh => {
-      DASHBOARD_DATA = fresh;
-      renderAll();
-      setModalBusy(false);
-      closeInputModal();
-      toast(successMsg);
-      setConnState('online');
-    })
-    .catch(err => {
-      setModalBusy(false);
-      if(hintEl) { hintEl.style.color = 'var(--accent-red)'; hintEl.textContent = err.message; }
-      else toast('Gagal: ' + err.message);
-    });
-}
-
-function setModalBusy(sibuk) {
-  const btn = document.getElementById('modal-save');
-  if(!btn) return;
-  btn.disabled = sibuk;
-  btn.dataset.label = btn.dataset.label || btn.textContent;
-  btn.textContent = sibuk ? 'Menyimpan...' : btn.dataset.label;
-  btn.style.opacity = sibuk ? '.6' : '';
-}
-
-
-/* ============ DATA ============ */
-// DASHBOARD_DATA sekarang bisa diganti: diisi dari JSON tertanam (fallback/offline)
-// DASHBOARD_DATA diisi dari JSON tertanam (fallback offline) lalu ditimpa data Supabase saat init() bila SB_ONLINE.
-let DASHBOARD_DATA = JSON.parse(document.getElementById('dashboard-data-json').textContent);
-
+/* ============ UTIL TANGGAL ============ */
+function p2(n){ return ('0'+n).slice(-2); }
+function todayISO(){ const d = new Date(); return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
+function shiftISO(iso, days){ const d = new Date(iso+'T00:00:00'); d.setDate(d.getDate()+days); return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
+function isoOf(v){ const s = String(v); const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[1]+'-'+m[2]+'-'+m[3] : s; }
 const ID_BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-const ID_BULAN_FULL = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+function fmtDateShort(iso){ const d = new Date(iso+'T00:00:00'); return p2(d.getDate())+' '+ID_BULAN[d.getMonth()]; }
+function fmtDateLong(iso){ const d = new Date(iso+'T00:00:00'); return d.getDate()+' '+ID_BULAN[d.getMonth()]+' '+d.getFullYear(); }
+function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function fmtQty(n){ const r = Math.round((Number(n)||0)*100)/100; return r % 1 === 0 ? String(r) : String(r); }
 
-const state = {
-  trendPeriod: 'daily',
-  table: { search:'', category:'all', gensetGroup:'all', gensetUnitTag:null, gensetUnitModel:null, sortKey:null, sortDir:'asc', page:1, pageSize:10 }
-};
+/* ============ DATA MASTER (part & unit asli PB Field) ============ */
+const MASTER_PARTS = JSON.parse(document.getElementById('dashboard-data-json').textContent);
 
-let trendChart = null;
-let categoryChart = null;
-let modalMode = null;
-let expandedGensetGroup = null;
-
-/* ============ GRUP & UNIT GENSET (sidebar) ============ */
-// Nama grup persis sama dengan string genset_groups pada DASHBOARD_DATA.parts, agar filter akurat.
-const GENSET_GROUPS = [
-  {name:'500 KVA (Agung)', count:3},
-  {name:'500 KVA (Injection-1)', count:2},
-  {name:'500 KVA (Injection-2)', count:2},
-  {name:'250 KVA (Agung)', count:3},
-  {name:'250 KVA (Anjani)', count:4},
-  {name:'250 KVA (CL2A)', count:2},
-  {name:'500 KVA (CL2B)', count:3},
-  {name:'250 KVA (CL3)', count:3},
-  {name:'500 KVA (CL-4)', count:3},
-  {name:'500 KVA - Utility (Agung)', count:2},
-  {name:'200 KVA - Utility (CL4)', count:2},
-  {name:'135 KVA - Utility (CL3)', count:2}
-];
-// [tag, grup, model engine] — mengikuti data_dan_model_genset_complete.xlsx
 const GENSET_UNITS = [
-  ['G1','500 KVA (Agung)','KTA 19 G1 (500 kVA)'],
+['G1','500 KVA (Agung)','KTA 19 G1 (500 kVA)'],
   ['G2','500 KVA (Agung)','KTA 19 G2 (500 kVA)'],
   ['G3','500 KVA (Agung)','KTA 19 G3 (500 kVA)'],
   ['G4','500 KVA (Injection-1)','KTA 19 G4 (500 kVA)'],
@@ -939,994 +480,585 @@ const GENSET_UNITS = [
   ['G1','135 KVA - Utility (CL3)','6BTAA5.9 (135 kVA)'],
   ['G2','135 KVA - Utility (CL3)','6BTAA5.9 (135 kVA)']
 ];
-/* ============ HELPERS ============ */
-function getCSS(varName){
-  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+const GENSET_GROUPS = [
+{name:'500 KVA (Agung)', count:3},
+  {name:'500 KVA (Injection-1)', count:2},
+  {name:'500 KVA (Injection-2)', count:2},
+  {name:'250 KVA (Agung)', count:3},
+  {name:'250 KVA (Anjani)', count:4},
+  {name:'250 KVA (CL2A)', count:2},
+  {name:'500 KVA (CL2B)', count:3},
+  {name:'250 KVA (CL3)', count:3},
+  {name:'500 KVA (CL-4)', count:3},
+  {name:'500 KVA - Utility (Agung)', count:2},
+  {name:'200 KVA - Utility (CL4)', count:2},
+  {name:'135 KVA - Utility (CL3)', count:2}
+];
+const REF_OPTIONS = ['PM 250 jam','PM 500 jam','PM 1000 jam','Corrective maintenance','Breakdown','Top-up rutin'];
+const CAT_COLOR = { 'FILTER':'#b4e600', 'ENGINE OIL':'#d7f57a', 'SENSOR':'#6f8f3a', 'BATTERY':'#8d9482', 'VAN BELT':'#8ab81a', 'RACOR':'#5c6152' };
+function catColor(c){ return CAT_COLOR[c] || '#8d9482'; }
+
+/* ============ STATE ============ */
+const state = {
+  screen: 'overview',
+  period: 30,
+  query: '',
+  catFilter: 'Semua',
+  selUnitIdx: 0,
+  recordUnitIdx: 0,
+  lines: {},
+  recordDate: todayISO(),
+  recordRef: REF_OPTIONS[1],
+  repKind: 'unit',
+  repFrom: shiftISO(todayISO(), -30),
+  repTo: todayISO(),
+  repFormat: 'csv'
+};
+
+let DASHBOARD_DATA = null;
+let trendChart = null, donutChart = null;
+
+/* ============ DERIVE DARI SUPABASE (part + transaksi) ============ */
+function deriveDashboard(rawParts, rawTx){
+  const partAktif = rawParts.filter(p => p.aktif !== false);
+  const partById = {}; partAktif.forEach(p => partById[p.part_id] = p);
+  const today = todayISO();
+
+  const txAll = rawTx.filter(t => t.part_id in partById).map(t => {
+    const p = partById[t.part_id];
+    return {
+      id: t.tx_id, date: isoOf(t.tanggal), sku: p.sku, name: p.nama, category: p.kategori,
+      unit: p.satuan, qty: Number(t.qty) || 0, ref: t.ref || '', keperluan: t.keperluan || '',
+      genset_group: t.genset_group || null, genset_unit_tag: t.genset_unit_tag || null
+    };
+  }).sort((a,b) => b.date === a.date ? String(b.id).localeCompare(String(a.id)) : (b.date > a.date ? 1 : -1));
+
+  const parts = partAktif.map(p => ({
+    id: p.part_id, sku: p.sku, name: p.nama, category: p.kategori, unit: p.satuan,
+    engine_models: p.engine_models || [], genset_groups: p.genset_groups || []
+  }));
+
+  return { meta:{ today, server:true }, parts, transactions: txAll };
 }
-function hexAlpha(hex, alpha){
-  hex = hex.replace('#','');
-  if(hex.length===3) hex = hex.split('').map(c=>c+c).join('');
-  const r=parseInt(hex.substring(0,2),16), g=parseInt(hex.substring(2,4),16), b=parseInt(hex.substring(4,6),16);
-  return `rgba(${r},${g},${b},${alpha})`;
+async function sbLoadDashboard(){
+  const parts = await sbFetch('part?select=*&order=part_id');
+  const tx = await sbFetch('transaksi?select=*&order=tanggal.asc,tx_id.asc');
+  return deriveDashboard(parts, tx);
 }
-// Warna kategori: yang dikenal dipetakan tetap; kategori baru apa pun otomatis
-// dapat warna dari palet (bergilir), jadi menambah kategori di database tidak
-// membuat chip/donut kehilangan warna.
-function getCategoryColors(){
-  const palette = ['--accent-lime','--accent-cyan','--accent-slateblue',
-                   '--accent-violet','--accent-gold','--accent-coral'];
-  const fixed = {
-    'FILTER': '--accent-lime',
-    'ENGINE OIL': '--accent-gold',
-    'SENSOR': '--accent-coral',
-    'BATTERY': '--accent-cyan',
-    'VAN BELT': '--accent-slateblue',
-    'RACOR': '--accent-violet',
-  };
-  const out = {};
-  const cats = (DASHBOARD_DATA.parts || []).map(p => p.category);
-  let i = 0;
-  [...new Set(cats)].forEach(c => {
-    const key = fixed[c] || palette[i++ % palette.length];
-    out[c] = getCSS(key);
-  });
-  return out;
+function sbPicEmail(){ try { return window.__PIC_EMAIL || ''; } catch(e){ return ''; } }
+
+/* ============ LINGKUP PERIODE ============ */
+function periodTx(days){
+  const cutoff = shiftISO(DASHBOARD_DATA.meta.today, -days);
+  return DASHBOARD_DATA.transactions.filter(t => t.date >= cutoff);
 }
-function formatDateShort(dateStr){
-  const d = new Date(dateStr+'T00:00:00');
-  return `${d.getDate()} ${ID_BULAN[d.getMonth()]}`;
-}
-function formatDateLong(dateStr){
-  const d = new Date(dateStr+'T00:00:00');
-  return `${d.getDate()} ${ID_BULAN_FULL[d.getMonth()]} ${d.getFullYear()}`;
-}
-function todayStr(){
-  return DASHBOARD_DATA.meta.today;
-}
-function escapeHtml(str){
-  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-}
-function toast(message){
-  const root = document.getElementById('toast-root');
-  const el = document.createElement('div');
-  el.className = 'toast';
-  el.innerHTML = `<span class="dot"></span><span>${escapeHtml(message)}</span>`;
-  root.appendChild(el);
-  setTimeout(()=>{ el.style.transition='opacity .25s'; el.style.opacity='0'; setTimeout(()=>el.remove(),260); }, 2600);
-}
-function handlePlaceholderAction(label){
-  toast(`${label} — modul ini akan tersedia pada tahap pengembangan ERP berikutnya.`);
-}
-window.handlePlaceholderAction = handlePlaceholderAction;
-function downloadBlob(blob, filename){
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+function scale(days){ return days; }
+
+/* ============ TOAST ============ */
+let toastTimer = null;
+function toast(msg){
+  const el = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
 }
 
-/* ============ GRUP GENSET (sidebar) ============
- * Klik header grup = filter berdasarkan grup saja (semua part yang dipakai di grup itu).
- * Klik salah satu unit di dalamnya (misal "G1") = filter LEBIH SPESIFIK: hanya part yang
- * engine_models-nya cocok dengan model engine unit itu. Ini filter sungguhan (bukan
- * dekorasi) — dua unit di grup yang sama tapi beda model engine akan menghasilkan
- * daftar part yang berbeda.
- */
-function renderGensetNav(){
-  let html = '';
-  GENSET_GROUPS.forEach(g => {
-    const isOpen = expandedGensetGroup === g.name;
-    const isGroupActive = state.table.gensetGroup === g.name && !state.table.gensetUnitTag;
-    html += `<div class="nav-item nav-group-toggle ${isGroupActive?'active':''} ${isOpen?'expanded':''}" data-group="${escapeHtml(g.name)}">
-      <span class="nav-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
-      <span style="flex:1">${escapeHtml(g.name)}</span>
-      <span class="nav-count">${g.count}</span>
-    </div>`;
-    if(isOpen){
-      const units = GENSET_UNITS.filter(u => u[1] === g.name);
-      html += `<div class="nav-unit-list">`;
-      html += `<div class="nav-unit ${isGroupActive?'active':''}" data-group="${escapeHtml(g.name)}" data-tag="">
-        <span class="nav-unit-tag">Semua unit</span>
-        <span class="nav-unit-model">${units.length} unit di grup ini</span>
-      </div>`;
-      units.forEach(u => {
-        const isUnitActive = state.table.gensetGroup === g.name && state.table.gensetUnitTag === u[0];
-        html += `<div class="nav-unit ${isUnitActive?'active':''}" data-group="${escapeHtml(g.name)}" data-tag="${escapeHtml(u[0])}" data-model="${escapeHtml(u[2])}">
-          <span class="nav-unit-tag">Unit ${escapeHtml(u[0])}</span>
-          <span class="nav-unit-model">${escapeHtml(u[2])}</span>
-        </div>`;
-      });
-      html += `</div>`;
-    }
-  });
-  document.getElementById('genset-group-nav').innerHTML = html;
-  document.querySelectorAll('#genset-group-nav .nav-group-toggle').forEach(el => {
-    el.addEventListener('click', () => {
-      const g = el.getAttribute('data-group');
-      expandedGensetGroup = (expandedGensetGroup === g) ? null : g;
-      selectGensetGroup(g);
-    });
-  });
-  document.querySelectorAll('#genset-group-nav .nav-unit').forEach(el => {
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      const group = el.getAttribute('data-group');
-      const tag = el.getAttribute('data-tag');
-      if(!tag){ selectGensetGroup(group); return; }
-      selectGensetUnit(group, tag, el.getAttribute('data-model'));
-    });
-  });
-}
-function selectGensetGroup(g){
-  state.table.gensetGroup = g;
-  state.table.gensetUnitTag = null;
-  state.table.gensetUnitModel = null;
-  state.table.page = 1;
-  document.getElementById('nav-all-units').classList.toggle('active', g === 'all');
-  renderGensetNav();
-  renderTable();
-  const tableSection = document.querySelector('.inv-table').closest('section');
-  if(tableSection) tableSection.scrollIntoView({behavior:'smooth', block:'start'});
+/* ============ NAVIGASI LAYAR ============ */
+const SCREEN_META = {
+  overview: ['Dashboard', 'Ringkasan Konsumsi Material'],
+  catalog: ['Master data', 'Master Data Consumable'],
+  record: ['Entry', 'Pencatatan Pemakaian Material'],
+  units: ['Aset', 'Profil & Konsumsi Unit'],
+  reports: ['Output', 'Laporan & Export']
+};
+function goScreen(name){
+  state.screen = name;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.screen === name));
+  document.querySelectorAll('.screen').forEach(el => el.classList.toggle('active', el.id === 'screen-' + name));
+  document.getElementById('screen-kicker').textContent = SCREEN_META[name][0];
+  document.getElementById('screen-title').textContent = SCREEN_META[name][1];
   document.getElementById('app-shell').classList.remove('sidebar-open');
-  document.getElementById('sidebar-scrim').style.display = 'none';
+  renderScreen(name);
 }
-function selectGensetUnit(group, tag, engineModel){
-  state.table.gensetGroup = group;
-  state.table.gensetUnitTag = tag;
-  state.table.gensetUnitModel = engineModel;
-  state.table.page = 1;
-  document.getElementById('nav-all-units').classList.remove('active');
-  renderGensetNav();
-  renderTable();
-  const tableSection = document.querySelector('.inv-table').closest('section');
-  if(tableSection) tableSection.scrollIntoView({behavior:'smooth', block:'start'});
-  document.getElementById('app-shell').classList.remove('sidebar-open');
-  document.getElementById('sidebar-scrim').style.display = 'none';
+function renderScreen(name){
+  if(name === 'overview') renderOverview();
+  else if(name === 'catalog') renderCatalog();
+  else if(name === 'record') renderRecord();
+  else if(name === 'units') renderUnits();
+  else if(name === 'reports') renderReports();
 }
 
-/* ============ KPI ============ */
-function renderKPIs(){
-  const k = DASHBOARD_DATA.kpi;
-  document.getElementById('kpi-total-produk').textContent = k.total_produk;
-  document.getElementById('kpi-total-kategori').textContent = `${k.total_kategori} kategori part`;
-  document.getElementById('kpi-keluar').textContent = k.barang_keluar_30d;
-  renderDeltaPct('kpi-keluar-delta', k.barang_keluar_delta_pct);
-  document.getElementById('data-asof').textContent = `Data per ${formatDateLong(DASHBOARD_DATA.meta.today)} · PB Field`;
-}
-function renderDeltaAbs(elId, val, unitLabel){
-  const el = document.getElementById(elId);
-  if(val === 0){ el.innerHTML = `<span class="muted">Stabil vs 30 hari lalu</span>`; return; }
-  const up = val > 0;
-  el.innerHTML = `<span class="${up?'arrow-up':'arrow-down'}">${up?'▲':'▼'} ${Math.abs(val)} ${unitLabel}</span><span class="muted">vs 30 hari lalu</span>`;
-}
-function renderDeltaPct(elId, pct){
-  const el = document.getElementById(elId);
-  if(pct === null || pct === undefined){ el.innerHTML = `<span class="muted">Data pembanding belum cukup</span>`; return; }
-  const up = pct > 0;
-  el.innerHTML = `<span class="${up?'arrow-up':'arrow-down'}">${up?'▲':'▼'} ${Math.abs(pct)}%</span><span class="muted">vs 30 hari lalu</span>`;
+/* ============ HEADER: PERIOD + SCOPE ============ */
+function periodLabel(){ return state.period === 30 ? '30 hari' : state.period === 90 ? '90 hari' : '12 bulan'; }
+function renderScopeBox(){
+  document.getElementById('scope-unit-count').textContent = GENSET_UNITS.length;
+  document.getElementById('scope-period').textContent = periodLabel();
+  const badge = document.getElementById('conn-badge');
+  badge.textContent = SB_ONLINE ? 'Live' : 'Demo';
+  badge.style.color = SB_ONLINE ? 'var(--accent)' : 'var(--text-muted)';
 }
 
-/* ============ TREND CHART ============ */
-function renderTrendChart(){
-  const periodKey = state.trendPeriod === 'yearly' ? 'monthly' : state.trendPeriod;
-  const data = DASHBOARD_DATA.trend[periodKey];
-  const labels = data.map(d=>d.label);
-  const keluar = data.map(d=>d.keluar);
-  const lime = getCSS('--accent-lime');
-  const muted = getCSS('--text-muted');
-  const gridColor = getCSS('--border-soft');
+/* ============ RENDER: OVERVIEW ============ */
+function sparkPath(series){
+  const w = 100, h = 40, pad = 3;
+  const max = Math.max.apply(null, series.concat([1])), min = Math.min.apply(null, series.concat([0]));
+  const pts = series.map((v,i) => [ (i/(series.length-1||1))*w, pad + (1-(v-min)/((max-min)||1))*(h-pad*2) ]);
+  let d = 'M'+pts[0][0].toFixed(1)+','+pts[0][1].toFixed(1);
+  for(let i=1;i<pts.length;i++) d += ' L'+pts[i][0].toFixed(1)+','+pts[i][1].toFixed(1);
+  return d;
+}
+function weeklySeries(days){
+  const rows = periodTx(days);
+  const buckets = [];
+  const n = 8;
+  for(let i=n-1;i>=0;i--){
+    const end = shiftISO(DASHBOARD_DATA.meta.today, -i*Math.round(days/n));
+    const start = shiftISO(end, -Math.round(days/n));
+    buckets.push(rows.filter(t => t.date > start && t.date <= end).reduce((a,t)=>a+t.qty,0));
+  }
+  return buckets;
+}
+function renderOverview(){
+  const days = state.period;
+  const rows = periodTx(days);
+  const totalPcsLiter = {};
+  rows.forEach(t => { totalPcsLiter[t.unit] = (totalPcsLiter[t.unit]||0) + t.qty; });
+  const activeSkus = new Set(rows.map(t => t.sku)).size;
+  const unitSet = new Set(rows.filter(t=>t.genset_group).map(t => t.genset_group + '|' + (t.genset_unit_tag||'')));
+
+  const kpis = [
+    { label:'Material aktif', value: String(DASHBOARD_DATA.parts.length), unit:'SKU', note: activeSkus + ' terpakai · periode ini', badge:'Master' },
+    { label:'Konsumsi part', value: String(totalPcsLiter['pcs']||0), unit:'pcs', note:'Periode '+periodLabel(), badge:periodLabel() },
+    { label:'Konsumsi oli', value: String(totalPcsLiter['liter']||0), unit:'liter', note:'Engine oil & top-up', badge:periodLabel() },
+    { label:'Unit terlayani', value: String(unitSet.size), unit:'genset', note: GENSET_GROUPS.length+' grup', badge:'PB Field' }
+  ];
+  const spark = weeklySeries(days);
+  document.getElementById('kpi-grid').innerHTML = kpis.map((k,i) => `
+    <div class="kpi-card">
+      <div class="kpi-top"><div class="kpi-label">${k.label}</div><div class="kpi-badge">${escapeHtml(k.badge)}</div></div>
+      <div class="kpi-val-row"><div class="kpi-val">${k.value}</div><div class="kpi-unit">${k.unit}</div></div>
+      <div class="kpi-note">${escapeHtml(k.note)}</div>
+      <svg class="kpi-spark" viewBox="0 0 100 40" preserveAspectRatio="none"><path d="${sparkPath(spark.map((v,idx)=>v+idx*0.01))}" fill="none" stroke="#b4e600" stroke-width="2"/></svg>
+    </div>`).join('');
+
+  document.getElementById('trend-sub').textContent = periodLabel() + ' terakhir';
+  const monthly = [];
+  for(let i=11;i>=0;i--){
+    const dt = new Date(DASHBOARD_DATA.meta.today+'T00:00:00'); dt.setMonth(dt.getMonth()-i);
+    const key = dt.getFullYear()+'-'+p2(dt.getMonth()+1);
+    const label = ID_BULAN[dt.getMonth()];
+    const total = DASHBOARD_DATA.transactions.filter(t => t.date.substring(0,7) === key).reduce((a,t)=>a+t.qty,0);
+    monthly.push({ label, total });
+  }
   const ctx = document.getElementById('trend-chart').getContext('2d');
   if(trendChart) trendChart.destroy();
   trendChart = new Chart(ctx, {
-    type:'line',
-    data:{ labels, datasets:[
-      { label:'Pemakaian', data:keluar, borderColor:lime, backgroundColor:hexAlpha(lime,0.14), fill:true, tension:0.35, pointRadius:0, pointHoverRadius:4, borderWidth:2.2 }
-    ]},
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      interaction:{ mode:'index', intersect:false },
-      plugins:{
-        legend:{ display:true, position:'top', align:'end', labels:{ color:muted, boxWidth:9, boxHeight:9, usePointStyle:true, pointStyle:'circle', font:{family:'Inter', size:11} } },
-        tooltip:{ backgroundColor:getCSS('--bg-raised'), titleColor:getCSS('--text-primary'), bodyColor:getCSS('--text-secondary'), borderColor:getCSS('--border'), borderWidth:1, padding:10, boxPadding:4 }
-      },
-      scales:{
-        x:{ grid:{color:gridColor, drawTicks:false}, ticks:{color:muted, font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:10}, border:{display:false} },
-        y:{ grid:{color:gridColor, drawTicks:false}, ticks:{color:muted, font:{size:10}, precision:0}, beginAtZero:true, border:{display:false} }
-      }
-    }
+    type:'bar',
+    data:{ labels: monthly.map(m=>m.label), datasets:[{ data: monthly.map(m=>m.total), backgroundColor:'#8ab81a', borderRadius:4, maxBarThickness:28 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{backgroundColor:'#171a16', borderColor:'#2b2f27', borderWidth:1} },
+      scales:{ x:{ grid:{display:false}, ticks:{color:'rgba(226,232,214,.5)', font:{size:11}} },
+               y:{ grid:{color:'rgba(230,236,220,.06)'}, ticks:{color:'rgba(226,232,214,.5)', font:{size:11}} } } }
   });
-}
 
-/* ============ CATEGORY CHART ============ */
-function renderCategoryChart(){
-  const data = DASHBOARD_DATA.category_distribution;
-  const colors = getCategoryColors();
-  const ctx = document.getElementById('category-chart').getContext('2d');
-  if(categoryChart) categoryChart.destroy();
-  categoryChart = new Chart(ctx, {
-    type:'doughnut',
-    data:{
-      labels:data.map(d=>d.category),
-      datasets:[{ data:data.map(d=>d.keluar || 0), backgroundColor:data.map(d=>colors[d.category]), borderWidth:2, borderColor:getCSS('--bg-panel'), hoverOffset:6 }]
-    },
-    options:{
-      responsive:true, maintainAspectRatio:false, cutout:'66%',
-      plugins:{
-        legend:{ display:false },
-        tooltip:{ backgroundColor:getCSS('--bg-raised'), titleColor:getCSS('--text-primary'), bodyColor:getCSS('--text-secondary'), borderColor:getCSS('--border'), borderWidth:1, padding:10 }
-      }
-    }
-  });
+  const catMap = {};
+  rows.forEach(t => { catMap[t.category] = (catMap[t.category]||0) + t.qty; });
+  const catList = Object.keys(catMap).map(c => ({category:c, qty:catMap[c]})).sort((a,b)=>b.qty-a.qty);
+  const dctx = document.getElementById('category-donut').getContext('2d');
+  if(donutChart) donutChart.destroy();
+  document.getElementById('donut-sub').textContent = periodLabel();
   const legend = document.getElementById('category-legend');
-  legend.innerHTML = data.map(d => `
-    <div class="legend-row">
-      <span class="legend-dot" style="background:${colors[d.category]}"></span>
-      <span class="legend-name">${escapeHtml(d.category)} <span class="legend-count">(${d.produk} produk)</span></span>
-      <span class="legend-val">${d.keluar || 0}</span>
-    </div>`).join('');
-}
+  if(!catList.length){
+    legend.innerHTML = '<div class="empty-state">Belum ada pemakaian di periode ini.</div>';
+  } else {
+    donutChart = new Chart(dctx, {
+      type:'doughnut',
+      data:{ labels:catList.map(c=>c.category), datasets:[{ data:catList.map(c=>c.qty), backgroundColor:catList.map(c=>catColor(c.category)), borderWidth:2, borderColor:'#171a16' }] },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'66%', plugins:{ legend:{display:false} } }
+    });
+    legend.innerHTML = catList.map(c => `
+      <div style="display:flex; align-items:center; gap:8px; font-size:12.5px; padding:4px 0">
+        <span style="width:8px;height:8px;border-radius:999px;background:${catColor(c.category)};flex-shrink:0"></span>
+        <span style="flex:1; color:var(--text-muted)">${escapeHtml(c.category)}</span>
+        <span style="font-family:var(--font-mono)">${c.qty}</span>
+      </div>`).join('');
+  }
 
-/* ============ RANKING PEMAKAIAN ============ */
-// Diturunkan langsung dari DASHBOARD_DATA.parts setiap render, sehingga tidak pernah basi.
-function computeRanking(){
-  return DASHBOARD_DATA.parts
-    .map(p => ({ sku:p.sku, name:p.name, category:p.category, unit:p.unit, value:p.keluar_30d || 0 }))
-    .sort((a,b) => b.value - a.value || a.name.localeCompare(b.name));
-}
-function renderRanking(){
-  const list = computeRanking().slice(0,8);
-  const colors = getCategoryColors();
-  const maxVal = Math.max.apply(null, list.map(x => x.value).concat([1]));
-  const sub = document.getElementById('ranking-sub');
-  if(sub) sub.textContent = 'Top 8 part · total pemakaian 30 hari';
-  const container = document.getElementById('ranking-list');
-  container.innerHTML = list.map((item, idx) => {
-    const pct = Math.round((item.value/maxVal)*100);
-    return `
-      <div class="rank-row">
-        <div class="rank-num">${idx+1}</div>
-        <div class="rank-info">
-          <div class="rank-name">${escapeHtml(item.name)}</div>
-          <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${pct}%; background:${colors[item.category]}"></div></div>
-        </div>
-        <div class="rank-value">${item.value} ${escapeHtml(item.unit)}</div>
-      </div>`;
-  }).join('');
-}
+  const partAgg = {};
+  rows.forEach(t => { if(!partAgg[t.sku]) partAgg[t.sku] = {name:t.name, category:t.category, qty:0}; partAgg[t.sku].qty += t.qty; });
+  const topParts = Object.values(partAgg).sort((a,b)=>b.qty-a.qty).slice(0,6);
+  const maxPart = Math.max.apply(null, topParts.map(p=>p.qty).concat([1]));
+  document.getElementById('top-parts-list').innerHTML = topParts.length ? topParts.map((p,i) => `
+    <div class="rank-row"><div class="rank-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="rank-info"><div class="rank-name">${escapeHtml(p.name)}</div>
+      <div class="rank-track"><div class="rank-fill" style="width:${Math.round(p.qty/maxPart*100)}%"></div></div></div>
+      <div class="rank-val">${p.qty}</div></div>`).join('') : '<div class="empty-state">Belum ada data.</div>';
 
-/* ============ RANKING KONSUMSI PER UNIT GENSET ============ */
-// Konsumsi per UNIT INDIVIDUAL (bukan per grup). Database/skema saat ini hanya
-// menyimpan genset_group (level grup) per transaksi — tidak ada kolom unit
-// tersendiri. Atribusi ke unit spesifik (G1/G2/G3, dst) diambil dari pola
-// "Unit <tag>" yang otomatis tercatat di kolom Catatan/Referensi saat transaksi
-// dibuat lewat sidebar (lihat openInputModal). Transaksi lama/tanpa pola itu
-// masuk ke bucket "unit tidak tercatat" per grup — bukan disamaratakan/ditebak.
-// Konsumsi per UNIT INDIVIDUAL. Sumber utama: kolom terstruktur t.genset_unit_tag
-// (ada setelah migrasi SQL "migrasi-genset-unit-tag.sql" dijalankan). Untuk
-// transaksi LAMA yang direkam sebelum migrasi (kolom itu masih null), fallback ke
-// pola teks "Unit <tag>" di kolom ref — supaya riwayat lama tidak semuanya jatuh
-// ke "unit tidak tercatat" begitu saja.
-function computeUnitConsumption(){
-  const hariIni = DASHBOARD_DATA.meta.today;
-  const windowDays = (DASHBOARD_DATA.meta && DASHBOARD_DATA.meta.consumption_window_days) || KONSUMSI_WINDOW;
-  const cutoff = shiftISO(hariIni, -windowDays);
-
-  const buckets = {};
-  GENSET_UNITS.forEach(u => {
-    const key = u[1] + '||' + u[0];
-    buckets[key] = { group: u[1], tag: u[0], model: u[2], total: 0, mapped: true };
+  const unitAgg = {};
+  rows.forEach(t => {
+    if(!t.genset_group) return;
+    const key = t.genset_group + (t.genset_unit_tag ? ' — Unit '+t.genset_unit_tag : '');
+    unitAgg[key] = (unitAgg[key]||0) + t.qty;
   });
+  const topUnits = Object.keys(unitAgg).map(k=>({name:k, qty:unitAgg[k]})).sort((a,b)=>b.qty-a.qty).slice(0,6);
+  const maxUnit = Math.max.apply(null, topUnits.map(u=>u.qty).concat([1]));
+  document.getElementById('top-units-list').innerHTML = topUnits.length ? topUnits.map((u,i) => `
+    <div class="rank-row"><div class="rank-num">${String(i+1).padStart(2,'0')}</div>
+      <div class="rank-info"><div class="rank-name">${escapeHtml(u.name)}</div>
+      <div class="rank-track"><div class="rank-fill" style="width:${Math.round(u.qty/maxUnit*100)}%"></div></div></div>
+      <div class="rank-val">${u.qty}</div></div>`).join('') : '<div class="empty-state">Belum ada data.</div>';
 
-  DASHBOARD_DATA.transactions.forEach(t => {
-    if(t.type !== 'keluar' || !t.genset_group) return;
-    if(t.date < cutoff) return;
-    let tag = t.genset_unit_tag || null;
-    if(!tag){
-      const m = /Unit\s+([A-Za-z0-9]+)/i.exec(t.ref || '');
-      tag = m ? m[1] : null;
-    }
-    const mappedKey = tag ? (t.genset_group + '||' + tag) : null;
-    const key = (mappedKey && buckets[mappedKey]) ? mappedKey : (t.genset_group + '||__unmapped__');
-    if(!buckets[key]) buckets[key] = { group: t.genset_group, tag: null, model: null, total: 0, mapped: false };
-    buckets[key].total += t.qty;
+  const recent = DASHBOARD_DATA.transactions.slice(0,8);
+  document.getElementById('recent-tx-body').innerHTML = recent.length ? recent.map(t => `
+    <tr><td>${fmtDateShort(t.date)}</td><td>${escapeHtml(t.name)}</td>
+      <td>${escapeHtml(t.genset_group||'-')}${t.genset_unit_tag?' — Unit '+escapeHtml(t.genset_unit_tag):''}</td>
+      <td><span class="tag" style="background:var(--accent-200); color:var(--accent-800)">${escapeHtml(t.keperluan||t.ref||'-')}</span></td>
+      <td class="num">${t.qty} ${escapeHtml(t.unit)}</td>
+      <td><button class="btn btn-ghost" style="padding:4px 8px" data-undo="${t.id}" title="Batalkan" aria-label="Batalkan">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7"/></svg>
+      </button></td></tr>`).join('') : '<tr><td colspan="6" class="empty-state">Belum ada transaksi.</td></tr>';
+  document.querySelectorAll('#recent-tx-body [data-undo]').forEach(b => b.addEventListener('click', () => undoTx(b.dataset.undo, b)));
+}
+
+/* ============ RENDER: CATALOG ============ */
+function renderCatalog(){
+  const cats = ['Semua'].concat([...new Set(MASTER_PARTS.map(p=>p.category))].sort());
+  document.getElementById('catalog-filters').innerHTML = cats.map(c => `
+    <button class="col-toggle ${state.catFilter===c?'on':''}" data-catf="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('');
+  document.querySelectorAll('[data-catf]').forEach(b => b.addEventListener('click', () => { state.catFilter = b.dataset.catf; renderCatalog(); }));
+
+  const q = state.query.trim().toLowerCase();
+  const rows = MASTER_PARTS.filter(p => (state.catFilter==='Semua' || p.category===state.catFilter) &&
+    (!q || p.sku.toLowerCase().includes(q) || p.name.toLowerCase().includes(q)));
+  const days = state.period;
+  const qtyFor = (p) => periodTx(days).filter(t=>t.sku===p.sku).reduce((a,t)=>a+t.qty,0);
+
+  document.getElementById('catalog-count').textContent = rows.length + ' dari ' + MASTER_PARTS.length + ' SKU';
+  document.getElementById('catalog-body').innerHTML = rows.length ? rows.map(p => `
+    <tr><td class="mono" style="font-family:var(--font-mono)">${escapeHtml(p.sku)}</td>
+      <td>${escapeHtml(p.name)}</td>
+      <td><span class="tag" style="background:var(--accent-200); color:var(--accent-800)">${escapeHtml(p.category)}</span></td>
+      <td>${escapeHtml(p.unit)}</td>
+      <td style="font-size:12px; color:var(--text-muted)">${escapeHtml((p.engine_models||[]).join(', '))}</td>
+      <td class="num">${qtyFor(p)}</td>
+      <td class="num">${p.genset_groups.length}</td></tr>`).join('') : '<tr><td colspan="7" class="empty-state">Tidak ada material yang cocok.</td></tr>';
+}
+
+/* ============ RENDER: RECORD ============ */
+function partsForUnit(unit){
+  return MASTER_PARTS.filter(p => p.genset_groups.includes(unit[1]) && (!p.engine_models.length || p.engine_models.includes(unit[2])));
+}
+function renderRecord(){
+  const fu = GENSET_UNITS[state.recordUnitIdx];
+  document.getElementById('record-unit-label').textContent = fu[1] + ' — Unit ' + fu[0];
+  document.getElementById('record-unit-model').textContent = fu[2];
+  document.getElementById('record-compat-note').textContent = 'Hanya material yang cocok dengan ' + fu[2];
+
+  const unitSel = document.getElementById('record-unit-select');
+  const groupsMap = new Map();
+  GENSET_UNITS.forEach((u,i) => {
+    if(!groupsMap.has(u[1])) groupsMap.set(u[1], []);
+    groupsMap.get(u[1]).push({i, tag:u[0], model:u[2]});
   });
+  unitSel.innerHTML = [...groupsMap.entries()].map(([groupName, units]) => `
+    <optgroup label="${escapeHtml(groupName)}">
+      ${units.map(u => `<option value="${u.i}" ${u.i===state.recordUnitIdx?'selected':''}>Unit ${escapeHtml(u.tag)} — ${escapeHtml(u.model)}</option>`).join('')}
+    </optgroup>`).join('');
+  unitSel.value = state.recordUnitIdx;
+  unitSel.onchange = () => {
+    state.recordUnitIdx = Number(unitSel.value); state.lines = {}; renderRecord();
+  };
 
-  return Object.values(buckets).sort((a,b) => b.total - a.total || a.group.localeCompare(b.group));
-}
-function unitLabel(item){
-  return item.mapped ? `${item.group} — Unit ${item.tag}` : `${item.group} — unit tidak tercatat`;
-}
-// Rekonsiliasi: total ranking harus sama dengan KPI Barang Keluar 30 Hari.
-// Kalau tidak, ada konsumsi yang tidak terpetakan ke grup manapun (genset_group kosong).
-function gensetConsumptionAudit(){
-  const sum = computeUnitConsumption().reduce((a,x) => a + x.total, 0);
-  const kpi = DASHBOARD_DATA.kpi.barang_keluar_30d;
-  return { sum, kpi, balanced: sum === kpi, gap: kpi - sum };
-}
-function renderGensetRanking(){
-  const list = computeUnitConsumption();
-  const audit = gensetConsumptionAudit();
-  const days = (DASHBOARD_DATA.meta && DASHBOARD_DATA.meta.consumption_window_days) || 30;
-  const sub = document.getElementById('genset-ranking-sub');
-  if(sub){
-    sub.innerHTML = audit.balanced
-      ? `${days} hari terakhir · total ${audit.sum} pcs, cocok dengan KPI Barang Keluar`
-      : `${days} hari terakhir · total ${audit.sum} pcs, <span style="color:var(--accent-amber)">selisih ${Math.abs(audit.gap)} pcs belum terpetakan ke grup manapun</span>`;
-  }
-  const container = document.getElementById('genset-ranking-list');
-  if(list.every(x => x.total === 0)){
-    container.innerHTML = `<div class="empty-state">Belum ada konsumsi part tercatat dalam ${days} hari terakhir. Catat pemakaian lewat ikon "+" di Tabel Inventaris Lengkap.</div>`;
-    return;
-  }
-  const maxVal = Math.max.apply(null, list.map(x => x.total).concat([1]));
-  const limeGradient = `linear-gradient(90deg, ${getCSS('--accent-lime-deep')}, ${getCSS('--accent-lime')})`;
-  container.innerHTML = list.map((item, idx) => {
-    const pct = Math.round((item.total/maxVal)*100);
+  const q = (state.recordPartQuery || '').trim().toLowerCase();
+  const allParts = partsForUnit(fu);
+  const parts = q ? allParts.filter(p => p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)) : allParts;
+  document.getElementById('record-parts-list').innerHTML = parts.length ? parts.map(p => {
+    const qty = state.lines[p.sku] || 0;
+    const stepAmt = (p.unit === 'liter') ? 0.5 : 1;
     return `
-      <div class="rank-row">
-        <div class="rank-num">${idx+1}</div>
-        <div class="rank-info">
-          <div class="rank-name">${escapeHtml(unitLabel(item))}${item.model ? ` <span class="legend-count">${escapeHtml(item.model)}</span>` : ''}</div>
-          <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${pct}%; background:${limeGradient}"></div></div>
-        </div>
-        <div class="rank-value">${item.total} pcs</div>
-      </div>`;
-  }).join('');
-}
-
-/* ============ ACTIVITY ============ */
-function renderActivity(){
-  const el = document.getElementById('activity-list');
-  // Ledger penuh disimpan di DASHBOARD_DATA.transactions (hanya pemakaian/keluar);
-  // panel hanya menampilkan 20 terbaru. Tombol undo dipindah ke Tabel Inventaris
-  // Lengkap (di sebelah ikon +), bukan di sini lagi.
-  const rows = DASHBOARD_DATA.transactions.filter(e => e.type === 'keluar');
-  if(!rows.length){
-    el.innerHTML = `<div class="empty-state">Belum ada riwayat pemakaian tercatat.</div>`;
-    return;
-  }
-  el.innerHTML = rows.slice(0,20).map(e => `
-    <div class="activity-item">
-      <div class="activity-icon keluar">–</div>
-      <div class="activity-body">
-        <div class="activity-title">${escapeHtml(e.name)} <span class="mono qty keluar">-${e.qty} ${escapeHtml(e.unit)}</span></div>
-        <div class="activity-meta">${escapeHtml(e.ref)}${e.genset_group ? ' · ' + escapeHtml(e.genset_group) : ''}</div>
+    <div class="part-row ${qty>0?'selected':''}" data-toggle="${escapeHtml(p.sku)}">
+      <div class="part-name-line">${escapeHtml(p.name)} <span class="sku-tag">· ${escapeHtml(p.sku)}</span></div>
+      <div class="qty-stepper">
+        <button data-step="${escapeHtml(p.sku)}" data-d="${-stepAmt}">−</button>
+        <input type="number" class="qty-input" data-qtyinput="${escapeHtml(p.sku)}" value="${qty}" min="0" step="${stepAmt}" inputmode="decimal">
+        <button data-step="${escapeHtml(p.sku)}" data-d="${stepAmt}">+</button>
       </div>
-      <div class="activity-time">${formatDateShort(e.date)}</div>
-    </div>`).join('');
+    </div>`;
+  }).join('') : `<div class="empty-state">${allParts.length ? 'Tidak ada material yang cocok dengan pencarian.' : 'Tidak ada material yang cocok dengan unit ini.'}</div>`;
+
+  document.querySelectorAll('[data-toggle]').forEach(el => el.addEventListener('click', () => {
+    const sku = el.dataset.toggle;
+    if(!state.lines[sku]) { state.lines[sku] = 1; renderRecord(); }
+  }));
+  document.querySelectorAll('.qty-stepper').forEach(el => el.addEventListener('click', ev => ev.stopPropagation()));
+  document.querySelectorAll('[data-step]').forEach(el => el.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    const sku = el.dataset.step, d = Number(el.dataset.d);
+    const next = Math.round(((state.lines[sku] || 0) + d) * 100) / 100;
+    if(next <= 0) delete state.lines[sku]; else state.lines[sku] = next;
+    renderRecord();
+  }));
+  document.querySelectorAll('[data-qtyinput]').forEach(el => {
+    el.addEventListener('change', () => {
+      const sku = el.dataset.qtyinput;
+      const val = parseFloat(String(el.value).replace(',', '.'));
+      if(!isFinite(val) || val <= 0) delete state.lines[sku];
+      else state.lines[sku] = Math.round(val * 100) / 100;
+      renderRecord();
+    });
+  });
+
+  const search = document.getElementById('record-part-search');
+  search.value = state.recordPartQuery || '';
+  search.oninput = () => { state.recordPartQuery = search.value; renderRecord(); };
+
+  const lineSkus = Object.keys(state.lines);
+  const totalQty = lineSkus.reduce((a,sku) => a + (state.lines[sku]||0), 0);
+  document.getElementById('record-line-count').textContent = lineSkus.length;
+  document.getElementById('record-total-qty').textContent = fmtQty(totalQty);
+  document.getElementById('record-lines-preview').innerHTML = lineSkus.length ? lineSkus.map(sku => {
+    const p = MASTER_PARTS.find(x=>x.sku===sku);
+    return `<div style="display:flex; justify-content:space-between; font-size:12.5px; padding:4px 0; color:var(--text-muted)">
+      <span>${escapeHtml(p?p.name:sku)}</span><span style="font-family:var(--font-mono)">${fmtQty(state.lines[sku])} ${escapeHtml(p?p.unit:'pcs')}</span></div>`;
+  }).join('') : '';
+
+  document.getElementById('record-date').value = state.recordDate;
+  const refSel = document.getElementById('record-ref');
+  refSel.value = state.recordRef;
 }
-// Hapus satu transaksi (salah input) — di mode online lewat RPC hapus_transaksi,
-// di mode offline langsung dibuang dari array lokal.
-function undoTransaksi(txId, btn){
+async function submitRecord(){
+  const fu = GENSET_UNITS[state.recordUnitIdx];
+  const lineSkus = Object.keys(state.lines);
+  const msgEl = document.getElementById('record-saved-msg');
+  if(!lineSkus.length){ msgEl.style.color = 'var(--accent)'; msgEl.textContent = 'Pilih minimal satu material dulu.'; return; }
+
+  const btn = document.getElementById('btn-record-submit');
+  btn.disabled = true; btn.textContent = 'Menyimpan...';
+  let dateParamUnsupported = false;
+  try{
+    for(const sku of lineSkus){
+      const p = MASTER_PARTS.find(x=>x.sku===sku);
+      const qty = state.lines[sku];
+      if(SB_ONLINE){
+        const basePayload = {
+          p_part_id: p.id, p_qty: qty, p_genset_group: fu[1], p_ref: null,
+          p_pic: sbPicEmail(), p_genset_unit_tag: fu[0], p_keperluan: state.recordRef
+        };
+        try{
+          await sbRpc('catat_transaksi', Object.assign({}, basePayload, { p_tanggal: state.recordDate }));
+        } catch(rpcErr){
+          const paramUnknown = rpcErr.code === 'PGRST202' || /could not find the function/i.test(rpcErr.message || '');
+          if(!paramUnknown) throw rpcErr;
+          // Migrasi migrasi-tanggal-transaksi.sql belum dijalankan di Supabase —
+          // fallback ke signature lama supaya pencatatan tetap jalan (tanpa tanggal custom).
+          dateParamUnsupported = true;
+          await sbRpc('catat_transaksi', basePayload);
+        }
+      } else {
+        DASHBOARD_DATA.transactions.unshift({
+          id:'LOCAL'+Date.now()+sku, date: state.recordDate, sku: p.sku, name: p.name, category: p.category,
+          unit: p.unit, qty, ref: null, keperluan: state.recordRef,
+          genset_group: fu[1], genset_unit_tag: fu[0]
+        });
+      }
+    }
+    if(SB_ONLINE) DASHBOARD_DATA = await sbLoadDashboard();
+    msgEl.style.color = 'var(--accent)';
+    msgEl.textContent = lineSkus.length + ' baris pemakaian tercatat untuk ' + fu[1] + ' — Unit ' + fu[0] + '.';
+    if(dateParamUnsupported){
+      msgEl.style.color = '#e0a636';
+      msgEl.textContent += ' (Peringatan: migrasi tanggal belum dijalankan di Supabase — tersimpan dengan tanggal hari ini, bukan ' + fmtDateLong(state.recordDate) + '. Jalankan migrasi-tanggal-transaksi.sql.)';
+    }
+    toast('Pemakaian tercatat: ' + lineSkus.length + ' baris.');
+    state.lines = {};
+    renderRecord(); renderScopeBox();
+  } catch(err){
+    msgEl.style.color = '#e8635f'; msgEl.textContent = 'Gagal: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Catat pemakaian';
+  }
+}
+async function undoTx(txId, btn){
   const row = DASHBOARD_DATA.transactions.find(t => t.id === txId);
   if(!row) return;
-  const yakin = confirm(`Batalkan pencatatan ini?\n\n${row.name} — ${row.qty} ${row.unit}\n${row.genset_group || ''}\n\nTindakan ini akan menghapus transaksi dari riwayat.`);
-  if(!yakin) return;
-
-  if(SB_ONLINE){
-    if(btn) btn.disabled = true;
-    sbRpc('hapus_transaksi', { p_tx_id: txId })
-      .then(() => sbLoadDashboard())
-      .then(fresh => { DASHBOARD_DATA = fresh; renderAll(); toast('Transaksi dibatalkan.'); })
-      .catch(err => { if(btn) btn.disabled = false; toast('Gagal membatalkan: ' + err.message); });
-    return;
-  }
-
-  // ---- Fallback offline ----
-  DASHBOARD_DATA.transactions = DASHBOARD_DATA.transactions.filter(t => t.id !== txId);
-  const part = DASHBOARD_DATA.parts.find(p => p.sku === row.sku);
-  if(part) part.keluar_30d = Math.max(0, part.keluar_30d - row.qty);
-  DASHBOARD_DATA.kpi.barang_keluar_30d = Math.max(0, DASHBOARD_DATA.kpi.barang_keluar_30d - row.qty);
-  if(row.genset_group && DASHBOARD_DATA.consumption_by_group[row.genset_group] != null){
-    DASHBOARD_DATA.consumption_by_group[row.genset_group] = Math.max(0, DASHBOARD_DATA.consumption_by_group[row.genset_group] - row.qty);
-  }
-  renderAll();
-  toast('Transaksi dibatalkan (offline).');
-}
-// Cari transaksi pemakaian PALING BARU untuk satu part spesifik, lalu batalkan.
-// Dipakai oleh tombol undo di baris Tabel Inventaris Lengkap.
-function undoLastForPart(partId, btn){
-  const part = DASHBOARD_DATA.parts.find(p => p.id === partId);
-  if(!part) return;
-  // DASHBOARD_DATA.transactions selalu sudah terurut terbaru dulu.
-  const last = DASHBOARD_DATA.transactions.find(t => t.type === 'keluar' && t.sku === part.sku);
-  if(!last){
-    toast(`Belum ada riwayat pemakaian untuk ${part.sku}.`);
-    return;
-  }
-  undoTransaksi(last.id, btn);
-}
-
-/* ============ TABLE ============ */
-function populateCategoryFilter(){
-  const sel = document.getElementById('filter-category');
-  const terpilih = sel.value || 'all';
-  sel.innerHTML = '<option value="all">Semua Kategori</option>';
-  DASHBOARD_DATA.category_distribution.map(c=>c.category).forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c; opt.textContent = c;
-    sel.appendChild(opt);
-  });
-  sel.value = [...sel.options].some(o => o.value === terpilih) ? terpilih : 'all';
-}
-function getFilteredSortedParts(){
-  let list = DASHBOARD_DATA.parts.slice();
-  const q = state.table.search.trim().toLowerCase();
-  if(q){
-    list = list.filter(p => p.sku.toLowerCase().includes(q) || p.name.toLowerCase().includes(q));
-  }
-  if(state.table.category !== 'all'){
-    list = list.filter(p => p.category === state.table.category);
-  }
-  if(state.table.gensetGroup && state.table.gensetGroup !== 'all'){
-    list = list.filter(p => p.genset_groups.includes(state.table.gensetGroup));
-  }
-  if(state.table.gensetUnitModel){
-    list = list.filter(p => p.engine_models.includes(state.table.gensetUnitModel));
-  }
-  if(state.table.sortKey){
-    const key = state.table.sortKey;
-    const dir = state.table.sortDir === 'asc' ? 1 : -1;
-    list.sort((a,b) => {
-      let av = a[key], bv = b[key];
-      if(typeof av === 'string'){ av = av.toLowerCase(); bv = bv.toLowerCase(); }
-      if(av < bv) return -1*dir;
-      if(av > bv) return 1*dir;
-      return 0;
-    });
-  }
-  return list;
-}
-function renderActiveFilterChip(){
-  const el = document.getElementById('active-filter-chip');
-  if(!el) return;
-  const g = state.table.gensetGroup;
-  if(!g || g === 'all'){ el.innerHTML = ''; return; }
-  const label = state.table.gensetUnitTag ? `${g} — Unit ${state.table.gensetUnitTag}` : `${g} (semua unit)`;
-  el.innerHTML = `<span class="filter-chip">Menampilkan: ${escapeHtml(label)}
-    <button id="clear-genset-filter" title="Tampilkan semua unit" aria-label="Hapus filter">&times;</button></span>`;
-  const btn = document.getElementById('clear-genset-filter');
-  if(btn) btn.addEventListener('click', () => { expandedGensetGroup = null; selectGensetGroup('all'); });
-}
-function renderTable(){
-  renderActiveFilterChip();
-  const list = getFilteredSortedParts();
-  const totalRows = list.length;
-  const totalPages = Math.max(1, Math.ceil(totalRows / state.table.pageSize));
-  if(state.table.page > totalPages) state.table.page = totalPages;
-  if(state.table.page < 1) state.table.page = 1;
-  const startIdx = (state.table.page-1)*state.table.pageSize;
-  const pageItems = list.slice(startIdx, startIdx+state.table.pageSize);
-
-  const colors = getCategoryColors();
-  const tbody = document.getElementById('inv-tbody');
-  if(pageItems.length === 0){
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted)">Tidak ada part yang cocok dengan filter/pencarian.</td></tr>`;
-  } else {
-    tbody.innerHTML = pageItems.map((p, i) => `
-      <tr class="inv-row">
-        <td class="mono muted">${startIdx+i+1}</td>
-        <td class="mono">${escapeHtml(p.sku)}</td>
-        <td>${escapeHtml(p.name)}</td>
-        <td><span class="cat-chip" style="--chip-color:${colors[p.category]}">${escapeHtml(p.category)}</span></td>
-        <td class="num out">-${p.keluar_30d}</td>
-        <td class="row-actions">
-          <button class="add-usage-btn" data-add-usage="${p.id}" title="Catat pemakaian part ini" aria-label="Catat pemakaian ${escapeHtml(p.name)}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          </button>
-          <button class="undo-btn" data-undo-part="${p.id}" title="Batalkan pemakaian terakhir untuk part ini" aria-label="Undo pemakaian terakhir ${escapeHtml(p.name)}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M3 13a9 9 0 1 0 3-7"/></svg>
-          </button>
-        </td>
-        <td><button class="expand-btn" data-detail="${p.id}">Detail <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg></button></td>
-      </tr>
-      <tr class="detail-row hidden" data-detail-row="${p.id}">
-        <td colspan="7">
-          <b>Digunakan pada model engine:</b> ${escapeHtml(p.engine_models.join(', '))}<br>
-          <b>Unit genset:</b> ${escapeHtml(p.genset_groups.join(', '))}
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  document.getElementById('inv-summary').textContent =
-    totalRows === 0 ? 'Menampilkan 0 dari 0 produk' :
-    `Menampilkan ${startIdx+1}-${Math.min(startIdx+state.table.pageSize,totalRows)} dari ${totalRows} produk`;
-
-  renderPagination(totalPages);
-  updateSortIndicators();
-  attachDetailToggles();
-}
-function renderPagination(totalPages){
-  const el = document.getElementById('inv-pagination');
-  el.innerHTML = '';
-  const mkBtn = (label, page, opts={}) => {
-    const btn = document.createElement('button');
-    btn.className = 'page-btn' + (opts.active ? ' active' : '');
-    btn.textContent = label;
-    btn.disabled = !!opts.disabled;
-    if(!opts.disabled){ btn.addEventListener('click', ()=>{ state.table.page = page; renderTable(); }); }
-    return btn;
-  };
-  el.appendChild(mkBtn('‹', state.table.page-1, {disabled: state.table.page<=1}));
-  for(let i=1;i<=totalPages;i++){
-    el.appendChild(mkBtn(String(i), i, {active: i===state.table.page}));
-  }
-  el.appendChild(mkBtn('›', state.table.page+1, {disabled: state.table.page>=totalPages}));
-}
-function updateSortIndicators(){
-  document.querySelectorAll('.inv-table th.sortable').forEach(th => {
-    const key = th.getAttribute('data-key');
-    const icon = th.querySelector('.sort-icon');
-    if(key === state.table.sortKey){
-      icon.textContent = state.table.sortDir === 'asc' ? '▲' : '▼';
-      icon.classList.add('active');
+  if(!confirm(`Batalkan pencatatan ini?\n\n${row.name} — ${row.qty} ${row.unit}\n${row.genset_group||''}`)) return;
+  if(btn) btn.disabled = true;
+  try{
+    if(SB_ONLINE){
+      await sbRpc('hapus_transaksi', { p_tx_id: txId });
+      DASHBOARD_DATA = await sbLoadDashboard();
     } else {
-      icon.textContent = '▲▼';
-      icon.classList.remove('active');
+      DASHBOARD_DATA.transactions = DASHBOARD_DATA.transactions.filter(t => t.id !== txId);
     }
-  });
-}
-function attachDetailToggles(){
-  document.querySelectorAll('[data-detail]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const id = btn.getAttribute('data-detail');
-      const row = document.querySelector(`[data-detail-row="${id}"]`);
-      const isHidden = row.classList.contains('hidden');
-      row.classList.toggle('hidden');
-      btn.classList.toggle('open', isHidden);
-    });
-  });
-  document.querySelectorAll('[data-add-usage]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      openInputModal('keluar', btn.getAttribute('data-add-usage'));
-    });
-  });
-  document.querySelectorAll('[data-undo-part]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      undoLastForPart(btn.getAttribute('data-undo-part'), btn);
-    });
-  });
-}
-
-/* ============ INPUT DATA PEMAKAIAN ============ */
-function populateModalPartSelect(){
-  const sel = document.getElementById('modal-part-select');
-  const byCategory = {};
-  DASHBOARD_DATA.parts.forEach(p => {
-    if(!byCategory[p.category]) byCategory[p.category] = [];
-    byCategory[p.category].push(p);
-  });
-  const categories = Object.keys(byCategory).sort((a,b) => a.localeCompare(b));
-  sel.innerHTML = categories.map(cat => {
-    const items = byCategory[cat].slice().sort((a,b) => a.name.localeCompare(b.name));
-    const opts = items.map(p => `<option value="${p.id}">${escapeHtml(p.sku)} — ${escapeHtml(p.name)} (${escapeHtml(p.unit)})</option>`).join('');
-    return `<optgroup label="${escapeHtml(cat)}">${opts}</optgroup>`;
-  }).join('');
-}
-// Dropdown unit di modal HANYA berisi unit yang benar-benar memakai part terpilih
-// (dicocokkan lewat genset_groups + engine_models part tersebut). Nilainya
-// otomatis terisi dari konteks sidebar — jadi bukan langkah manual berulang,
-// tapi tetap bisa dikoreksi kalau konteksnya belum/salah diset.
-function unitsForPart(part){
-  if(!part) return [];
-  return GENSET_UNITS
-    .filter(u => part.genset_groups.includes(u[1]))
-    .filter(u => !part.engine_models.length || part.engine_models.includes(u[2]));
-}
-function populateModalGensetSelect(){
-  const sel = document.getElementById('modal-genset-select');
-  const note = document.getElementById('modal-genset-note');
-  const part = DASHBOARD_DATA.parts.find(p => p.id === document.getElementById('modal-part-select').value);
-  const units = unitsForPart(part);
-
-  if(!units.length){
-    sel.innerHTML = `<option value="">Part ini belum dipetakan ke unit manapun</option>`;
-    sel.disabled = true;
-    note.textContent = 'Periksa data engine_models / genset_groups part ini di database.';
-    note.classList.remove('auto');
-    return;
+    toast('Transaksi dibatalkan.');
+    renderScreen(state.screen);
+  } catch(err){
+    toast('Gagal membatalkan: ' + err.message);
+    if(btn) btn.disabled = false;
   }
-  sel.disabled = false;
-  sel.innerHTML = units.map(u =>
-    `<option value="${escapeHtml(u[1])}||${escapeHtml(u[0])}">${escapeHtml(u[1])} — Unit ${escapeHtml(u[0])} (${escapeHtml(u[2])})</option>`
-  ).join('');
+}
 
-  // Auto-pilih sesuai konteks sidebar bila cocok.
-  const wantGroup = state.table.gensetGroup;
-  const wantTag = state.table.gensetUnitTag;
-  let matched = '';
-  if(wantGroup && wantGroup !== 'all'){
-    if(wantTag && units.some(u => u[1] === wantGroup && u[0] === wantTag)){
-      matched = `${wantGroup}||${wantTag}`;
-    } else {
-      const first = units.find(u => u[1] === wantGroup);
-      if(first) matched = `${first[1]}||${first[0]}`;
-    }
+/* ============ RENDER: UNITS ============ */
+function unitConsumption(unitIdx, days){
+  const u = GENSET_UNITS[unitIdx];
+  return periodTx(days).filter(t => t.genset_group === u[1] && t.genset_unit_tag === u[0]).reduce((a,t)=>a+t.qty,0);
+}
+function renderUnits(){
+  const days = state.period;
+  const withQty = GENSET_UNITS.map((u,i) => ({u, i, qty: unitConsumption(i, days)}));
+  const maxQty = Math.max.apply(null, withQty.map(x=>x.qty).concat([1]));
+  document.getElementById('unit-plate-list').innerHTML = withQty.map(x => `
+    <div class="unit-plate ${x.i===state.selUnitIdx?'active':''}" data-selunit="${x.i}">
+      <div style="flex:1; min-width:0">
+        <div class="up-tag">Unit ${escapeHtml(x.u[0])}</div>
+        <div class="up-name">${escapeHtml(x.u[1])}</div>
+        <div class="up-track"><div class="up-fill" style="width:${Math.round(x.qty/maxQty*100)}%"></div></div>
+      </div>
+      <div style="font-family:var(--font-mono); font-size:13px; flex-shrink:0">${x.qty}</div>
+    </div>`).join('');
+  document.querySelectorAll('[data-selunit]').forEach(el => el.addEventListener('click', () => {
+    state.selUnitIdx = Number(el.dataset.selunit); renderUnits();
+  }));
+
+  const su = GENSET_UNITS[state.selUnitIdx];
+  const suParts = partsForUnit(su);
+  const suQty = unitConsumption(state.selUnitIdx, days);
+  const rank = withQty.slice().sort((a,b)=>b.qty-a.qty).findIndex(x=>x.i===state.selUnitIdx) + 1;
+
+  document.getElementById('unit-detail-title').textContent = su[1] + ' — Unit ' + su[0];
+  document.getElementById('unit-detail-model').textContent = su[2];
+  document.getElementById('unit-detail-stats').innerHTML = `
+    <div class="kpi-card" style="padding:14px"><div class="kpi-label">Konsumsi ${periodLabel()}</div><div class="kpi-val" style="font-size:20px; margin-top:6px">${suQty}</div></div>
+    <div class="kpi-card" style="padding:14px"><div class="kpi-label">SKU terpasang</div><div class="kpi-val" style="font-size:20px; margin-top:6px">${suParts.length}</div></div>
+    <div class="kpi-card" style="padding:14px"><div class="kpi-label">Peringkat field</div><div class="kpi-val" style="font-size:20px; margin-top:6px">#${rank}</div></div>`;
+  document.getElementById('unit-detail-parts').innerHTML = suParts.length ? suParts.map(p => `
+    <tr><td style="font-family:var(--font-mono)">${escapeHtml(p.sku)}</td><td>${escapeHtml(p.name)}</td>
+      <td><span class="tag" style="background:var(--accent-200); color:var(--accent-800)">${escapeHtml(p.category)}</span></td></tr>`).join('')
+    : '<tr><td colspan="3" class="empty-state">Belum ada material terpetakan.</td></tr>';
+
+  const hist = DASHBOARD_DATA.transactions.filter(t => t.genset_group===su[1] && t.genset_unit_tag===su[0]).slice(0,8);
+  document.getElementById('unit-detail-history').innerHTML = hist.length ? hist.map(t => `
+    <tr><td>${fmtDateShort(t.date)}</td><td>${escapeHtml(t.name)}</td><td>${escapeHtml(t.keperluan||t.ref||'-')}</td><td class="num">${t.qty} ${escapeHtml(t.unit)}</td></tr>`).join('')
+    : '<tr><td colspan="4" class="empty-state">Belum ada riwayat untuk unit ini.</td></tr>';
+}
+
+/* ============ RENDER: REPORTS ============ */
+function reportRows(){
+  const rows = DASHBOARD_DATA.transactions.filter(t => t.date >= state.repFrom && t.date <= state.repTo);
+  if(state.repKind === 'material'){
+    const agg = {};
+    rows.forEach(t => { if(!agg[t.sku]) agg[t.sku] = {sku:t.sku, name:t.name, category:t.category, unit:t.unit, qty:0}; agg[t.sku].qty += t.qty; });
+    return { head:['SKU','Material','Kategori','Satuan','Qty'], rows: Object.values(agg).map(a=>[a.sku,a.name,a.category,a.unit,String(a.qty)]),
+      note: Object.keys(agg).length + ' baris · agregasi per SKU' };
   }
-  if(matched){
-    sel.value = matched;
-    note.textContent = wantTag ? 'Terisi otomatis dari unit yang dipilih di sidebar.' : 'Terisi otomatis dari grup di sidebar — pastikan unitnya benar.';
-    note.classList.add('auto');
+  if(state.repKind === 'unit'){
+    const agg = {};
+    rows.forEach(t => {
+      if(!t.genset_group) return;
+      const key = t.genset_group+'||'+(t.genset_unit_tag||'');
+      if(!agg[key]) agg[key] = {group:t.genset_group, tag:t.genset_unit_tag||'-', qty:0};
+      agg[key].qty += t.qty;
+    });
+    const list = Object.values(agg).sort((a,b)=>b.qty-a.qty);
+    return { head:['Unit','Grup','Qty (pcs)'], rows: list.map(a=>['Unit '+a.tag, a.group, String(a.qty)]),
+      note: list.length + ' baris · satu baris per unit genset' };
+  }
+  if(state.repKind === 'category'){
+    const agg = {};
+    rows.forEach(t => { if(!agg[t.category]) agg[t.category] = {category:t.category, skus:new Set(), qty:0}; agg[t.category].skus.add(t.sku); agg[t.category].qty += t.qty; });
+    const total = Object.values(agg).reduce((a,c)=>a+c.qty,0) || 1;
+    return { head:['Kategori','SKU','Qty','Porsi'], rows: Object.values(agg).sort((a,b)=>b.qty-a.qty).map(c=>[c.category, c.skus.size+' SKU', String(c.qty), Math.round(c.qty/total*100)+'%']),
+      note: Object.keys(agg).length + ' baris · agregasi per kategori' };
+  }
+  return { head:['Tanggal','Material','Unit genset','Keperluan','Qty'],
+    rows: rows.map(t => [fmtDateShort(t.date), t.name, (t.genset_group||'-')+(t.genset_unit_tag?' — Unit '+t.genset_unit_tag:''), t.keperluan||t.ref||'-', t.qty+' '+t.unit]),
+    note: rows.length + ' baris · seluruh transaksi periode' };
+}
+function renderReports(){
+  document.getElementById('rep-kind').value = state.repKind;
+  document.getElementById('rep-from').value = state.repFrom;
+  document.getElementById('rep-to').value = state.repTo;
+  const r = reportRows();
+  document.getElementById('rep-preview-head').innerHTML = '<tr>' + r.head.map(h=>`<th>${escapeHtml(h)}</th>`).join('') + '</tr>';
+  document.getElementById('rep-preview-body').innerHTML = r.rows.length ? r.rows.slice(0,50).map(row => '<tr>'+row.map(c=>`<td>${escapeHtml(c)}</td>`).join('')+'</tr>').join('')
+    : `<tr><td colspan="${r.head.length}" class="empty-state">Tidak ada data pada rentang ini.</td></tr>`;
+  document.getElementById('rep-preview-note').textContent = r.note;
+}
+function downloadBlob(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function exportReport(){
+  const r = reportRows();
+  const filenameBase = 'laporan-' + state.repKind + '-' + todayISO();
+  if(!r.rows.length){ toast('Tidak ada data untuk diexport.'); return; }
+  if(state.repFormat === 'csv'){
+    const lines = [r.head.join(',')].concat(r.rows.map(row => row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')));
+    downloadBlob(new Blob(["\uFEFF"+lines.join('\n')], {type:'text/csv;charset=utf-8;'}), filenameBase+'.csv');
+  } else if(state.repFormat === 'excel'){
+    const ws = XLSX.utils.aoa_to_sheet([r.head].concat(r.rows));
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Laporan');
+    XLSX.writeFile(wb, filenameBase+'.xlsx');
   } else {
-    note.textContent = 'Pilih unit genset yang memakai part ini.';
-    note.classList.remove('auto');
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'landscape'});
+    doc.setFontSize(13); doc.text('Laporan Konsumsi Material Genset — PB Field', 14, 15);
+    doc.setFontSize(9); doc.setTextColor(110,110,110); doc.text('Tanggal cetak: '+fmtDateLong(todayISO()), 14, 21);
+    doc.autoTable({ startY:26, head:[r.head], body:r.rows, styles:{fontSize:8, cellPadding:3}, headStyles:{fillColor:[20,24,26], textColor:[255,255,255]} });
+    doc.save(filenameBase+'.pdf');
   }
-}
-function openInputModal(mode, presetPartId){
-  modalMode = 'keluar';
-  document.getElementById('modal-title').textContent = 'Input Data Pemakaian';
-  document.getElementById('modal-qty-label').textContent = 'Jumlah dipakai';
-  const qtyInput = document.getElementById('modal-qty-input');
-  qtyInput.min = '1';
-  document.getElementById('modal-ref-group').style.display = '';
-  document.getElementById('modal-genset-group').style.display = '';
-  document.getElementById('modal-ref-input').value = '';
-  document.getElementById('modal-ref-input').placeholder = 'Contoh: PM Rutin 500 jam';
-  populateModalPartSelect();
-  if(presetPartId) document.getElementById('modal-part-select').value = presetPartId;
-  populateModalGensetSelect();
-  qtyInput.value = '';
-  const hint = document.getElementById('modal-hint');
-  hint.textContent = ''; hint.style.color = 'var(--text-muted)';
-  document.getElementById('modal-overlay').classList.add('open');
-}
-function closeInputModal(){
-  document.getElementById('modal-overlay').classList.remove('open');
-  modalMode = null;
-}
-function submitInputModal(){
-  const partId = document.getElementById('modal-part-select').value;
-  let qty = parseInt(document.getElementById('modal-qty-input').value,10);
-  const hint = document.getElementById('modal-hint');
-  if(isNaN(qty) || qty < 1){
-    hint.style.color = 'var(--accent-red)';
-    hint.textContent = 'Masukkan jumlah yang valid.';
-    return;
-  }
-  const part = DASHBOARD_DATA.parts.find(p => p.id === partId);
-  if(!part) return;
-
-  const rawUnit = document.getElementById('modal-genset-select').value;
-  if(!rawUnit){
-    hint.style.color = 'var(--accent-red)';
-    hint.textContent = 'Pilih unit genset tujuan dulu agar pemakaian tercatat ke unit yang benar.';
-    return;
-  }
-  const [gensetGroup, gensetUnitTag] = rawUnit.split('||');
-
-  let refText = document.getElementById('modal-ref-input').value.trim();
-  if(!refText) refText = 'Pemakaian Manual';
-
-  if(SB_ONLINE){
-    sbSave(
-      sbRpc('catat_transaksi', {
-        p_part_id: partId, p_qty: qty,
-        p_genset_group: gensetGroup, p_ref: refText, p_pic: sbPicEmail(),
-        p_genset_unit_tag: gensetUnitTag || null
-      }),
-      `Pemakaian tercatat: ${part.sku} \u2013${qty} ${part.unit}.`,
-      hint
-    );
-    return;
-  }
-
-  // ---- Fallback offline (Supabase tidak terkonfigurasi/tidak terjangkau) ----
-  DASHBOARD_DATA.parts.find(p => p.id === partId).keluar_30d += qty;
-  DASHBOARD_DATA.kpi.barang_keluar_30d += qty;
-  DASHBOARD_DATA.consumption_by_group[gensetGroup] = (DASHBOARD_DATA.consumption_by_group[gensetGroup] || 0) + qty;
-  DASHBOARD_DATA.transactions.unshift({
-    id: 'LOCAL' + Date.now(), date: DASHBOARD_DATA.meta.today, type: 'keluar',
-    sku: part.sku, name: part.name, category: part.category,
-    qty, unit: part.unit, ref: refText, genset_group: gensetGroup,
-    genset_unit_tag: gensetUnitTag || null
-  });
-  renderAll();
-  toast(`Pemakaian tercatat (offline): ${part.sku} \u2013${qty} ${part.unit}.`);
-  closeInputModal();
-}
-
-/* ============ GENERIC DOWNLOAD DROPDOWNS ============ */
-function closeDropdown(dropdownEl){
-  const menu = dropdownEl.querySelector('.dropdown-menu');
-  const toggleBtn = dropdownEl.querySelector('.dropdown-toggle');
-  if(menu) menu.classList.remove('open');
-  if(toggleBtn) toggleBtn.setAttribute('aria-expanded','false');
-}
-function closeAllDropdowns(except){
-  document.querySelectorAll('.dropdown').forEach(dd => { if(dd !== except) closeDropdown(dd); });
-}
-document.querySelectorAll('.dropdown').forEach(dropdownEl => {
-  const toggleBtn = dropdownEl.querySelector('.dropdown-toggle');
-  const menu = dropdownEl.querySelector('.dropdown-menu');
-  if(!toggleBtn || !menu) return;
-  toggleBtn.addEventListener('click', e => {
-    e.stopPropagation();
-    const isOpen = menu.classList.toggle('open');
-    toggleBtn.setAttribute('aria-expanded', String(isOpen));
-    closeAllDropdowns(dropdownEl);
-  });
-  menu.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', () => closeDropdown(dropdownEl));
-  });
-});
-document.addEventListener('click', e => {
-  document.querySelectorAll('.dropdown').forEach(dd => { if(!dd.contains(e.target)) closeDropdown(dd); });
-});
-
-document.getElementById('btn-activity-csv').addEventListener('click', exportActivityCSV);
-document.getElementById('btn-activity-excel').addEventListener('click', exportActivityExcel);
-document.getElementById('btn-activity-pdf').addEventListener('click', exportActivityPDF);
-document.getElementById('btn-genset-csv').addEventListener('click', exportGensetRankingCSV);
-document.getElementById('btn-genset-excel').addEventListener('click', exportGensetRankingExcel);
-document.getElementById('btn-genset-pdf').addEventListener('click', exportGensetRankingPDF);
-
-function gensetRankingExportRows(){
-  return computeUnitConsumption().map((item, idx) => ({
-    'Peringkat': idx+1,
-    'Unit Genset': unitLabel(item),
-    'Model Engine': item.model || '-',
-    'Total Part Keluar (pcs)': item.total
-  }));
-}
-function exportGensetRankingCSV(){
-  const rows = gensetRankingExportRows();
-  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
-  const headers = Object.keys(rows[0]);
-  const lines = [headers.join(',')];
-  rows.forEach(r => { lines.push(headers.map(h => `"${String(r[h]).replace(/"/g,'""')}"`).join(',')); });
-  const blob = new Blob(["\uFEFF"+lines.join('\n')], {type:'text/csv;charset=utf-8;'});
-  downloadBlob(blob, `ranking-unit-genset-${todayStr()}.csv`);
-  toast(`CSV ranking unit genset berhasil diexport (${rows.length} baris).`);
-}
-function exportGensetRankingExcel(){
-  const rows = gensetRankingExportRows();
-  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
-  const ws = XLSX.utils.json_to_sheet(rows);
-  ws['!cols'] = [{wch:10},{wch:32},{wch:24},{wch:20}];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Ranking Unit Genset');
-  XLSX.writeFile(wb, `ranking-unit-genset-${todayStr()}.xlsx`);
-  toast(`Excel ranking unit genset berhasil diexport (${rows.length} baris).`);
-}
-function exportGensetRankingPDF(){
-  const rows = gensetRankingExportRows();
-  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({orientation:'portrait'});
-  doc.setFontSize(13);
-  doc.text('Ranking Konsumsi Part per Unit Genset - PB Field', 14, 15);
-  doc.setFontSize(9);
-  doc.setTextColor(110,110,110);
-  doc.text(`Tanggal cetak: ${formatDateLong(todayStr())}`, 14, 21);
-  const headers = Object.keys(rows[0]);
-  doc.autoTable({
-    startY: 26,
-    head: [headers],
-    body: rows.map(r => headers.map(h => r[h])),
-    styles:{ fontSize:9, cellPadding:4 },
-    headStyles:{ fillColor:[20,24,26], textColor:[255,255,255] },
-    alternateRowStyles:{ fillColor:[245,246,243] }
-  });
-  doc.save(`ranking-unit-genset-${todayStr()}.pdf`);
-  toast(`PDF ranking unit genset berhasil diexport (${rows.length} baris).`);
-}
-
-function activityExportRows(){
-  // Export seluruh riwayat pemakaian (keluar), bukan hanya yang tampil di panel.
-  return DASHBOARD_DATA.transactions.filter(e => e.type === 'keluar').map(e => ({
-    'Tanggal': e.date,
-    'SKU': e.sku,
-    'Nama Part': e.name,
-    'Kategori': e.category,
-    'Jumlah': e.qty,
-    'Satuan': e.unit,
-    'Unit Genset': e.genset_group || '-',
-    'Referensi': e.ref,
-    'Stok Sesudah': e.stock_after
-  }));
-}
-function exportActivityCSV(){
-  const rows = activityExportRows();
-  if(!rows.length){ toast('Tidak ada riwayat pemakaian untuk diexport.'); return; }
-  const headers = Object.keys(rows[0]);
-  const lines = [headers.join(',')];
-  rows.forEach(r => { lines.push(headers.map(h => `"${String(r[h]).replace(/"/g,'""')}"`).join(',')); });
-  const blob = new Blob(["\uFEFF"+lines.join('\n')], {type:'text/csv;charset=utf-8;'});
-  downloadBlob(blob, `riwayat-pemakaian-genset-${todayStr()}.csv`);
-  toast(`CSV riwayat pemakaian berhasil diexport (${rows.length} baris).`);
-}
-function exportActivityExcel(){
-  const rows = activityExportRows();
-  if(!rows.length){ toast('Tidak ada riwayat pemakaian untuk diexport.'); return; }
-  const ws = XLSX.utils.json_to_sheet(rows);
-  ws['!cols'] = [{wch:12},{wch:12},{wch:28},{wch:14},{wch:9},{wch:9},{wch:24},{wch:38},{wch:13}];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Pemakaian');
-  XLSX.writeFile(wb, `riwayat-pemakaian-genset-${todayStr()}.xlsx`);
-  toast(`Excel riwayat pemakaian berhasil diexport (${rows.length} baris).`);
-}
-function exportActivityPDF(){
-  const rows = activityExportRows();
-  if(!rows.length){ toast('Tidak ada riwayat pemakaian untuk diexport.'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({orientation:'landscape'});
-  doc.setFontSize(13);
-  doc.text('Laporan Riwayat Pemakaian Part Genset - PB Field', 14, 15);
-  doc.setFontSize(9);
-  doc.setTextColor(110,110,110);
-  doc.text(`Tanggal cetak: ${formatDateLong(todayStr())}`, 14, 21);
-  const headers = Object.keys(rows[0]);
-  doc.autoTable({
-    startY: 26,
-    head: [headers],
-    body: rows.map(r => headers.map(h => r[h])),
-    styles:{ fontSize:8, cellPadding:3 },
-    headStyles:{ fillColor:[20,24,26], textColor:[255,255,255] },
-    alternateRowStyles:{ fillColor:[245,246,243] }
-  });
-  doc.save(`riwayat-pemakaian-genset-${todayStr()}.pdf`);
-  toast(`PDF riwayat pemakaian berhasil diexport (${rows.length} baris).`);
-}
-
-document.getElementById('modal-cancel').addEventListener('click', closeInputModal);
-document.getElementById('modal-close').addEventListener('click', closeInputModal);
-document.getElementById('modal-overlay').addEventListener('click', e => { if(e.target.id === 'modal-overlay') closeInputModal(); });
-document.getElementById('modal-save').addEventListener('click', submitInputModal);
-
-/* ============ EXPORT ============ */
-function tableExportRows(){
-  return getFilteredSortedParts().map(p => ({
-    'SKU': p.sku,
-    'Nama Part': p.name,
-    'Kategori': p.category,
-    'Satuan': p.unit,
-    'Pemakaian (30 Hari)': p.keluar_30d
-  }));
-}
-function exportCSV(){
-  const rows = tableExportRows();
-  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
-  const headers = Object.keys(rows[0]);
-  const lines = [headers.join(',')];
-  rows.forEach(r => { lines.push(headers.map(h => `"${String(r[h]).replace(/"/g,'""')}"`).join(',')); });
-  const blob = new Blob(["\uFEFF"+lines.join('\n')], {type:'text/csv;charset=utf-8;'});
-  downloadBlob(blob, `inventaris-genset-${todayStr()}.csv`);
-  toast(`CSV berhasil diexport (${rows.length} baris).`);
-}
-function exportExcel(){
-  const rows = tableExportRows();
-  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
-  const ws = XLSX.utils.json_to_sheet(rows);
-  ws['!cols'] = [{wch:12},{wch:28},{wch:14},{wch:9},{wch:15}];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Inventaris');
-  XLSX.writeFile(wb, `inventaris-genset-${todayStr()}.xlsx`);
-  toast(`Excel berhasil diexport (${rows.length} baris).`);
-}
-function exportPDF(){
-  const rows = tableExportRows();
-  if(!rows.length){ toast('Tidak ada data untuk diexport.'); return; }
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({orientation:'landscape'});
-  doc.setFontSize(13);
-  doc.text('Laporan Inventaris Part Genset - PB Field (TEMI)', 14, 15);
-  doc.setFontSize(9);
-  doc.setTextColor(110,110,110);
-  doc.text(`Tanggal cetak: ${formatDateLong(todayStr())}`, 14, 21);
-  const headers = Object.keys(rows[0]);
-  doc.autoTable({
-    startY: 26,
-    head: [headers],
-    body: rows.map(r => headers.map(h => r[h])),
-    styles:{ fontSize:8, cellPadding:3 },
-    headStyles:{ fillColor:[20,24,26], textColor:[255,255,255] },
-    alternateRowStyles:{ fillColor:[245,246,243] }
-  });
-  doc.save(`inventaris-genset-${todayStr()}.pdf`);
-  toast(`PDF berhasil diexport (${rows.length} baris).`);
+  document.getElementById('rep-export-msg').textContent = r.rows.length + ' baris diexport ke ' + state.repFormat.toUpperCase() + '.';
+  toast('Laporan diexport.');
 }
 
 /* ============ EVENTS ============ */
-function debounce(fn, wait){
-  let t; return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), wait); };
-}
 function bindEvents(){
-  document.getElementById('trend-tabs').addEventListener('click', e => {
-    const btn = e.target.closest('.tab-btn'); if(!btn) return;
-    document.querySelectorAll('#trend-tabs .tab-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    state.trendPeriod = btn.getAttribute('data-period');
-    renderTrendChart();
-  });
+  document.querySelectorAll('.nav-item').forEach(el => el.addEventListener('click', () => goScreen(el.dataset.screen)));
+  document.getElementById('btn-goto-reports').addEventListener('click', () => { state.repKind='history'; goScreen('reports'); });
 
-  const syncSearch = debounce(val => { state.table.search = val; state.table.page = 1; renderTable(); }, 200);
-  document.getElementById('table-search').addEventListener('input', e => syncSearch(e.target.value));
-  document.getElementById('global-search').addEventListener('input', e => {
-    document.getElementById('table-search').value = e.target.value;
-    syncSearch(e.target.value);
-    document.getElementById('content').scrollIntoView({behavior:'smooth'});
-  });
-  document.getElementById('filter-category').addEventListener('change', e => {
-    state.table.category = e.target.value; state.table.page = 1; renderTable();
-  });
-  document.querySelectorAll('.inv-table th.sortable').forEach(th => {
-    th.addEventListener('click', () => {
-      const key = th.getAttribute('data-key');
-      if(state.table.sortKey === key){
-        state.table.sortDir = state.table.sortDir === 'asc' ? 'desc' : 'asc';
-      } else {
-        state.table.sortKey = key; state.table.sortDir = 'asc';
-      }
-      renderTable();
-    });
-  });
+  document.querySelectorAll('#period-seg button').forEach(b => b.addEventListener('click', () => {
+    state.period = Number(b.dataset.period);
+    document.querySelectorAll('#period-seg button').forEach(x=>x.classList.toggle('active', x===b));
+    renderScopeBox(); renderScreen(state.screen);
+  }));
+  document.getElementById('global-search').addEventListener('input', e => { state.query = e.target.value; if(state.screen==='catalog') renderCatalog(); });
 
-  document.getElementById('export-csv').addEventListener('click', exportCSV);
-  document.getElementById('export-excel').addEventListener('click', exportExcel);
-  document.getElementById('export-pdf').addEventListener('click', exportPDF);
+  document.getElementById('record-date').addEventListener('change', e => state.recordDate = e.target.value);
+  document.getElementById('record-ref').addEventListener('change', e => state.recordRef = e.target.value);
+  document.getElementById('btn-record-submit').addEventListener('click', submitRecord);
+  document.getElementById('btn-record-reset').addEventListener('click', () => { state.lines = {}; document.getElementById('record-saved-msg').textContent=''; renderRecord(); });
 
-  // Daftar unit selalu mengikuti part yang sedang dipilih.
-  document.getElementById('modal-part-select').addEventListener('change', populateModalGensetSelect);
+  document.getElementById('rep-kind').addEventListener('change', e => { state.repKind = e.target.value; renderReports(); });
+  document.getElementById('rep-from').addEventListener('change', e => { state.repFrom = e.target.value; renderReports(); });
+  document.getElementById('rep-to').addEventListener('change', e => { state.repTo = e.target.value; renderReports(); });
+  document.querySelectorAll('#rep-format-seg button').forEach(b => b.addEventListener('click', () => {
+    state.repFormat = b.dataset.fmt;
+    document.querySelectorAll('#rep-format-seg button').forEach(x=>x.classList.toggle('active', x===b));
+  }));
+  document.getElementById('btn-rep-export').addEventListener('click', exportReport);
 
-  document.getElementById('menu-toggle').addEventListener('click', () => {
-    document.getElementById('app-shell').classList.add('sidebar-open');
-    document.getElementById('sidebar-scrim').style.display = 'block';
-  });
-  document.getElementById('sidebar-scrim').addEventListener('click', () => {
-    document.getElementById('app-shell').classList.remove('sidebar-open');
-    document.getElementById('sidebar-scrim').style.display = 'none';
-  });
-
-  document.getElementById('nav-all-units').addEventListener('click', () => {
-    selectGensetGroup('all');
-  });
+  document.getElementById('menu-toggle').addEventListener('click', () => document.getElementById('app-shell').classList.add('sidebar-open'));
+  document.getElementById('scrim').addEventListener('click', () => document.getElementById('app-shell').classList.remove('sidebar-open'));
 }
 
 /* ============ INIT ============ */
-function renderAll(){
-  renderGensetNav();
-  populateCategoryFilter();
-  renderKPIs();
-  renderTrendChart();
-  renderCategoryChart();
-  renderRanking();
-  renderGensetRanking();
-  renderActivity();
-  renderTable();
-}
 async function init(){
-  // Isi dulu dari JSON tertanam (demo/offline), lalu timpa dengan data Supabase kalau berhasil.
-  DASHBOARD_DATA = JSON.parse(document.getElementById('dashboard-data-json').textContent);
-  renderAll();
+  DASHBOARD_DATA = { meta:{today: todayISO(), server:false}, parts: MASTER_PARTS.map(p=>({id:p.id,sku:p.sku,name:p.name,category:p.category,unit:p.unit,engine_models:p.engine_models,genset_groups:p.genset_groups})), transactions: [] };
   bindEvents();
+  renderScopeBox();
+  goScreen('overview');
   if(SB_ONLINE){
-    setConnState('loading');
     try{
       DASHBOARD_DATA = await sbLoadDashboard();
-      renderAll();
-      setConnState('online');
-    }catch(err){
-      setConnState('error', err.message);
+      renderScopeBox();
+      renderScreen(state.screen);
+    } catch(err){
+      toast('Gagal tersambung ke Supabase: ' + err.message);
     }
-  } else {
-    setConnState('demo');
   }
-}
-function setConnState(mode, detail){
-  const el = document.getElementById('conn-badge');
-  if(!el) return;
-  const map = {
-    loading: ['Memuat data dari Supabase...', 'var(--accent-amber)'],
-    online:  ['● Tersambung ke Supabase', 'var(--accent-lime)'],
-    demo:    ['● Mode demo (data contoh)', 'var(--text-muted)'],
-    error:   ['● Gagal tersambung ke Supabase', 'var(--accent-red)']
-  };
-  const v = map[mode] || map.demo;
-  el.textContent = v[0];
-  el.style.color = v[1];
-  el.title = detail || '';
 }
 document.addEventListener('DOMContentLoaded', init);
 })();
