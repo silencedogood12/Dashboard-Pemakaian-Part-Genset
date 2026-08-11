@@ -286,7 +286,7 @@ select.input option, select.input optgroup{background:var(--surface-2); color:va
           </div>
           <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px" id="catalog-filters"></div>
           <table class="table">
-            <thead><tr><th>SKU</th><th>Material</th><th>Kategori</th><th>Satuan</th><th>Model engine</th><th class="num">Pemakaian</th><th class="num">Unit</th></tr></thead>
+            <thead><tr><th>SKU</th><th>Material</th><th>Kategori</th><th>Satuan</th><th>Model engine</th><th class="num">Pemakaian</th></tr></thead>
             <tbody id="catalog-body"></tbody>
           </table>
         </div>
@@ -741,8 +741,7 @@ function renderCatalog(){
       <td><span class="tag" style="background:var(--accent-200); color:var(--accent-800)">${escapeHtml(p.category)}</span></td>
       <td>${escapeHtml(p.unit)}</td>
       <td style="font-size:12px; color:var(--text-muted)">${escapeHtml((p.engine_models||[]).join(', '))}</td>
-      <td class="num">${qtyFor(p)}</td>
-      <td class="num">${p.genset_groups.length}</td></tr>`).join('') : '<tr><td colspan="7" class="empty-state">Tidak ada material yang cocok.</td></tr>';
+      <td class="num">${qtyFor(p)}</td></tr>`).join('') : '<tr><td colspan="6" class="empty-state">Tidak ada material yang cocok.</td></tr>';
 }
 
 /* ============ RENDER: RECORD ============ */
