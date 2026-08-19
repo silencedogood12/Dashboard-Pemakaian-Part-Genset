@@ -152,6 +152,25 @@ select.input option, select.input optgroup{background:var(--surface-2); color:va
 .up-fill{height:100%; background:linear-gradient(90deg,#8ab81a,#d3ff3d); border-radius:999px}
 .unit-plate.active .up-track{background:rgba(18,22,14,.28)}
 .unit-plate.active .up-fill{background:#12160e}
+.up-spark{display:block; width:100%; height:22px; margin-top:5px; opacity:.85}
+.unit-plate.active .up-spark{opacity:1}
+
+/* ---- Grafik per unit genset ---- */
+.unit-chart-row{display:grid; grid-template-columns:1.55fr 1fr; gap:12px; margin-bottom:16px}
+.unit-chart-box{background:var(--surface-2); border:1px solid var(--border-soft); border-radius:14px; padding:14px 16px; min-width:0}
+.unit-chart-head{display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:10px}
+.unit-chart-title{font-size:13px; font-weight:600}
+.unit-chart-sub{font-size:11px; color:var(--text-mute2); letter-spacing:.04em}
+.unit-chart-canvas{height:168px; position:relative}
+.unit-donut-flex{display:flex; align-items:center; gap:14px}
+.unit-donut-canvas{width:118px; height:118px; flex:none; position:relative}
+.unit-donut-legend{flex:1; min-width:0; max-height:150px; overflow:auto}
+.unit-legend-row{display:flex; align-items:center; gap:7px; font-size:11.5px; padding:3px 0}
+.unit-legend-dot{width:8px; height:8px; border-radius:999px; flex-shrink:0}
+.unit-legend-name{flex:1; min-width:0; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.unit-legend-val{font-family:var(--font-mono); font-size:11.5px}
+.unit-chart-empty{display:grid; place-items:center; height:100%; font-size:12px; color:var(--text-mute2); text-align:center; padding:0 10px}
+@media(max-width:900px){ .unit-chart-row{grid-template-columns:1fr} }
 
 .col-toggle{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--border); border-radius:999px; padding:6px 12px; margin:0 6px 6px 0; cursor:pointer; font-size:12px; background:transparent; color:rgba(226,232,214,.55)}
 .col-toggle.on{background:var(--accent-300); color:var(--accent-800); border-color:var(--accent)}
@@ -286,7 +305,7 @@ select.input option, select.input optgroup{background:var(--surface-2); color:va
           </div>
           <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px" id="catalog-filters"></div>
           <table class="table">
-            <thead><tr><th>SKU</th><th>Material</th><th>Kategori</th><th>Satuan</th><th>Model engine</th><th class="num">Pemakaian</th></tr></thead>
+            <thead><tr><th>SKU</th><th>Material</th><th>Kategori</th><th>Satuan</th><th>Model engine</th><th class="num">Pemakaian</th><th class="num">Unit</th></tr></thead>
             <tbody id="catalog-body"></tbody>
           </table>
         </div>
@@ -341,6 +360,31 @@ select.input option, select.input optgroup{background:var(--surface-2); color:va
               <div><div class="card-title" id="unit-detail-title">–</div><div class="card-sub" id="unit-detail-model">–</div></div>
             </div>
             <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:16px" id="unit-detail-stats"></div>
+
+            <div class="unit-chart-row">
+              <div class="unit-chart-box">
+                <div class="unit-chart-head">
+                  <div class="unit-chart-title">Tren konsumsi unit</div>
+                  <div class="unit-chart-sub" id="unit-trend-sub">–</div>
+                </div>
+                <div class="unit-chart-canvas">
+                  <canvas id="unit-trend-chart"></canvas>
+                  <div class="unit-chart-empty" id="unit-trend-empty" style="display:none">Belum ada pemakaian tercatat untuk unit ini pada periode terpilih.</div>
+                </div>
+              </div>
+              <div class="unit-chart-box">
+                <div class="unit-chart-head">
+                  <div class="unit-chart-title">Komposisi kategori</div>
+                  <div class="unit-chart-sub" id="unit-donut-sub">–</div>
+                </div>
+                <div class="unit-donut-flex" id="unit-donut-flex">
+                  <div class="unit-donut-canvas"><canvas id="unit-donut-chart"></canvas></div>
+                  <div class="unit-donut-legend" id="unit-donut-legend"></div>
+                </div>
+                <div class="unit-chart-empty" id="unit-donut-empty" style="display:none; height:118px">Belum ada pemakaian tercatat untuk unit ini pada periode terpilih.</div>
+              </div>
+            </div>
+
             <div class="card-sub" style="margin-bottom:8px">Material terpasang</div>
             <table class="table" style="margin-bottom:16px">
               <thead><tr><th>SKU</th><th>Material</th><th>Kategori</th></tr></thead>
@@ -517,6 +561,7 @@ const state = {
 
 let DASHBOARD_DATA = null;
 let trendChart = null, donutChart = null;
+let unitTrendChart = null, unitDonutChart = null;
 
 /* ============ DERIVE DARI SUPABASE (part + transaksi) ============ */
 function deriveDashboard(rawParts, rawTx){
@@ -741,7 +786,8 @@ function renderCatalog(){
       <td><span class="tag" style="background:var(--accent-200); color:var(--accent-800)">${escapeHtml(p.category)}</span></td>
       <td>${escapeHtml(p.unit)}</td>
       <td style="font-size:12px; color:var(--text-muted)">${escapeHtml((p.engine_models||[]).join(', '))}</td>
-      <td class="num">${qtyFor(p)}</td></tr>`).join('') : '<tr><td colspan="6" class="empty-state">Tidak ada material yang cocok.</td></tr>';
+      <td class="num">${qtyFor(p)}</td>
+      <td class="num">${p.genset_groups.length}</td></tr>`).join('') : '<tr><td colspan="7" class="empty-state">Tidak ada material yang cocok.</td></tr>';
 }
 
 /* ============ RENDER: RECORD ============ */
@@ -903,19 +949,128 @@ function unitConsumption(unitIdx, days){
   const u = GENSET_UNITS[unitIdx];
   return periodTx(days).filter(t => t.genset_group === u[1] && t.genset_unit_tag === u[0]).reduce((a,t)=>a+t.qty,0);
 }
+/* Semua transaksi milik satu unit genset (tanpa filter periode) */
+function unitTx(unitIdx){
+  const u = GENSET_UNITS[unitIdx];
+  return DASHBOARD_DATA.transactions.filter(t => t.genset_group === u[1] && t.genset_unit_tag === u[0]);
+}
+/* Deret waktu konsumsi unit, bucket-nya menyesuaikan periode aktif:
+   30 hari -> 6 bucket x 5 hari | 90 hari -> 9 bucket x 10 hari | 365 hari -> 12 bucket bulanan */
+function unitTrendSeries(unitIdx, days){
+  const tx = unitTx(unitIdx);
+  const out = [];
+  if(days >= 365){
+    for(let i=11;i>=0;i--){
+      const dt = new Date(DASHBOARD_DATA.meta.today+'T00:00:00'); dt.setMonth(dt.getMonth()-i);
+      const key = dt.getFullYear()+'-'+p2(dt.getMonth()+1);
+      out.push({ label: ID_BULAN[dt.getMonth()], qty: tx.filter(t=>t.date.substring(0,7)===key).reduce((a,t)=>a+t.qty,0) });
+    }
+  } else {
+    const nb = days === 30 ? 6 : 9;
+    const span = Math.max(1, Math.round(days/nb));
+    for(let i=nb-1;i>=0;i--){
+      const end = shiftISO(DASHBOARD_DATA.meta.today, -i*span);
+      const start = shiftISO(end, -span);
+      // Bucket paling awal dibuat inklusif supaya total grafik = angka KPI "Konsumsi <periode>"
+      // (periodTx memakai date >= today-days, bukan >).
+      const first = (i === nb-1);
+      out.push({ label: fmtDateShort(end),
+        qty: tx.filter(t => (first ? t.date>=start : t.date>start) && t.date<=end).reduce((a,t)=>a+t.qty,0) });
+    }
+  }
+  return out;
+}
+/* Komposisi kategori material untuk satu unit pada periode aktif */
+function unitCategoryBreakdown(unitIdx, days){
+  const u = GENSET_UNITS[unitIdx];
+  const map = {};
+  periodTx(days).filter(t => t.genset_group === u[1] && t.genset_unit_tag === u[0])
+    .forEach(t => { map[t.category] = (map[t.category]||0) + t.qty; });
+  return Object.keys(map).map(c => ({category:c, qty:map[c]})).sort((a,b)=>b.qty-a.qty);
+}
+/* Gambar grafik tren + donat untuk unit yang sedang dipilih */
+function renderUnitCharts(unitIdx, days){
+  const series = unitTrendSeries(unitIdx, days);
+  const totalTrend = series.reduce((a,s)=>a+s.qty,0);
+  document.getElementById('unit-trend-sub').textContent =
+    days >= 365 ? '12 bulan · per bulan' : (days === 30 ? '30 hari · per 5 hari' : '90 hari · per 10 hari');
+
+  const trendEmpty = document.getElementById('unit-trend-empty');
+  const trendCanvas = document.getElementById('unit-trend-chart');
+  if(unitTrendChart){ unitTrendChart.destroy(); unitTrendChart = null; }
+  if(!totalTrend){
+    trendCanvas.style.display = 'none'; trendEmpty.style.display = 'grid';
+  } else {
+    trendCanvas.style.display = ''; trendEmpty.style.display = 'none';
+    unitTrendChart = new Chart(trendCanvas.getContext('2d'), {
+      type:'line',
+      data:{ labels: series.map(s=>s.label), datasets:[{
+        data: series.map(s=>s.qty), borderColor:'#b4e600', borderWidth:2,
+        backgroundColor:(c)=>{ const {ctx, chartArea} = c.chart; if(!chartArea) return 'rgba(180,230,0,.14)';
+          const g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+          g.addColorStop(0,'rgba(180,230,0,.28)'); g.addColorStop(1,'rgba(180,230,0,0)'); return g; },
+        fill:true, tension:.32, pointRadius:3, pointBackgroundColor:'#0d0f0d',
+        pointBorderColor:'#b4e600', pointBorderWidth:2, pointHoverRadius:5 }] },
+      options:{ responsive:true, maintainAspectRatio:false,
+        interaction:{ mode:'index', intersect:false },
+        plugins:{ legend:{display:false},
+          tooltip:{ backgroundColor:'#171a16', borderColor:'#2b2f27', borderWidth:1, padding:9, displayColors:false,
+            callbacks:{ label:(c)=> c.parsed.y + ' unit terpakai' } } },
+        scales:{ x:{ grid:{display:false}, ticks:{color:'rgba(226,232,214,.5)', font:{size:10}, maxRotation:0, autoSkipPadding:8} },
+                 y:{ beginAtZero:true, grid:{color:'rgba(230,236,220,.06)'},
+                     ticks:{color:'rgba(226,232,214,.5)', font:{size:10}, precision:0} } } }
+    });
+  }
+
+  const cats = unitCategoryBreakdown(unitIdx, days);
+  const donutTotal = cats.reduce((a,c)=>a+c.qty,0);
+  document.getElementById('unit-donut-sub').textContent = periodLabel() + ' · ' + donutTotal + ' qty';
+  const donutFlex = document.getElementById('unit-donut-flex');
+  const donutEmpty = document.getElementById('unit-donut-empty');
+  if(unitDonutChart){ unitDonutChart.destroy(); unitDonutChart = null; }
+  if(!cats.length){
+    donutFlex.style.display = 'none'; donutEmpty.style.display = 'grid';
+    document.getElementById('unit-donut-legend').innerHTML = '';
+  } else {
+    donutFlex.style.display = 'flex'; donutEmpty.style.display = 'none';
+    unitDonutChart = new Chart(document.getElementById('unit-donut-chart').getContext('2d'), {
+      type:'doughnut',
+      data:{ labels: cats.map(c=>c.category), datasets:[{ data: cats.map(c=>c.qty),
+        backgroundColor: cats.map(c=>catColor(c.category)), borderWidth:2, borderColor:'#12150f' }] },
+      options:{ responsive:true, maintainAspectRatio:false, cutout:'64%',
+        plugins:{ legend:{display:false},
+          tooltip:{ backgroundColor:'#171a16', borderColor:'#2b2f27', borderWidth:1, padding:9,
+            callbacks:{ label:(c)=> c.label + ': ' + c.parsed + ' (' + Math.round(c.parsed/donutTotal*100) + '%)' } } } }
+    });
+    document.getElementById('unit-donut-legend').innerHTML = cats.map(c => `
+      <div class="unit-legend-row">
+        <span class="unit-legend-dot" style="background:${catColor(c.category)}"></span>
+        <span class="unit-legend-name" title="${escapeHtml(c.category)}">${escapeHtml(c.category)}</span>
+        <span class="unit-legend-val">${c.qty}</span>
+        <span class="unit-legend-val" style="color:var(--text-mute2); min-width:34px; text-align:right">${Math.round(c.qty/donutTotal*100)}%</span>
+      </div>`).join('');
+  }
+}
 function renderUnits(){
   const days = state.period;
-  const withQty = GENSET_UNITS.map((u,i) => ({u, i, qty: unitConsumption(i, days)}));
+  const withQty = GENSET_UNITS.map((u,i) => ({u, i, qty: unitConsumption(i, days), series: unitTrendSeries(i, days).map(s=>s.qty)}));
   const maxQty = Math.max.apply(null, withQty.map(x=>x.qty).concat([1]));
-  document.getElementById('unit-plate-list').innerHTML = withQty.map(x => `
-    <div class="unit-plate ${x.i===state.selUnitIdx?'active':''}" data-selunit="${x.i}">
+  document.getElementById('unit-plate-list').innerHTML = withQty.map(x => {
+    const isActive = x.i === state.selUnitIdx;
+    const hasTrend = x.series.some(v => v > 0);
+    const strokeCol = isActive ? '#12160e' : '#b4e600';
+    return `
+    <div class="unit-plate ${isActive?'active':''}" data-selunit="${x.i}">
       <div style="flex:1; min-width:0">
         <div class="up-tag">Unit ${escapeHtml(x.u[0])}</div>
         <div class="up-name">${escapeHtml(x.u[1])}</div>
         <div class="up-track"><div class="up-fill" style="width:${Math.round(x.qty/maxQty*100)}%"></div></div>
+        ${hasTrend
+          ? `<svg class="up-spark" viewBox="0 0 100 40" preserveAspectRatio="none"><path d="${sparkPath(x.series)}" fill="none" stroke="${strokeCol}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>`
+          : `<svg class="up-spark" viewBox="0 0 100 40" preserveAspectRatio="none"><line x1="0" y1="20" x2="100" y2="20" stroke="${strokeCol}" stroke-width="1.5" stroke-dasharray="4 4" opacity=".35"/></svg>`}
       </div>
       <div style="font-family:var(--font-mono); font-size:13px; flex-shrink:0">${x.qty}</div>
-    </div>`).join('');
+    </div>`; }).join('');
   document.querySelectorAll('[data-selunit]').forEach(el => el.addEventListener('click', () => {
     state.selUnitIdx = Number(el.dataset.selunit); renderUnits();
   }));
@@ -940,6 +1095,8 @@ function renderUnits(){
   document.getElementById('unit-detail-history').innerHTML = hist.length ? hist.map(t => `
     <tr><td>${fmtDateShort(t.date)}</td><td>${escapeHtml(t.name)}</td><td>${escapeHtml(t.keperluan||t.ref||'-')}</td><td class="num">${t.qty} ${escapeHtml(t.unit)}</td></tr>`).join('')
     : '<tr><td colspan="4" class="empty-state">Belum ada riwayat untuk unit ini.</td></tr>';
+
+  renderUnitCharts(state.selUnitIdx, days);
 }
 
 /* ============ RENDER: REPORTS ============ */
