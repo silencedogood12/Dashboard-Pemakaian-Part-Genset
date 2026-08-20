@@ -506,6 +506,7 @@ const ID_BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','N
 function fmtDateShort(iso){ const d = new Date(iso+'T00:00:00'); return p2(d.getDate())+' '+ID_BULAN[d.getMonth()]; }
 function fmtDateShortY(iso){ const d = new Date(iso+'T00:00:00'); return p2(d.getDate())+' '+ID_BULAN[d.getMonth()]+' '+d.getFullYear(); }
 function fmtDateLong(iso){ const d = new Date(iso+'T00:00:00'); return d.getDate()+' '+ID_BULAN[d.getMonth()]+' '+d.getFullYear(); }
+function fmtDateDash(iso){ const d = new Date(iso+'T00:00:00'); return p2(d.getDate())+'-'+p2(d.getMonth()+1)+'-'+d.getFullYear(); }
 function fmtDateSlash(iso){ const d = new Date(iso+'T00:00:00'); return p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear(); }
 function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtQty(n){ const r = Math.round((Number(n)||0)*100)/100; return r % 1 === 0 ? String(r) : String(r); }
@@ -1211,7 +1212,7 @@ function downloadBlob(blob, filename){
 }
 function exportReport(){
   const r = reportRows();
-  const filenameBase = 'laporan-' + state.repKind + '-' + todayISO();
+  const filenameBase = 'Laporan Konsumsi Material Genset -' + fmtDateDash(todayISO());
   if(!r.rows.length){ toast('Tidak ada data untuk diexport.'); return; }
   if(state.repFormat === 'csv'){
     const lines = [r.head.join(',')].concat(r.rows.map(row => row.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')));
