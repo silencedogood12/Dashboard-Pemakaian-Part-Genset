@@ -504,7 +504,9 @@ function shiftISO(iso, days){ const d = new Date(iso+'T00:00:00'); d.setDate(d.g
 function isoOf(v){ const s = String(v); const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? m[1]+'-'+m[2]+'-'+m[3] : s; }
 const ID_BULAN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
 function fmtDateShort(iso){ const d = new Date(iso+'T00:00:00'); return p2(d.getDate())+' '+ID_BULAN[d.getMonth()]; }
+function fmtDateShortY(iso){ const d = new Date(iso+'T00:00:00'); return p2(d.getDate())+' '+ID_BULAN[d.getMonth()]+' '+d.getFullYear(); }
 function fmtDateLong(iso){ const d = new Date(iso+'T00:00:00'); return d.getDate()+' '+ID_BULAN[d.getMonth()]+' '+d.getFullYear(); }
+function fmtDateSlash(iso){ const d = new Date(iso+'T00:00:00'); return p2(d.getDate())+'/'+p2(d.getMonth()+1)+'/'+d.getFullYear(); }
 function escapeHtml(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtQty(n){ const r = Math.round((Number(n)||0)*100)/100; return r % 1 === 0 ? String(r) : String(r); }
 
@@ -1188,7 +1190,7 @@ function reportRows(){
       note: Object.keys(agg).length + ' baris · agregasi per kategori' };
   }
   return { head:['Tanggal','Material','Unit genset','Keperluan','Qty'],
-    rows: rows.map(t => [fmtDateShort(t.date), t.name, (t.genset_group||'-')+(t.genset_unit_tag?' — Unit '+t.genset_unit_tag:''), t.keperluan||t.ref||'-', t.qty+' '+t.unit]),
+    rows: rows.map(t => [fmtDateShortY(t.date), t.name, (t.genset_group||'-')+(t.genset_unit_tag?' — Unit '+t.genset_unit_tag:''), t.keperluan||t.ref||'-', t.qty+' '+t.unit]),
     note: rows.length + ' baris · seluruh transaksi periode' };
 }
 function renderReports(){
@@ -1221,7 +1223,7 @@ function exportReport(){
   } else {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({orientation:'landscape'});
-    doc.setFontSize(13); doc.text('Laporan Konsumsi Material Genset — PB Field', 14, 15);
+    doc.setFontSize(13); doc.text('Laporan Konsumsi Material Genset ' + fmtDateSlash(todayISO()), 14, 15);
     doc.setFontSize(9); doc.setTextColor(110,110,110); doc.text('Tanggal cetak: '+fmtDateLong(todayISO()), 14, 21);
     doc.autoTable({ startY:26, head:[r.head], body:r.rows, styles:{fontSize:8, cellPadding:3}, headStyles:{fillColor:[20,24,26], textColor:[255,255,255]} });
     doc.save(filenameBase+'.pdf');
